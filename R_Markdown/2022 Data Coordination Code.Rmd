@@ -1,0 +1,189 @@
+---
+title: "2022 Cuckoo Data Coordination"
+author: "Anna Kurtin"
+date: "2022-10-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(stringr)
+```
+
+
+# Renaming acoustic files 
+
+*Just worry about renaming the 2022 data to get ready to take to Pittsburgh and if you can rename 2021 and 2022 and relate that to the classifier that's great but focus on 2022*
+
+Format: POINT-ID_YYYYMMDD_TTTTTT.wav
+
+YYYYMMDD_TTTTTT.wav already there in the files
+
+POINT-ID is from the metadata
+
+
+### To do:
+
+1. Write a function for reading in the file name and adding a prefix for a new one 
+# Good resource https://www.youtube.com/watch?v=VJA47oHjOnY 
+
+2. Write a function for reading in the number of characters in a name and testing if it fits the naming categories, then only keeping the end of it 
+
+3. Write a for loop for looping through each file within a sub folder
+
+4. Write a for loop for looping through each folder with in the big folder
+
+```{r}
+
+#rename("E:/Test_Files/ARU0311_UM040")
+#list.files("E:/Test_Files/ARU0311_UM040", pattern="*.WAV")
+#list.files("E:/Test_Files/ARU0311_UM040")
+#?list.files
+test_bigfolder <- "E:/Test_Files/LOC-1"
+
+
+
+# Create a function to cut the name
+trim_name <- function(file_name){
+  new_name <- str_extract(file_name,"([[:digit:]]{8})_([[:digit:]]{6}).WAV")
+  return(new_name)
+}
+
+
+# Create a function to add a prefix to the name
+add_prefix <- function(file_name, prefix){
+  new_name <- paste(prefix,file_name,sep="_")
+  return(new_name)
+}
+
+
+# Test the functions
+test3 <- "EXTRA_20220624_010000.WAV"
+test4 <- "20220624_010000.WAV"
+test_file <- "SMM05169_20220627_115443.WAV"
+trim_name(test3)
+trim_name(test_file)
+# Works
+add_prefix(test4,"LOC-1")
+# Works
+getwd()
+# Test out renaming a file by reading in a file path
+setwd("E:")
+current_files <- list.files(test_bigfolder)
+current_files
+getwd()
+new_names <- trim_name(current_files)
+new_names
+getwd()
+list.files(test_bigfolder)
+file.rename(from=current_files,to=new_names)
+getwd()
+# resetting the working directory within the file.rename function to the local environment
+getwd()
+#file.rename(paste0(test_bigfolder,current_files),
+#            paste0(test_bigfolder,trim_name(current_files)))
+# ERROR: "the system cannot find the file specified"
+
+#try changing the working directory 
+##Didn't work 
+# https://stackoverflow.com/questions/70824702/adding-folder-name-as-a-prefix-to-file-name-in-r
+
+
+# Make sure that this code will work on all the folders we have
+```
+
+
+```{r}
+
+getwd()
+```
+
+
+```{r Snippings}
+# #1. Write a function for reading in the  file directory (x) and adding a prefix for a new one (point_ID as a string)
+# rename1 <- function(x, point_ID){
+#   # read in the original names for the files
+#   orig_names <- list.files(x,pattern="*.WAV")
+#   #print(orig_names)
+#   #print(point_ID)
+#   # read in the function for fit_test (LATER)
+#   
+#   # Rename the files
+#   file.rename("*{8}_*{6}.WAV",paste(point_ID,orig_names))
+#   ## Need to look into paste function
+#   # for(i in 1:length(orig_names)){
+#   #    file.rename(x,"*{8}_*{6}.WAV",paste(point_ID,orig_names[i]))
+#   # }
+#   # 
+# }
+# 
+# 
+# str_extract(test3,"([[:digit:]]{8})_([[:digit:]]{6}).WAV")
+# 
+# # To add in later:   file.rename(x,"*{8}_*{6}.WAV",paste(point_ID,orig_names[i]))
+# # file.rename(x,"*{8}_*{6}.WAV",orig_names[i])
+# 
+# rename1(test2, "LOC-1")
+# 
+# # 2. Write a function for reading in the number of characters and testing if it fits the naming categories
+# fit_test <- function(file_name){
+#   # test if the function meets 8 digits _ 6 digits .WAV
+#   #Use an if else statement to see if the name has the correct format
+#   #ifelse(grepl("([[:digit:]]{8})_([[:digit:]]{6}).WAV",file_name)==FALSE,clean_name=new_name(file_name),clean_name=file_name)
+#   if(grepl("([[:digit:]]{8})_([[:digit:]]{6}).WAV",file_name)==FALSE){
+#     clean_name <- trim_name(file_name)
+#   }else{
+#     clean_name <- file_name
+#   }
+#   
+#   return(clean_name)
+# }
+# 
+# fit_test(test3)
+# 
+# # use the here function?
+# 
+# # Two ways to iterate through the data 
+# ## 2022 UMBEL Data:
+# ## 1. read in everything after the underscore in each file and attach it to first part of the file
+# ### Create a function to do this
+# ## Do this way and rename the file folders if you need to
+# ### Then call the function on the individual file folder and assign it to the hard drive that Andy is going to give you 
+# # File reads in the big folder of all the deployment data
+# rename <- function(big_folder){
+#   # Test that there are only .wav files in that folder 
+#   #list.files(folder,pattern=".*\\.WAV")
+#   for(subfolder in 1:length(big_folder)){
+#     # Get the point ID by calling the name of the subfolder
+#     ## **NEED TO MAKE SURE EACH SUBFOLDER IS NAMED THE APPROPRIATE POINT ID**
+#     point_ID <- list.files(big_folder[i])
+#     # Call the rename.files() function to add a prefix to the file
+#     file.rename(subfolder,#pattern,replacement)
+#     )
+#   }
+#   # Test if the file name is longer than 8._6.
+#   ?file.rename()
+#   # Extract the name by everything after the underscore in the folder
+#   
+#   # using file.rename(), add on a prefix to the .wav folders 
+# }
+# 
+# ?rename.files()
+# 
+# # Create a function that pulls out every folder within a path and makes a separate file path and adds it to a list
+# filenames <- function(folder){
+#   # Pass in argument folder, which is the main folder for the deployment group and year
+#   
+#   # 
+# }
+# 
+# 
+# for(folder in 1:length(big_folder)){
+#   # Call rename function on each of those files
+# }
+# 
+# ## 2. Can hard code rewriting all of the data
+
+
+
+```

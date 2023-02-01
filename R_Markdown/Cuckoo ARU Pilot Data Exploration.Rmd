@@ -1,0 +1,125 @@
+---
+title: "Cuckoo ARU Pilot Data Exploration"
+author: "Anna Kurtin"
+date: "2022-09-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(data.table)
+```
+
+Add in the code for analyzing the preliminary data here
+
+```{r}
+# Load in data
+
+
+locations <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Thesis_ArcGIS_Files\\Cuckoo_Monitoring_Locations\\AudioMoth_Deployment_Location_Data.csv")
+
+# Need to change 97_3 to make the 109 coordinate negative to put it on the right hemisphere
+
+
+
+# What does the score range between?
+min(bbcu$score)
+max(bbcu$score)
+# says 14.55 even though the max score given to any file in the field dataset is 10.97
+# review the continuous score occupancy models and the data summary file for this
+
+summary(bbcu)
+
+
+
+```
+
+
+# Organizing classifier results from 2020
+
+This is data from 2020 that was run through the automatic classifier
+
+* This is still around the upper limit of cells in a csv opened in excel (1048576) - email Andy to make sure you're not missing nay of the data
+
+```{r}
+# Load in data *DO NOT OPEN IN EXCEL*
+classifier_20 <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\UM Masters Thesis R Work\\Data\\Classifier Results\\annotations_standardmodel_BBCU_classifier_results_2020.csv")
+# See if the other data is different
+c_20 <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\UM Masters Thesis R Work\\Data\\annotations_standardmodel_epoch499_clean.csv")
+c_20 <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\UM Masters Thesis R Work\\Data\\annotations_standardmodel_epoch499.csv")
+
+
+# Try as data table
+c_20DT <- setDT(classifier_20)
+
+# load in data *DO NOT OPEN IN EXCEL*
+classifier_21 <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\UM Masters Thesis R Work\\Data\\Classifier Results\\andy_bbcu_scores_21-11-24_classifier_results_2021.csv")
+
+# Work with as data table
+c_21DT <- setDT(classifier_21)
+
+classifier_20 <- fread("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\UM Masters Thesis R Work\\Data\\Classifier Results\\annotations_standardmodel_BBCU_classifier_results_2020.csv")
+classifier_21 <- fread("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\UM Masters Thesis R Work\\Data\\Classifier Results\\2021_BBCU_Classifier_Results.csv")
+```
+
+Renaming 2020 and 2021 classifier data:
+**Before you do this make sure you're clear on which site name line up with which point ID
+
+- Split up the "tag" column in the classifier to isolate the AudioMoth ID (Call it Moth_ID)
+- Load in the metadata file that has all of the point ID names and the Moth ID columns
+- Left join? them based on the Moth ID and the start of the tag column
+- join back the Point ID to the name of the data file
+
+```{r}
+# Load in metadata
+metdat_20 <- read_csv("C:/Users/annak/OneDrive/Documents/UM/Research/UM Masters Thesis R Work/Data/2020_ARUDeploymentMetadata_ARUandPlaybackResults.csv")
+
+# Split the file column into two columns, one for ID and one for timedatte
+c_20DT[,c("Moth_ID","timedate") :=tstrsplit(tag,"/",fixed=TRUE)]
+
+# join the metadata with the classifier data
+#_________________________________________________
+
+```
+
+
+Getting deliverables from 2021 classifier data:
+- Split off the first part of the name to ID the site/card
+- Split off the date and time into separate columns
+- Decide a cutoff point (based on progress report) to determine a positive presence of a cuckoo
+- Use this cutoff point to add a new column of probability of cuckoo presence (high/med/low or just a yes/no?)
+- Add this data to a map to send to collaborators
+- Interactive map where if you click on the point it'll tell you when a cuckoo was detected and a histogram of the dates it was detected
+
+```{r 2021 Classifier Wrangling}
+
+# Separate the first column into ID and timestamp columns
+# system.time({
+#   classifier_21%>% separate(file, into = c("ID", "timestamp"), sep = "/") %>% separate(timestamp, into = c("date","time"), sep="_") %>% separate(time, into = c("time","file_type"), sep = ".")
+# })
+## Way slower, do not use
+
+# Using a data table
+
+# Split the file column into two columns, one for ID and one for timedatte
+c_21DT[,c("SD_card","timedate") :=tstrsplit(file,"/",fixed=TRUE)]
+## What does fixed=TRUE do? Ask Jordan
+# Split the timedate column into two columns, one for date and one for time/WAV 
+c_21DT[,c("date","time") :=tstrsplit(timedate,"_",fixed=TRUE)]
+# Split the time column into two columns, one for time and one for wav file type
+c_21DT[,c("time","file_type") :=tstrsplit(time,".",fixed=TRUE)]
+# Remove the unnecessary columns of timedate
+c_21DT[,timedate :=NULL]
+
+## create another column for yes/no if cuckoos were detected (set a reasonable cutoff point on the classifier score)
+
+# Add in a site ID variable - Join the site ID data by SD card number 
+## read in AudioMoth Deployment Metadata csv
+### create a year column by splitting up the date retrieved column
+### filter by just 2021 data 
+## join to the classifier data from 2021
+## create a map of the data to send to collaborators 
+
+```
+
