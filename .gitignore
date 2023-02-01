@@ -2,3 +2,20 @@
 .Rhistory
 .RData
 .Ruserdata
+
+*.csv
+*.xlsx
+*.tif
+*.jpeg
+*.gif
+*.xml
+*.shp
+*.txt
+*.wav
+*.mp3
+
+# Folders
+Data/
+Archive/
+External_R_Code/
+#Do this for raw data and for outputs
