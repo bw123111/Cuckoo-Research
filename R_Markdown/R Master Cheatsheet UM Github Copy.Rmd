@@ -1,0 +1,3600 @@
+---
+title: "R Master Cheatsheet"
+author: "Anna Kurtin"
+date: "September 12, 2020"
+output: html_document
+    
+---
+
+```{R}
+# If you're having trouble rendering the plots in the viewer window, put this code into the YAML
+#editor_options: 
+#  chunk_output_type: console
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE, eval = FALSE)
+```
+
+# R Setup and Packages
+
+## Updates and Tips 
+
+```{r R Update, eval = FALSE}
+
+# Check for R updates
+R.version.string
+install.packages("installr")
+library(installr)
+updateR()
+
+# To update RStudio
+#https://rstudio.com/products/rstudio/download/#download
+
+# to create a hidden file, add a . before the file name
+# ex: .Rprofile
+```
+
+**Helpful Tips:**
+
+
+`alt + shift + k` gives you the menu of keyboard shortcuts
+
+To pull up the help menu for a function, for example `log`, type `?log` in the console to bring up a help page
+
+(You can also go to the home page of R Studio and click on the help tab)
+
+
+## Helpful Packages:
+```{r Helpful Packages, eval = FALSE}
+# Note: library() attempts to read the package
+# require() will read the package and will throw an error if the package is not loaded 
+
+# to write excel code
+install.packages("writexl")
+library("writexl")
+
+# trying to get r markdown to work
+install.packages("rmarkdown")
+install.packages(c("digest", "caTools", "bitops"))
+library("rmarkdown")
+
+# data wrangling and tidying
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("lubridate")
+tidyverse_update()
+
+# for summarizing and working with data
+install.packages("plyr")
+library(plyr)
+##CAUTION: plyr is the older version of dplyr. If you load this package and also want to use dplyr verbs, load dplyr after this
+
+# from R for Data Science book
+install.packages(c("nycflights", "gapminder", "Lahman"))
+# data visualization 
+install.packages("ggplot2")
+install.packages("devtools")
+
+# making pretty tables
+install.packages("kableExtra")
+#https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html
+
+# To stack various plots into one figure
+install.packages("gridExtra")
+library(gridExtra)
+
+# making a 3D plot
+install.packages("plotly")
+library(plotly)
+
+# for clustering
+install.packages("cluster")
+library(cluster)
+
+# for interpreting clusters
+install.packages("GGally")
+library(GGally)
+
+# Ecology functions
+install.packages("vegan")
+
+# For Breuch-Pagan test
+install.packages("lmtest")
+library(lmtest)
+install.packages("sandwich")
+library(sandwich)
+
+# For cleaning up names
+install.packages("janitor")
+library(janitor)
+
+# For deciding cutoff in logistic regression with ROC curves
+install.packages("plotROC")
+library(plotROC) 
+
+#For using the lasso function to estimate the proper variables for a regression model
+install.packages("glmnet")
+library(glmnet)
+
+# For visualizing regressions more easily
+install.packages("interactions")
+library(interactions)
+
+# For testing MANOVA Assumptions and probably some other stats stuff
+install.packages("rstatix")
+library(rstatix)
+
+# For creating blogs 
+install.packages("blogdown")
+blogdown::install_hugo()
+
+# For creating the project base folder as the working directory
+install.package("here")
+libaray(here)
+
+# For interface with python: reticulate (on the python cheat sheet)
+# info: https://rstudio.github.io/reticulate/
+
+# For dealing with very large datasets in a faster way
+install.packages("data.table")
+library(data.table)
+
+# For making plot creation easier
+install.packages("esquisse")
+library(esquisse)
+
+# For changing character values into NAs
+install.packages("naniar")
+library(naniar)
+
+# for power analyses
+install.packages("pwr")
+library(pwr)
+# more information here https://www.statmethods.net/stats/power.html 
+
+
+# For spatial data
+install.packages("sf")
+install.packages("raster")
+install.packages("terra")
+install.packages("mapview")
+install.packages("ggmap")
+
+library(sf)
+library(raster)
+library(terra)
+library(mapview)
+library(ggmap)
+
+```
+
+```{r GitHub Interface}
+install.packages("usethis")
+library(usethis)
+```
+
+
+```{r, ipakfunction}
+# Package for downloading and reading in multiple packages
+# This is from the Habitat Modeling class Week 1 Lab
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+#load or install these packages:
+packages <- c("ks", "lattice", "adehabitatHR", "maptools", "foreign", "rgdal", "sp", "raster","plot3D","rasterVis", "colorRamps","rgeos")
+
+#run function to install packages - e.g., library command
+ipak(packages)
+```
+
+
+
+##R Source Materials
+
+[R for Data Science](https://r4ds.had.co.nz/) 
+
+[Introduction to Statistical Learning with Applications in R](https://faculty.marshall.usc.edu/gareth-james/ISL/ISLR%20Seventh%20Printing.pdf)
+# BROKEN
+
+[Python Data Science Handbook](https://jakevdp.github.io/PythonDataScienceHandbook/)
+
+[Broadening Your Statistical Horizons](http://bookdown.org/roback/bookdown-bysh/) (new site here: https://bookdown.org/roback/bookdown-BeyondMLR/)
+
+[Modern Statistics for Modern Biology](http://web.stanford.edu/class/bios221/book/)
+
+[RStudio cheatsheet](https://rstudio.com/resources/cheatsheets/)
+
+[Tony's R Class Textbook](https://difiore.github.io/ada-2021/module-11.html)
+
+[R Programming for Data Science Roger Peng](https://bookdown.org/rdpeng/rprogdatascience/)
+
+[The Carpentries - for learning R](https://datacarpentry.org/R-genomics/01-intro-to-R.html)
+
+[R Cheatsheets](https://www.rstudio.com/resources/cheatsheets/)
+
+[Making Graphs in R](https://r-graph-gallery.com/)
+
+# RStudio Setup:
+
+To hide error messages in the knitted output:
+`{r, error=FALSE}`
+
+To hide warning messages in the knitted output:
+`{r, warning=FALSE}`
+
+To hide warning message in the knitted output:
+`{r, message=FALSE}`
+
+To prevent code block from being executed:
+`{r, eval=FALSE}`
+
+To prevent code block from appearing in output but still execute it:
+`{r, include=FALSE}`
+
+
+# Base R Functions
+
+```{r Base R}
+
+#creating a vector
+myvector <- c(5.6, 8, 9.9, 1.4, 4.2)
+myvector
+## When creating a vector, R will automatically go by units of 1
+secondvector <- (-1:9)
+secondvector
+# Can make a vector of strings, numbers, etc.
+# Can create a repeated vector by using rep()
+rslt <- rep(NA, times=length(myvector))
+rslt
+# R is a vectorized language - will automatically apply a funciton or operation to everything in the vector
+myvector + 2
+
+ 
+# if/else statements 
+Dominance_data$RS<-ifelse(Dominance_data$Agressor.M.size == "L" & Dominance_data$Receiver.M.size == "L", "same", "diff") 
+
+if(test_expression){
+  #Statement
+} else {
+  # Statement
+}
+
+# TO break out of code: https://statisticsglobe.com/message-warning-stop-function-in-r/
+
+
+# assigning values
+value <-  "thing"
+# to print assignment and assign the value, surround with ()
+(print_value <- "this will print out")
+# go to environment, change view from list to grid, check the check box and hit the broom button OR do the following
+rm(data_rev)
+#to redo, can go back to your code and run it or go to "history" in your environment panel
+
+# This concatenate function let's you combine values into a vector (if all the same type), or list (if different types)
+allData<-c(data,doubleData)
+
+# comparisons
+# >, >=, <, <=, !=, ==, and near()
+
+# Rounding
+# https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/Round
+round(x, digits = 0) 
+
+
+# Creating a vector
+# can create a vector for decade data using sequence creating function seq(start,end,by=increment)
+decade <- seq( 1790, 1970, by = 10 )
+
+
+# To block comment code/comment out a large section: highlight the code you want to comment, then press cntrl+shift+
+
+# print statements
+print("hi")
+print(paste("Number is", 5))
+# paste() can also be used to combine strings
+string1 <- "hi"
+string2 <- "Fred"
+combo_string <- paste(string1,string2)
+print(combo_string)
+# You can remove the space between them by specifying the separator
+combo2 <- paste(string1,string2,sep="")
+print(combo2)
+```
+
+# For loops in R 
+
+```{R For Loops}
+#Syntax
+
+for (x in data){
+  
+  statement
+  
+  return(result)
+}
+
+# Example with myvector and rslt from previous chunk
+
+for(i in 1:length(myvector)){
+  rslt[i] <- myvector[i] + 2
+}
+rslt
+
+# For loops with matrices
+## Use nested for loops
+ht <- matrix(NA, nrow = 3, ncol = 4)
+ht
+# Iterate through each of the three rows, within each of those iterate through each column and populate it with random data from a normal distribution 
+for(site in 1:3){
+ for(occ in 1:4){
+ ht[site, occ] <- rnorm(1, 5, 1.1) # the random number generator rnorm(lowest possible number, mean, standard deviation)
+ }
+}
+ht
+
+# BUT, it's best to avoid using for loops, as R is a vectorized language
+
+## Better things to use apply instead
+
+#apply(data,margin,function())
+
+# Data: specify the data you want to use
+# Margin: 1 to apply it to all rows in a dataset, 2 to apply it to all the columns in a dataset
+# Function: specify what you want to do to the rows or column in the data
+
+
+# Can also do this to lists using lapply, sapply, etc
+
+#Source: https://ademos.people.uic.edu/Chapter4.html#301_example_1:_getting_started_with_lapply
+
+# Another source: https://www.guru99.com/r-apply-sapply-tapply.html
+
+# One more just for giggles: https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/lapply
+
+
+```
+
+# Importing Data Into R
+
+```{r Importing Data}
+
+#Resource: explanation of absolute vs relative paths in R https://excelquick.com/r-programming/importing-data-absolute-and-relative-file-paths-in-r/
+setwd("C:\\Users\\annak\\OneDrive\\Documents\\Classes\\Junior Year\\Animal Behavior\\Final Project MDominance\\")
+# Can also track where you upload data from by specifying the file path
+penguin <- read_csv("C:/Users/annak/OneDrive/Documents/UM/Classes - Graduate/WILD540 Research Design/Resarch_Design_Lab/data/penguins_clean.csv")
+# Import data with base r
+Dominance_data <-read.csv("Data_Analysis_Sheets.csv")
+# can also use the tidyverse of it
+Dominance_data <-read_csv("Data_Analysis_Sheets.csv")
+# recommended to use this with tidyverse
+#imports as a tibble and tells you how its reading the columns/observations. Also faster and stores the data as an object of classes
+
+## Can find your file path with file.choose() then copying and pasting from the 
+
+
+#how to create a dataframe
+test_data <- data.frame("Column 1" = 1:2, "Column 2" = c("J","B"))
+#https://www.datamentor.io/r-programming/data-frame/
+
+# or you can coerce things into a data frame using as.data.frame(non_data_frame)
+
+# check if a file exists
+file.exists("C:\\FilePath\\File_Name.csv")
+# will return a logical vector
+
+# To clear a single variable from the environment
+#rm()
+rm(test_data)
+
+# To get a printout of the structure of the dataframe, including the data types of each column:
+str(MasterData)
+# To check if a column is a date in a dataframe:
+is.Date(MasterData$date)
+
+
+# Generating a random data set
+#https://www.mockaroo.com/
+
+# To see information about a package 
+vignette("dplyr")
+
+```
+
+```{R Creating Dataframe}
+# Create an empty dataframe
+empty <- data.frame()
+
+# Creating an empty dataframe with specified column names
+columns <- c("Year","N")
+sim_dat <- data.frame(matrix(nrow=0,ncol=length(columns)))
+colnames(sim_dat) = columns
+
+# Can also create a dataframe with tibble 
+tibble(x = 1:3, y = list(1:5, 1:10, 1:20))
+
+# Check if a dataframe already exists
+exists("MasterData")&&is.data.frame(get("MasterData"))
+
+# Sometimes you want to create a dummy dataframe that you can test code on without using your actual data
+
+#Real data
+setwd("C:\\Users\\annak\\OneDrive\\Documents\\Research\\DiFiore Lab-Howler Monkey\\")
+data <-read_csv("A_HMBData_forAnalysis.csv")
+
+# Create a fake dataset with the same columns you'll be testing but different numbers so you don't have to worry about running the test multiple times 
+## Pull some of the columns from the actual dataset
+fake_data <- data.frame("Date"= data_tidy$Date, "Event"=sample(data_tidy$Event))
+## Create one columns with random numbers in it
+fake_data$Distance <- sample(0:4,size=nrow(fake_data),replace=TRUE)
+## Create one column with one of two categorical variables in it
+fake_data$RecType <- sample(c("AM","TOP"),size=nrow(fake_data),replace=TRUE)
+## You can also create a column with a random set of numbers in it
+fake_data$Number <- sample(100, size=nrow(fake_data),replace=TRUE)
+
+## Or create random hour:min:sec times
+fake_data$Hour <- sample(1:24,size=nrow(fake_data),replace=TRUE)
+fake_data$Min <- sample(1:60,size=nrow(fake_data),replace=TRUE)
+fake_data$Sec <- sample(1:60,size=nrow(fake_data),replace=TRUE)
+
+
+## Join together the hour, min and sec for each day using unite() to cmbine the columns
+### unite(data,NewCol,columns to combine,sep="/",remove=TRUE, na.rm=TRUE)
+### remove is to remove the columns that you combined in the old dataset in the new one, and if you set na.rm = TRUE, missing values will be removed prior to uniting each value
+fake_data <- unite(fake_data,Time,5:7,sep=":",remove=TRUE)
+# unite: https://rdrr.io/cran/tidyr/man/unite.html
+
+## OR you can create actual datetimes from this:
+# to create your generated data into datetime format
+# Mutate Day, Month, Year into numeric
+fake_data <- fake_data %>% mutate(Day = as.numeric(Day),Month=as.numeric(Month),Year=as.numeric(Year))
+                     
+fake_data <- fake_data %>% mutate(DateTime = make_datetime(year=Year,month=Month,day=Day,hour=Hour,min=Min,sec=Sec))
+
+```
+
+
+
+# Working with large amounts of data: data.table()
+
+If you have large amounts of data you're dealing with, it might be more efficient to use `data.table()`
+[Info on Data Table](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html)
+
+# Syntax: DT[i, j, by]
+## "Take DT, subset/reorder rows using i, then calculate j, grouped by by"
+
+
+```{r Data Table Functions}
+# Uses preset flights dataset
+library(nycflights13)
+
+# To convert an object to a data table
+# setDT()
+
+# To select the first two rows
+ans <- flights[1:2]
+ans
+
+# Select flights with JFK as origin in June (same as filter)
+ans <- flights[origin == "JFK" & month == 6L]
+head(ans)
+
+# Splitting one column up into two (same as separate)
+?tstrsplit()
+c_21DT[,c("date","time") :=tstrsplit(file,"_",fixed=TRUE)]
+# https://stackoverflow.com/questions/18154556/split-text-string-in-a-data-table-columns
+
+
+
+```
+
+
+# Working with file names
+
+## You can also read the names of folders or files into a vector
+
+[List The Files In A Directory/Folder](https://stat.ethz.ch/R-manual/R-devel/library/base/html/list.files.html)
+
+[Working with files and folders in R:](https://www.r-bloggers.com/2021/05/working-with-files-and-folders-in-r-ultimate-guide/)
+
+[One helpful resource is regular expressions](https://bookdown.org/rdpeng/rprogdatascience/regular-expressions.html)
+
+```{r File Names}
+# List the files in a directory/folder
+list.files(path = ".", pattern = NULL, all.files = FALSE,
+           full.names = FALSE, recursive = FALSE,
+           ignore.case = FALSE, include.dirs = FALSE, no.. = FALSE)
+
+# Working with strings: regex and strsplit
+test3 <- "EXTRA_20220624_010000.WAV"
+
+str_extract(test3,"([[:digit:]]{8})_([[:digit:]]{6}).WAV")
+
+# Can also use gsub to change names of things
+#gsub(needle, replacement, haystack)
+UMBEL <- "ARU0283_1627"
+gsub("^(ARU)(.*)_(.*)","\\2",UMBEL)
+
+
+```
+
+# Regular expressions
+
+[Explanation of Regular Expressions](https://cran.r-project.org/web/packages/stringr/vignettes/regular-expressions.html)
+
+
+```{r Statistical Functions}
+# calculate standard error
+sd(num_mice)/sqrt(length((num_mice)))
+
+# Create a function for standard error
+se <- function(x){
+  sd(x)/sqrt(length(x))
+}
+
+```
+
+
+# Tidy Data
+
+There are three rules for making data tidy
+
+1. Each variable must have its own column
+
+1. Each observation must have its own row (may be identified by a pair of columns)
+
+1. Each value must have its own cell
+
+These rules are interrelated, and it's impossible to only have two of the three.
+
+
+Instructions for making data tidy:
+
+Put each dataset in a tibble, and put each variable in a column.
+
+**Dplyr and ggplot2 sre designed to work with tidy data**
+
+
+When tidying data:
+
+The first step is to figure out what the variables and observations are. 
+
+*Two common problems with this are that one variable is spread across multiple columns, or that one observation is scattered accross multiple rows. The way to fix these is with pivot_longer() and pivot_wider()*
+
+**Longer**
+
+`pivot_longer()` is used when some of the column names are not names of variables, but values of a variable. You need to pivot the column names into a new pair of variables.
+
+* needs three parameters
+  *the set of columns whose names are values, not variables
+  *the name of the variable to move the column names to
+  *the name of the variable to move the column values to
+  
+  
+**Wider**
+
+`pivot_wider()` is used when an observation is scattered across multiple rows. 
+
+* needs two parameters
+  *the column to take the variable names from
+  *the column to take the values from 
+  
+  
+**Separate**
+
+`separate()` pulls apart one column into multiple columns by splitting wherever a separator character appears
+
+
+**Unite**
+
+`unite()` combines multiple columns into a single column
+
+**Missing data**
+
+Can be explicit NA or implicit (not there).
+
+
+```{R Pivoting Data}
+# pivot_longer()
+#pivot longer(cols=c("columns","to change"),names_to = "new column", values_to = "other new column")
+pivot_longer(cols=c(`1999`, `2000`), names_to = "year", values_to = "cases")
+#increases the number of rows and decreases the number of columns
+#can add values_drop_na = TRUE
+
+# pivot_wider()
+pivot_wider(names_from = type, values_from = count)
+# decreases the number of rows and increases the number of columns
+
+# separate()
+separate(COLNAME, into = c("newcolumn1", "newcolumn2"))
+#this will separate the values within COLNAME wherever it seees a non-alphanumeric character
+## to specify a specific character to separate on, pass into sep argument 
+separate(COLNAME, into = c("newcolumn1", "newcolumn2"), sep = "/")
+# if you're separating numeric values from a character cell, separate will keep it as a character value unless you tell it to convert to better types
+separate(COLNAME, into = c("newcolumn1", "newcolumn2"),convert = TRUE)
+
+# unite
+dataframe %>% 
+  unite(col_to_unite, new_col1, new_col2)
+# the default will place an underscore between the values from different columns. If you don't want a separator, use this:
+dataframe %>% 
+  unite(col_to_unite, new_col1, new_col2,sep="")
+
+# filling in missing values that should be the values before it, use
+dataframe %>% fill(columname)
+
+
+#To sum duplicate rows"
+united_dat <- data.frame(rs="CH-03",date=c("9/12","9/13","9/14","9/13","9/15"),hours_rec=c(6,2,6,4,6))
+summed_dat <- updated_dat %>% ddply(c("rs","date"),numcolwise(sum))
+# Source: https://stackoverflow.com/questions/10180132/consolidate-duplicate-rows
+
+# to remove NA values
+diamonds2 <- diamonds %>%
+  mutate(y = ifelse(y < 3 | y > 20, NA, y))
+#can also pipe it into data %>% na.omit()
+# from https://r4ds.had.co.nz/exploratory-data-analysis.html
+
+# To see if a column exists in a dataframe or not https://stackoverflow.com/questions/10276092/to-find-whether-a-column-exists-in-data-frame-or-not
+#"colname" %in% names(data_frame)
+# or use grepl: grepl("colname", names(data_frame))
+
+
+# To make names of columns all a uniform style (like_this)
+## Uses the janitor package
+## Resource: https://cran.r-project.org/web/packages/janitor/vignettes/janitor.html
+dataset %>% clean_names(column)
+#to clean all names in a dataset, just use clean_names()
+```
+
+```{R}
+# To mutate multiple rows based on an if/else type of statement
+## use case_when: https://community.rstudio.com/t/nesting-ifelse-within-mutate-for-a-variable/51267/3
+census_data <- census_data %>% mutate(MonthNum = case_when(
+  Month == "January" ~ 1,
+  Month == "February"~ 2,
+  Month == "March" ~ 3,
+  Month == "April"~ 4,
+  Month == "May" ~ 5,
+  Month == "June" ~ 6,
+  Month == "July" ~ 7,
+  Month == "August" ~ 8,
+  Month == "September" ~ 9,
+  Month == "October"~ 10,
+  Month == "November"~ 11,
+  Month == "December" ~ 12
+)) 
+
+```
+
+To change a categorical variable to an ordered factor
+```{R}
+# From Behav Eco Group Life Cycle Data Analysis
+# This works, now how do I get the correct order of months?
+## pull the months out of the census_data dataset
+months <- unique(census_data$Month)
+## order them how you want them https://stackoverflow.com/questions/49206507/ordering-categorical-variables-in-a-dataframe
+ordered_months <- factor(months[c(1,2,3,4,5,6,10,11,12,7,8,9)])
+## Apply the new order to the data frame
+census_data$Month <- factor(census_data$Month,levels=c("January","February","March","April","May","June","July","August","September","October","November","December"))
+```
+
+# Dates and Times in R
+
+[Simple conversion to date fomat](https://www.statology.org/convert-number-to-date-in-r/)
+
+Resource: https://statistics.berkeley.edu/computing/faqs/dates-and-times-r
+
+Datetime info: https://www.gormanalysis.com/blog/dates-and-times-in-r-without-losing-your-sanity/ 
+```{R}
+# To just change numeric columns to a date column
+df$date <- lubridate::ymd(df$date)
+
+# To change to datetime, use as.positct
+DailyHours <- dataf %>% group_by(RecStation, Date) %>% summarize(HoursRecorded=n())
+DailyHours <- DailyHours %>% mutate(Date=strptime(Date, format="%Y%M%D"))
+
+# Or use as.Date
+DailyHours %>% mutate(NewDate=as.Date(Date,format="%Y%M%D"))
+## To change dates formatted as 8/26/2021
+chir_dat %>% mutate(date=as.Date(date, format="%m/%d/%Y"))
+#capitals vs lowercases mean something different in %y%m%d
+
+
+```
+
+Visualizing times in ggplot: https://www.neonscience.org/resources/learning-hub/tutorials/dc-time-series-plot-ggplot-r 
+
+# Relational Data in R
+
+Three families of verbs that work with relational data
+
+1. Mutating joins that add new variables to one data frame from matching observations in another
+
+1. Filtering joins that filter observations from one dataframe based on whether or not they match an observation in the other table
+
+1. Set operations, which treat observations as if they were set elements
+
+
+**Keys**
+
+A variable that uniquely identifies an observation
+
+**Primary keys** identify an observation in its own table, while **foreign keys** uniquely identify an observation in another table.
+
+If you're lacking a primary key, you can add a **surrogate key** using `mutate()` and `row_number()`.
+
+If you have duplicate keys, it will duplicate all columns to accomodate for it.
+
+
+
+# Manipulating Data
+```{r Data Manipulations}
+
+# checking what kind of data type something is
+typeof(LS_rowsdiff)
+
+# checking the structure of a dataset
+str(data)
+# EXAMPLE:
+str(mpg)
+
+# Counting the columns: 
+length(LS_data)
+ncol(LS_data)
+# Counting the rows
+nrow(LS_data)
+
+# how to pull out only unique values in a dataframe
+unique(data)
+
+# How to remove rows with NA values 
+recs <- read.csv("Master_File_Analyzed_2019_Only_R.csv")
+recs_clean <- na.omit(recs)
+# easier way to do this:
+test_ <- na.omit(read.csv("Master_File_Analyzed_2019_Only_R.csv"))
+
+# How to sub in NA values into a column that says "na" or "N/A"
+playbacks_2021 <- playbacks_2021 %>% replace_with_na(replace= list(playback_detection="na"))
+
+# Creating a column
+Dominance_data["RS"] <- "same"
+
+# Deleting a column
+clean_domdata = subset(Dominance_data, select = -c(Col_name))
+
+# Changing column names
+colnames(Dominance_data)[7] <-"Receiver.M.size"
+names(Dominance_data)
+
+#Changing a value in one row of one column
+data$column[rownumber] <- "newvalue"
+#Resource: https://stackoverflow.com/questions/54615462/how-to-replace-certain-values-in-a-specific-rows-and-columns-with-na-in-r
+#Changing only certain values in a column 
+calldata %>% mutate(sex=replace(sex,sex=="unknown","UNK"))
+#Change NA values to a different value
+daily_recs_new <- daily_recs_new %>% mutate(calls_present=replace(calls_present,is.na(calls_present)==TRUE,"N"))
+## To check how many values are in a particular column
+calldata %>% count(sex=="unknown")
+# Source: https://www.marsja.se/r-count-the-number-of-occurrences-in-a-column-using-dplyr/
+# To see what values are in a column
+unique(calldata$sex)
+
+# finding percentiles
+# ntile(variable, <# GROUPS>)
+# ntile(sales, 100) gives you percentage
+# ntile(sales, 2) cuts into two groups based on the median median 
+
+# Indexing data:
+median(quakes$mag[quakes$long>175])
+#Pulls out only the values from the magnitude column who have a value for long greater than 175
+
+# Indexing data pulls data[row,column]
+## to pull out all columns from third row would be data[3,]
+## to pull out all of the rows of the second column data[,2]
+## index an entire column would be data$column
+
+#Changing the time zone in datetime:
+AM2018_file_metadata <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\Research\\DiFiore Lab-Howler Monkey\\AM2018_file_metadata_withdate.csv")
+#separate datetime into date and time, make time more workable
+#Change datetime to local time instead of UTC
+AM2018_file_metadata <-  AM2018_file_metadata %>% mutate(datetime=as.POSIXct(datetime,tx="UTC"))%>% mutate(datetime=format(datetime,tz="America/Guayaquil"))
+# Time zones: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones 
+
+# To change the data to the absolute value
+abs(-1)
+
+```
+
+**Explanations**
+
+What does `%>%` do? 
+
+Passes the left hand side of the operator to the first argument of the right hand side of the operator. So `iris %>% head()` is the same as `head(iris)`.
+
+More information can b found in [R for Data Science Ch 18](https://r4ds.had.co.nz/pipes.html)
+
+
+
+## Data Transformation (More In-Depth)
+## Working in Dplyr
+More information can be found in [R for Data Science Ch 5](https://r4ds.had.co.nz/transform.html)
+
+**Background knowledge:**
+
+`int` stands for integer
+
+`dbl` stands for double, or real numbers
+
+`chr` stands fro character vectors, or strings
+
+`dttm` stands for date-times (a date + a time)
+
+`lgl` stands for logical (a boolean)
+
+`fctr` stands for factor, which is a categorical veriable with fixed possible values
+
+`date` stands for date
+
+**Expects tidy data**
+
+* every variable in its own column
+* a single row corresponds to a single observation
+
+"wide" data isn't tidy,
+"Long" data is tidy
+
+More information can be found in [R for Data Science Ch 12](https://r4ds.had.co.nz/tidy-data.html)
+
+
+
+### There are five key dplyr functions
+
+
+`filter()` - pick observations by their values (grab the rows you want)
+
+
+`arrange()` - reorder the rows 
+
+* *default is least to greatest*
+* *you can flip this around and go greatest to least by putting a minus sign in front or adding desc()*
+
+* The order in which you put arguments into arrange matterns
+
+
+`select()` - pick columns by their names
+
+* can use `start_with()`, `ends_with()`, `contains()`, `everything()` or exclude with a `-`
+
+* can select this by name of column or by number of column
+
+* you can use `select()` or `rename()` to rename a column 
+
+  * syntax is always NewName=OldName
+  
+
+`mutate()` - create new variables and add it to the dataset 
+
+* you can use `transmutate()` to only keep the new variables
+
+* you can use `case_when(<CONDITION> ~ "NewCatVariable")` to create new variables based on an if/else statement
+
+* you can also recode varuables within a column with `recode()` [More information at this website](https://dplyr.tidyverse.org/reference/recode.html)
+
+* you can also use cumulative and rolling aggregates: `cumsum()`,`cumprod()`,`cummin()`,`cummax()`,`cummean()`
+
+
+`summarise()` - collapse many values down to a single summary statistic
+
+
+All of which can be used in conjunction with `group_by()`, which changes the scope of each function from operating on the entire dataset to opertaing group-by-group
+
+* when you use a dplyr verb on a grouped data frame it will automatically be applied by group
+
+* to remove grouping and return to ungrouped data, use `ungroup()`
+
+
+
+### other dplyr functions
+`between()` - same as doing x >= left & x <= right
+
+`str_detect(variable, "pattern")` - filters down the data that contains a particular string
+
+same as `grepl("pattern, variable")`
+
+`slice()` allows you to pull out a set number of rows
+[Slice() in Dplyr](https://dplyr.tidyverse.org/reference/slice.html)
+
+`n()` is shorthand for the last row
+
+`everything()` designates the rest of the data not specified
+
+`pull()` allows you to pull out one column and put it into a vector
+
+*useful because it allows you to take the mean of a column*
+
+
+For all these functions, the first argument is a data frame followed by arguments describing what to do with the data frame (using variable names without quotes). The output is a new data frame.
+
+Dplyr functions never modifies the input dataframe, so any new dataframe you create with a function you need to assign to a variable
+
+####Boolean operators
+
+& is "and"
+
+| is "or"
+
+! is "not"
+
+```{r, Data Transformation}
+library(tidyverse)
+library(dplyr)
+library(nycflights13)
+txhousing <- as.data.frame(txhousing)
+
+
+
+
+# filter()
+## returns the values that you specify, gets rid of all the rest
+## pull out the flights from the first day of the first month
+jan1 <- filter(flights, month == 1, day == 1)
+
+## pull out the flights that departed in November or December
+filter(flights, month == 11 | month == 12)
+
+# can use the following formula
+# x %>% in y
+## you can rewrite the following formula 
+nov_dec <- filter(flights, month %in% c(11,12))
+
+#to determine if a value is missing
+is.na(x)
+## for example, to preserve values greater than one and missing (NA) values
+filter(df, is.na(x) | x > 1)
+# can drop NAs with drop_na()
+# many summary functions have an optional na.rm=T
+# find anything other than NA with !is.na()
+
+# to filter out some values but keep the na's in
+#data_tidy %>% filter(is.na(Distance) | Distance !=4)
+#data_tidy %>% filter(!grepl("4",Distance))
+
+## some examples of filter()
+txhousing %>% filter(city=="Austin")
+# same as filter(data, variable = "Austin")
+
+txhousing %>% filter(sales<=100 & month==1) 
+# will return only the rows in which the function evaluates to true 
+# can also say txhousing %>% filter(sales <= 100, month == 1)1
+
+txhousing %>% filter(city %in% c("Austin","San Antonio")) # same as filter(city=="Austin | city=="San Antonio") 
+# Resource explaining in: https://www.marsja.se/how-to-use-in-in-r/
+
+txhousing %>% filter(between(sales,900,1000)) #same as filter(sales >= 900 & sales <= 1000)
+
+txhousing %>% filter(str_detect(city, "Fort")) #return all rows that have "Fort" in the city name
+
+#filter a dataset based on logical comparisons
+domdata_filtered <- dom_data %>% filter(Gender.Ambig == "N")
+
+#use str_detect to filter rows based on whether the information within contains a certain string
+txhousing %>% filter(str_detect(city, "County") | sales < 100)
+# if you want to filter based on whether a certain string is inside a column, look at this website: https://stackoverflow.com/questions/22850026/filter-rows-which-contain-a-certain-string 
+
+# str_replace(variable, pattern, replacement)
+txhousing %>% 
+  filter(city == "Fort Worth") %>%
+  mutate(city = str_replace(city, "Fort", "Ft"))
+
+## if you want to grab specific row numbers instead of rows based on the values they have inside, you can use slice():
+txhousing %>% slice(1,n()) #n() is shorthand for the last row number
+
+txhousing %>% slice(1:3)
+
+# Can also do a similar thing with head(): https://statisticsglobe.com/extract-first-n-rows-of-data-frame-in-r
+# To grab the top 6 rows, use head(data)
+
+# To grab a specified number of rows from the top, use head(data,#)
+
+
+
+
+# arrange()
+## similar to filter() but instead of selecting rows, it changes their order
+arrange(flights, year, day, month)
+## will arrange the rows in the dataframe based first on year, then on day, then on month
+
+# can add on desc() to reorder a column in descending order
+arrange(flights, desc(dep_delay))
+
+# Ex:
+txhousing %>% arrange(median) #default is ascending (least to greatest)
+
+txhousing %>% arrange(desc(median)) #desc gives descending (greatest to least)
+
+txhousing %>% arrange(-median) #minus sign gives you this behavior also
+
+# sort by city reverse-alphabetically, then year reverse-chronologically, then month chronologically
+txhousing %>% arrange(desc(city), desc(year), month) #sorting multiple variables: order matters!
+
+
+
+
+
+# select()
+## allows you to rapidly zoom in on a subset of data you're interested in 
+## to pull out only the year, month, and day of a flight
+select(flights, year, month, day)
+## select all columns between specified column
+select(flight, year:day)
+## select all column except for year to day
+select(flights, -(year:day))
+
+#select can also use 
+## starts_with("abc") : matches names that begin with "abc"
+## ends_with("xyz") : matches names that end with "xyz"
+## contains("ijk") : matches names that contain "ijk"
+## num_range("x", 1:3) : matches x1, x2, x3
+
+# Ex:
+#dont need c() or ""
+txhousing %>% select(city, year, inventory)
+
+txhousing %>% select(1,2,8)
+
+#use - to drop
+txhousing %>% select(-city,-year,-inventory)
+
+#use everything() to keep everything else in the same order
+
+#move median and inventory to the front, keep all other columns in same order
+txhousing %>% select(median, inventory, everything())
+
+#ex of select()
+txhousing %>% select(starts_with("m"))
+
+txhousing %>% select(ends_with("s"))
+
+txhousing %>% select(contains("in"))
+
+
+#rename()
+# use the rename function to rename variables
+rename(flights, tail_num = tailnum)
+
+# use select() in conjunction with the everything() helperto include the rest of the dataframe after you pull the variables you're interested in to the front
+select(flights, time_hour, air_time, everything())
+
+# select() vs. pull()
+## if you want a vector of certain column instead of a dataframe, use pull
+sales_vec<- txhousing %>% pull(sales)
+class(sales_vec)
+## this will allow you to take the mean of this vector
+
+
+
+
+
+# mutate()
+## case_when
+## you can create three different categorical varaibles in a new column based on the ranges of a numeric variable
+## using ifelse to do this:
+txhousing%>%
+  mutate(listings_cat = ifelse(listings>2000, "high", 
+                        ifelse(listings<=2000 & 500<=listings, "med", "low")))
+## but this isn't always good practice
+# Stack overflow of using it with mutate: https://stackoverflow.com/questions/38649533/case-when-in-mutate-pipe 
+
+## easier to see and write:
+txhousing%>%mutate(listings_cat = case_when(listings>2000 ~ "high",
+                                            listings<=2000 & 500<=listings ~ "med",
+                                            listings<500 ~ "low"))
+
+#pulling out certain characters of a value and creating a new column of them in a specified datatype
+#Resource: introduction to stringr https://stringr.tidyverse.org/articles/stringr.html 
+d <- d %>% mutate(Time = str_sub(File_Name, -10, -5),
+                  Date = str_sub(File_Name, -19, -12),
+                  hour = as.numeric(str_sub(Time, -6,-5)),
+                  min = as.numeric(str_sub(Time, -4, -3)),
+                  sec = as.numeric(str_sub(Time,-2, -1)),
+                  year = as.numeric(str_sub(Date,-8, -5)),
+                  mon = as.numeric(str_sub(Date,-4, -3)),
+                  day = as.numeric(str_sub(Date,-2, -1)),
+                  rectype = str_sub(File_Name, -23,-21))
+# can do computations on the fly while you mutate
+txhousing %>% mutate(`sales_pctile`=ntile(sales,100))
+#adds a new "sales_pctile" column that splits the values for sales into 100 groups and tells you which group each cell is in (gives the percentile)
+
+#ex: using mutate with filter
+txhousing %>% 
+  filter(city == "Fort Worth") %>%
+  mutate(city = str_replace(city, "Fort", "Ft"))
+
+## variation: transmutate
+#transmute is like mutate but only gives you the columns you create (not super useful)
+txhousing %>% transmute(avg=volume/sales)
+
+#mutate_all lets you change all columns at once
+#coerce all variables into categorical
+txhousing %>% mutate_all(as.character)
+#mutate_if lets you change columns that meet a certain condition
+#make all character variables factors
+txhousing %>% mutate_if(is.character, as.factor)
+#make all character variables uppercase
+txhousing %>% mutate_if(is.character, toupper)
+
+
+
+
+
+
+# summarize()
+## when you take the mean you have to be sure to take the NAs out otherwise it will return NA
+txhousing %>% summarize(mean(volume, na.rm=T))
+
+#example: 
+#mean(data_clean$rate16_17, na.rm = TRUE)
+#mean(data_clean$rate18_19, na.rm = TRUE)
+#IS THE SAME AS
+#data_clean %>% summarize(mean16_17 = mean(rate16_17, na.rm = TRUE), mean18_19 = mean(rate18_19, na.rm = TRUE))
+
+txhousing %>% summarize(n()) #number of rows
+
+txhousing %>% summarize(n_distinct(city)) #number of distinct cities
+
+# can apply summarize to all of the columns
+## apply the function n_distinct to all columns
+txhousing %>% summarize_all(n_distinct)
+#takes n distinct function and applies it to every column
+
+# summarize at can be used to apply functions to specific columns
+# redundant to using select and then summarize
+txhousing %>% summarize_at(c("year","month", "sales"), mean, na.rm=T)
+## All equivalent
+txhousing %>% summarize_at(c("year","month", "sales"), mean, na.rm=T)
+txhousing %>% summarize_at(2:4, mean, na.rm=T)
+txhousing %>% summarize_at(vars(year:sales), mean, na.rm=T)
+txhousing %>% select(year, month, sales) %>% summarize_all(mean, na.rm = T)
+
+# summarize_if() summarizes columns that meet a certain criteria
+txhousing %>% summarize_if(is.numeric, mean, na.rm=T)
+txhousing %>% summarize_if(is.character, n_distinct)
+
+
+#can do more than one at once!
+#compute mean without the na, tell you the number of rows and then tell you the number of cities
+txhousing %>% summarize(mean(volume, na.rm=T), n(), n_distinct(city))
+###you can remove duplicates with distinct()
+#### can duplicate your data with bind_rows() or bind_columns()
+txhousing %>% bind_rows(txhousing) %>% arrange(city,year,month) %>% distinct()
+txhousing %>% summarize_at(2:4, list(m=mean,s=sd,med=median), na.rm=T)
+## you have to give summarize a named list
+
+# there's a difference between distinct and unique
+# unique gives you all of the unique elements, but distinct does unique and then takes the length of it
+
+#can give them new names
+txhousing %>% summarize(mean_vol = mean(volume, na.rm=T), n_rows=n(), n_cities= n_distinct(city))
+
+# put the main rows you want to group it by into group_by(), then tell summarize what to summarize for each of them 
+txhousing %>% group_by(city) %>% 
+  summarize(mean_vol=mean(volume,na.rm=T), sd_vol=sd(volume, na.rm=T))
+
+txhousing%>% group_by(month) %>% summarize(mean_vol=mean(volume,na.rm=T), sd_vol=sd(volume, na.rm=T))
+
+# Can slice up your data
+#choose the 3 rows with the highest median home price
+txhousing %>% top_n(3, volume)
+#can get the top 3 smallest like
+txhousing %>% top_n(3, -volume)
+#or, use new functions!
+txhousing %>% slice_max(volume, n=3)
+txhousing %>% slice_min(volume, n=3)
+
+
+# a demonstration of group_by()
+## this will give you an output of one mean
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
+
+## this will give you a tibble that shows the average flight delay for each day
+by_day <- group_by(flights, year, month, day)
+summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+
+# to return to normal data, use ungroup
+daily <- group_by(flights, year, month, day)
+daily %>% ungroup() %>% summarize(flights = n())
+## gives you just one value in return 
+
+
+
+## Combining ggplot and dplyr
+# can also pipe things into ggplot that you've recently created
+txhousing %>% mutate(logVolume=log10(volume)) %>% ggplot() + geom_histogram(aes(x = logVolume))
+
+```
+
+
+##Joins
+Four ways to do this
+
+all have the same syntax
+
+type_join(x, y, by "ID")
+
+## **True joining:**
+
+## left_join
+
+`left_join(df1, df2, by="ID")` doesn't drop anything from df1, pairs up 
+
+left_join(x, y) keeps the dataset on the left (x) as-is, and adds in data that matches from the other dataset (y)
+
+*`left_join(x,y)` is equivalent to `merge(x,y,all.x=TRUE)`*
+
+In SQL: `SELECT * FROM x LEFT OUTER JOIN y USING (z)`
+
+## right_join
+
+`right_join(df1, df2, by="ID")` right_join(x, y) keeps the dataset of the right (y) as-is, and adds in data that matches from the other dataset (x)
+
+OR you can just flip the locations of the datasets in left join
+
+*`right_join(x,y)` is equivalent to `merge(x,y,all.y=TRUE)`*
+
+IN SQL: `SELECT * FROM x RIGHT OUTER JOIN y USING (z)`
+
+## inner_join
+
+`inner_join(df1, df2, by="ID")`: inner_join(x, y) keeps only rows that have a match for the ID variable(s) (any rows without a match in both datasets are dropped)
+
+Order doesn't matter unless you care about the order of the columns
+
+*`inner_join(x.y)` is the same as `merge(x,y)`*
+
+In SQL: `SELECT * FROM x INNER JOIN y USING (z)`
+
+## full_join
+
+`full_joing(df1,df2, by="ID")` full_join(x, y) keeps all of the rows from both datasets and just inserts NAs where there is missing information
+
+Order doesn't matter unless you care about the order of the columns
+
+*`full_join(x,y)` is equivalent to `merge(x,y,all.x = TRUE, all.y = TRUE)`*
+
+In SQL: `SELECT * FROM x FULL OUTER JOIN y USING (z)`
+
+
+
+##**not true joining**
+
+These are more like querying
+
+##semi_join()
+
+Filters the first dataset based on if there is a match in the second one 
+
+semi_join(x, y) returns rows in x that have a match in y (but does not join x and y)
+
+##anti_join()
+
+FIlters the rows that don't have a match
+
+anti_join(x, y) returns rows in x that do NOT have a match in y 
+
+
+##If you just want to combine your datasets
+
+rbind(Datset1,Dataset2)
+
+- you don't need to specify a join variable, but you will need to make sure they have the same amount and names of columns
+
+
+```{r}
+college_size<-data.frame(college=c("A&M","UT Austin","Texas Tech"),enrollment=c(63694, 51684,37845))
+
+college_location<-data.frame(college=c("UT Austin","Texas Tech","U of H"), city=c("Austin", "Lubbock", "Houston"))
+
+
+# left_join()
+college_size %>% left_join(college_location)
+#equivalently: left_join(college_size, college_location)
+#equivalently: college_size %>% left_join(college_location, by="college")
+
+# inner_join()
+college_size %>% inner_join(college_location)
+#equivalently: inner_join(college_size, college_location)
+#equivalently: college_size %>% inner_join(college_location, by="college")
+
+# full_join()
+college_size %>% full_join(college_location)
+#equivalently: full_join(college_size, college_location)
+#equivalently: college_size %>% full_join(college_location, by="college")
+
+# What if the name of the ID column doesn't match?
+size<-college_size%>%rename(college1=college)
+location<-college_location%>%rename(college2=college)
+size%>%left_join(location) #uh oh: error, no common variable names!
+#must explicitly tell it which vars to match on with by=c("ID1"="ID2")
+size%>%left_join(location, by=c("college1"="college2"))
+## this is also just good practice
+
+#What if two columns in each dataset have the same name, but you only want to join based on one of them?
+#instead, specify the ID column to be college. Both location columns will be retained (and suffixed so you can tell them apart)
+
+college_location1%>%left_join(college_location2,by="college")
+
+#you can specify your own suffixes in place of .x and .y with suffix=
+
+college_location1%>%left_join(college_location2,by="college", suffix=c(".city",".county"))
+
+#You can join based on two columns:
+testjoin <- left_join(dailyrecords, callpresence, by=c("rs","date"))
+## Source: https://statisticsglobe.com/merge-data-frames-by-two-id-columns-in-r
+
+
+#semi join
+semi_join(college_location,college_size)
+semi_join(college_size,college_location)
+
+#anti join
+anti_join(college_location,college_size)
+anti_join(college_size, college_location)
+
+
+```
+
+**Helpful Websites**
+
+[Removing duplicate values in R](https://www.datanovia.com/en/lessons/identify-and-remove-duplicate-data-in-r/#find-and-drop-duplicate-elements)
+
+
+[Removing NA values](https://www.programmingr.com/examples/remove-na-rows-in-r/) 
+
+
+[Merging Data](https://clayford.github.io/dwir/dwr_05_combine_merge_rehsape_data.html)
+
+
+[Subsetting and filtering data frame rows in R](https://www.datanovia.com/en/lessons/subset-data-frame-rows-in-r/)
+
+
+# Exporting Data
+```{r Exporting}
+
+# Writing a dataframe into excel
+write_xlsx(Dominance_data,"C:\\Users\\annak\\OneDrive\\Documents\\Classes\\Junior Year\\Animal Behavior\\Final Project MDominance\\Cleaned_Data.xlsx")
+
+# add on row.names=FALSE to avoid exporting the weird first column
+
+# writing a CSV file
+#write_csv(DataFrame,"Path\\FileName.csv",append = FALSE)
+## append = FALSE means you're not appending it to an existing file, youre creating a new file
+## you can also add col_names = !append if you don't want it to write the column names at the top of the file
+
+```
+
+# For spatial data in R
+
+Intro/tutorials:
+
+[Intro to GIS in R](https://nceas.github.io/oss-lessons/spatial-data-gis-law/3-mon-intro-gis-in-r.html)
+
+[Intro to Raster Data in R](https://www.neonscience.org/resources/learning-hub/tutorials/dc-plot-raster-data-r)
+
+[For making a hexagonal tessellation](https://search.r-project.org/CRAN/refmans/spatstat.geom/html/hextess.html)
+
+### Notes and definitions
+
+Easting is the x coordinate and northing is the y coordinate in UTM projections
+
+```{r Vector Data}
+#Step 1: load in the data
+## If you're loading in a datasheet or non-spatial data type, it is helpful to load it in as just a dataframe and then convert it to a spatial object
+dat <- fread("C:\\Users\\annak\\OneDrive\\Documents\\Research\\Helpful_Coding_Things\\R_Resources\\Spatial Data Workshop\\Arctic fox Bylot - GPS tracking.csv")
+
+
+#Step 2: clean the data
+## This often involves selecting the right columns and converting datetime
+dat <- dat %>%
+  dplyr::select(dt = timestamp, lat = `location-lat`, lon = `location-long`, id = `individual-local-identifier`) 
+
+dat <- dat %>%
+  mutate(dt = mdy_hms(dt))
+
+
+#Step 3: make a spatial object from this data
+
+dat_sf <- dat %>% 
+  st_as_sf(coords=c("lon", "lat")) %>% ## Note that the order is longitude>latitude
+  st_set_crs(4326) 
+
+
+#Step 4: check the projection system and reproject if needed with st_transform()
+
+## One step of this is to set up the projected coordinate system 
+## A note about projections/CRS. These can be frustrating to work with in R, because different spatial packages want the CRS
+## in different formats. For example, until ~3-4 years ago, most packages required the complete proj4string. For Arctic Polar 
+## Stereographic, the proj4string is "+proj=stere +lat_0=90 +lat_ts=71 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs"
+## You see why this is cumbersome. However, the sf package allows CRS to be defined by the EPSG code alone, which greatly simplifies things.
+## It's not uncommon to still see packages requiring EPSG to be reported as a character string like "EPSG:4326" (an example of that later).
+## You'll just need to read the function documentation to figure out what they want. A great resource for converting between different
+## CRS formats is https://epsg.io.
+
+dat_sf <- dat_sf %>%
+  st_transform(3995) 
+
+# You can get the country borders to get a reference when plotting
+canada <- ne_states(country = "canada", returnclass = "sf") %>% 
+  st_transform(3995)
+
+
+#Step 5: use geom_sf() to plot
+# This is within sf but talks to ggplot and uses the same syntax as ggplot
+## I'm going to plot using ggplot. Both "country_outline" and "dat_sf" are sf objects, so we can use the geom_sf() function to plot them.
+
+ggplot()+
+  geom_sf(data = canada)+
+  geom_sf(data = dat_sf, color = "red")
+
+#Step 6: correct any needed points
+## This is why we read in the datasheet separately, so we can fix things when needed
+
+## Looks like there's a "lon" value that is positive instead of negative. This is super common in datasets that have been hand-typed.
+## We know based on the study information that all points should be in Canada, and the absolute value matches the other longitudes, 
+## so we can be fairly sure it's just missing a "minus." Let's fix it.
+
+dat <- dat %>%
+  mutate(lon = ifelse(lon > 0, lon*-1, lon))
+
+## And recreate our dat_sf object with the correct coordinates
+
+dat_sf <- dat %>%
+  st_as_sf(coords=c("lon", "lat")) %>%
+  st_set_crs(4326) %>%
+  st_transform(3995)
+
+## Now plot again
+
+ggplot()+
+  geom_sf(data = canada)+
+  geom_sf(data = dat_sf, color = "red") 
+
+## Looks better. We can use st_crop() to crop the "canada" object to dat_sf, effectively "zooming in" on the data.
+
+ggplot()+
+  geom_sf(data = st_crop(canada, dat_sf))+
+  geom_sf(data = dat_sf, color = "red") 
+
+
+
+```
+
+
+```{r Raster Data}
+# Step 1: Set Bounding Box
+## First, let's create an object representing the bounding box of the movement data. We'll use this to define the area for retrieving rasters.
+## Since "dat_sf" is an sf object, we can use the function st_bbox() to return the coordinates of the north, south, east, and west edges.
+## I'll fist apply st_buffer() to get 1000 meters extra on all sides, which could be useful for later analyses, and is nicer for plotting.
+## This might take a few seconds, because it's actually creating a 1000-m buffer around every single point. Unnecessary, but it works.
+
+dat_bbox <- st_bbox(st_buffer(dat_sf, dist = 1000))
+
+# Step 2: load in or download the data
+## Download elevation raster using elevatr. Note the different CRS format required here. You can play with z (zoom) to get different resolutions (which we'll do later).
+elev <- get_elev_raster(dat_sf, z = 6, prj = "EPSG:3995") 
+lcov <- terra::rast("C:\\Users\\annak\\OneDrive\\Documents\\Research\\Helpful_Coding_Things\\R_Resources\\Spatial Data Workshop\\MCD12Q1_LC1_2018_001.tif")
+
+# Step 3: convert your data type and layer names if needed
+## There are two main packages for working with raster data in R: raster and terra. The raster package has been around for a while and uses
+## objects called RasterLayers (or RasterStacks, RasterBricks, etc.), and the terra package is newer and uses objects called SpatRasters. 
+## Terra is generally considered faster for most operations, and it seems like people are largely switching to it. However, many packages are
+## still set up to work with RasterLayers. As you can see, get_elev_raster() returned a RasterLayer. Let's convert it to a SpatRaster.
+
+## Converting to a SpatRaster (terra) object.
+elev <- rast(elev)
+# in the environment, now shows "Formal Class SpatRaster"
+
+# Check the layer name within the object.
+# object is elev, layer within the object (in this case there's only one) can be called with this function: 
+names(elev)
+
+## Long and nonsensical, so let's change it.
+names(elev) <- "elev_val"
+
+
+# Step 4: Check the resolution and extent and adjust if needed
+## Let's check if the rasters share a resolution (grid cell "size"). This is not important for fitting the RSF, 
+## but is useful if we want to project a resulting habitat suitability map afterward. 
+res(elev)
+res(lcov)
+
+## Let's also check the extent of each, and plot them to see how the overlap.
+ext(elev)
+ext(lcov)
+
+plot(elev)
+plot(lcov, add=T)
+
+## Elev is quite a bit bigger than lcov, and the resolutions are similar but don't quite match.
+# Function to get them to match extents: crop()
+# Function to get them to match resolution: resample()
+## Let's crop elev to the extent of lcov, then resample the resolution of lcov to match elev.
+elev <- crop(elev, lcov, snap = "near")
+## snap argument: can do near, in or out. This tells the function crop() what extent you want to match. Changes which pixels from the raster you're cropping it will retain. Recommendation is to just play around with it. 
+## We'll downsample the land cover (lcov) object to match the data with the smaller extent
+lcov <- resample(lcov, elev, method = "near")
+# near is what is the value of the nearest neighbor centroid (good for land cover)
+
+## Plot side-by-side to make sure they're looking good.
+plot(c(elev, lcov))
+# Now we can see it's the same extent and resolution now 
+
+
+# Step 5: change the classification of the land cover or categorical variable if needed
+## Looking good! Note that lcov currently has the numeric values 10, 11, 16, and 17, which need to be converted into actual land cover classes.
+## The method for doing that in terra is a little cumbersome, and requires creating a dataframe with the old and new values.
+## I accessed the land cover class code here: https://lpdaac.usgs.gov/documents/101/MCD12_User_Guide_V6.pdf (page 7).
+reclass_code <- data.frame(code = c(10,11,16,17), class = c("grassland", "wetland","barren","water"))
+levels(lcov) <- reclass_code
+
+## Check that it worked
+plot(lcov)
+
+```
+
+Plotting spatial data
+
+Way to do this are through geom_sf, plotly, or mapview
+
+```{R Plotting Spatial Data}
+## With the exception of quick raster plots (as above), I exclusively use ggplot for plotting spatial data in R.
+## However, ggplot itself lacks built-in functions for accepting spatial objects, so we have to rely on some from 
+## sf (geom_sf()) and tidyterra (geom_spatraster()).
+
+## Here, I'll walk through building a nice, publication-ready (or close!) plot of spatial data in R.
+## Many of these steps are unnecessary if you're just trying to visualize/explore your data.
+
+library(tidyterra) ## has the functions geom_spatraster() and geom_spatraster_contour()
+library(ggspatial) ## used for north arrow and scale bar
+library(ggnewscale) ## allows us to plot rasters with different colorscales in ggplot.
+
+## Let's subset the movement data so that we plot the track from a single animal for an arbitrary few days of its life.
+dat_for_plotting <- dat %>% filter(id == "JMVJ", dt>= ymd("2018-07-15"), dt < ymd("2018-07-18"))
+
+## Convert into sf object and transform coordinates
+dat_for_plotting <- dat_for_plotting %>% 
+  st_as_sf(coords=c("lon", "lat")) %>%
+  st_set_crs(4326) %>%
+  st_transform(3995)
+
+## First, let's get some higher-resolution elevation data
+elev_hires <- get_elev_raster(st_buffer(dat_for_plotting, 1000), z = 11, prj = "EPSG:3995") 
+res(elev_hires)
+elev_hires <- rast(elev_hires)
+elev_hires <- crop(elev_hires, lcov)
+
+## Let's make a new raster symbolizing sea ice/ocean, assuming it's everywhere elevation <= 0
+ice <- ifel(elev_hires<=0, 1, 0)
+
+## We can create a hillshade raster. This can just help make elevation "pop" in plots.
+slope <- terrain(elev_hires, v="slope")
+aspect <- terrain(elev_hires, v="aspect")
+hill <- shade(slope, aspect, angle = 55, direction = 0)
+
+## I'll also smooth the rasters before plotting. This function takes the mean of all cells in a 7x7 box surrounding the focal cell.
+elev_smooth <- focal(elev_hires, w=matrix(1, 7, 7), mean)
+slope <- focal(slope, w=matrix(1, 7, 7), mean)
+aspect <- focal(aspect, w=matrix(1, 7, 7), mean)
+hill <- focal(hill, w=matrix(1, 7, 7), mean)
+
+## The movement data need to either be an sf object or a regular dataframe with projected coordinates to be plotted along
+## with the projected rasters. I'm interested in plotting lines connecting each consecutive location, which can
+## be done with ggplot's geom_segment(). This requires a dataframe where each observation has a start and end coordinate.
+## To get there, I'm going to first turn the sf dataframe back into a normal dataframe that can be manipulated 
+## so that each observation has a start and end coordinate. This is trickier than it seems like it should be 
+## (though maybe there's a better solution).
+
+dat_for_plotting <- dat_for_plotting %>% 
+  mutate(x = unlist(map(.$geometry,1)), y = unlist(map(.$geometry,2))) %>%
+  st_drop_geometry()
+
+## Add two new columns representing the subsequent x and y coordinates
+dat_for_plotting <- dat_for_plotting %>%
+  arrange(dt) %>% ## make sure everything's in order
+  mutate(xend = lead(x), yend = lead(y), time_interval = as.numeric(difftime(dt, lead(dt), units = "mins"))) %>%
+  filter(time_interval > -10) # filter out line segments representing intervals greater than 10 minutes.
+
+## And now to make the actual plot. I'd recommend messing around with the alpha levels (transparency) and plotting order of the 
+## various layers to achieve the effect you want.
+movement_plot <- ggplot()+
+  geom_spatraster(data = elev_smooth, alpha = 0.4, maxcell = 1e+06)+
+  scale_fill_gradientn("elev", colours=c("grey60","grey90")) +
+  new_scale("fill") +
+  geom_spatraster(data = hill, alpha = 0.5, maxcell = 1e+06) +
+  scale_fill_gradientn("hill", colours=c("darkgoldenrod4","white")) +
+  new_scale("fill") +
+  geom_spatraster(data = aspect, alpha = 0.15, maxcell = 1e+06)+
+  scale_fill_gradientn("hill", colours=c("darkgoldenrod4","white")) +
+  geom_spatraster_contour(data = elev_smooth, bins = 40, col= "darkgoldenrod4", alpha=0.55, maxcell = 1e+05) + # creating contour lines
+  geom_spatraster_contour(data = elev_smooth, bins = 10, col="darkgoldenrod4", alpha=0.6, maxcell = 1e+05) + # and more distantly spaced contours, darker.
+  new_scale("fill") +
+  geom_spatraster(data = ice, maxcell = 5e+06) +
+  scale_fill_gradientn("ice", colours=c(NA,"grey96")) +
+  geom_segment(data = dat_for_plotting, aes(x=x, y=y,xend=xend, yend=yend), col="grey40") +
+  geom_point(data = dat_for_plotting, aes(x=x, y=y), col="grey20", shape=1) +
+  coord_sf(xlim = c(min(dat_for_plotting$x)-500, max(dat_for_plotting$x)+500), ylim = c(min(dat_for_plotting$y)-500, max(dat_for_plotting$y)+500)) +
+  theme(legend.position = "none",
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank()) +
+  annotation_scale() +
+  annotation_north_arrow(pad_y = unit(0.7, "cm"), pad_x = unit(-0.3, "cm"), style = north_arrow_minimal)
+
+## Save as a nice pdf. They always look better as pdfs than  in R!
+pdf("movement_fig.pdf", width = 6.5, height=5.5)
+movement_plot
+dev.off()
+
+
+## One final tip: If you're interested in viewing your data more interactively in R, I would recommend checking
+## out the package plotly. Quick demonstration:
+
+library(plotly)
+ggplot() +
+  geom_segment(data = dat_for_plotting, aes(x=x, y=y,xend=xend, yend=yend), col="grey40") +
+  geom_point(data = dat_for_plotting, aes(x=x, y=y, group=dt), col="grey20", shape=1) +
+  coord_equal()
+
+ggplotly()
+
+## Alternatively, the package mapview is also good for this kind of thing.
+
+library(mapview)
+mapview(dat_for_plotting, xcol = "x", ycol="y")
+
+```
+
+```{r Vector Data OLD}
+# From intro to GIS in R
+#download.file("http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_coastline.zip",destfile = 'coastlines.zip')
+# read in the example shapefile
+# data is the wolfhyt data from Lab 2 Habitat Modeling
+
+# To check the projection of something
+crs(shapefile, proj=TRUE)
+
+# To check the structure of something
+str(shapefile)
+
+# Example of plotting spatial data: use the base plot function to map the easting and northing locations of two wolf packs
+base::plot(wolfyht$EASTING,wolfyht$NORTHING,col=c("red","blue")[wolfyht$PackID],ylab="Northing",xlab="Easting")
+legend(555000,5742500,unique(wolfyht$Pack),col=c("blue","red"),pch=1)
+
+# Example of plotting using the tmap function
+## Specify to use elc_habitat as the dataframe (put this into tm_shape)and Moose_W as the data column to use - this has a ranking 0-7 of a habitat suitability index
+tm_shape(elc_habitat) + tm_sf("MOOSE_W", border.alpha = 0)
+
+# Can also make maps with geom_sf within ggplot2- making the same plot as above but with ggplot
+ggplot() + 
+  geom_sf(data = elc_habitat, mapping = aes(fill = as.factor(MOOSE_W)), color = NA) + labs(x="Easting",y="Northing") + theme(axis.text.y = element_text(angle = 90, hjust=0.5))
+```
+
+
+### Raster Data
+
+Here we will go through some typical raster operations when creating a set of spatially consistent raster layers to make into a 'stack' of rasters, a raster stack or brick, to then intersect animal locations with. The steps involved in creating these rasters below are key, and, good to review.  Remember, our goal is to create a consistent stack of rasters - a raster stack, or brick, of the same raster extent, resolution and projection for all subsequent analyses in R. 
+
+1. Mask - we create a consistent raster MASK upon which to base all subsequent operations. (basically you set the study area). This standardizes the extent, resolution and projection of the mask, and sets all values of the mask to be 0. This will make all things outside your bounding box to NA.
+
+2. `terra::rasterize()` - we then use this operation to convert a vector file, a shapefile, to a raster. 
+
+3. `terra::resample()` - note that existing raster layers, e.g., elevation, distance to human access, had a different set of dimensions (extents) last week when we created our raster stack. They may have also had different resolutions (ex. 30x30m grain size for the raster - don't necessarily need to make this consistent), in which case we need to resample to a consistent resolution. 
+- resample starts form a top corner and resamples everything to be the same resolution and registration (same grid size, all corners line up)
+
+
+```{r}
+# Create a mask raster to use as a template for converting shapefile data to rasters
+#create an empty raster
+mask.raster <- rast()
+
+#set extent(this usually requires some research to set your bounding box)
+ext(mask.raster) <- c(xmin=443680.6, xmax=650430.4, ymin=5618416, ymax=5789236) 	
+#set the resolution (in this case 300 m)
+res(mask.raster)<-300
+
+#match projection to elc_habitat shapefile
+## proj4str() pullls out the projection of a file
+crs(mask.raster)<- "+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"
+
+#set all values of mask.raster to zero
+mask.raster[]<-0
+plot(mask.raster)
+# Will give you a blank raster
+
+## Use rasterize() and specify to apply mask.raster() for a specific field using the mask.raster - you can also use another raster layer
+## Do this for every raster you want to plot
+deer_w<-terra::rasterize(elc_habitat, mask.raster, field="DEER_W")
+moose_w<-terra::rasterize(elc_habitat, mask.raster, field="MOOSE_W")
+
+# Align the rasters you developed with raster.mask to have the same extent, spatial resolution, projection. etc using resample()
+
+#reading in elevation raster with terra
+elevation2<-rast(here::here("Data","Elevation2.tif"))
+elevation2<-resample(elevation2, mask.raster, method="bilinear")
+```
+
+```{r Spatial Points from Data Sheets}
+# convert to a spatial points dataframe
+rd.data<-wolfyht[wolfyht$Pack=="Red Deer",]
+# extract eastings and northings
+x<-rd.data$EASTING
+y<-rd.data$NORTHING
+# put it into a new dataframe
+xy<-cbind(x,y)
+class(xy)
+rd <- data.frame(as.character(rd.data$NAME))
+coordinates(rd) <- xy
+crs(rd) <-  "+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"
+
+```
+
+
+
+# Exploratory Data Analysis
+
+```{R}
+#To see what is stored in a variable, do:
+names(iris)
+
+```
+
+
+
+More information can be found in [R for Data Science Ch 7](https://r4ds.had.co.nz/exploratory-data-analysis.html)
+8
+
+The iterative process of coming up with questions, manipulating or visualizing your data to answer those questions, and then refining your questions once you have some answers. 
+
+Two types of questions are useful to make discoveries within your data:
+
+1. What type of variation occurs within my variables?
+
+1. What type of covariation occurs between my variables? (covariation is joint variability of two random variables)
+
+*Rely on your curiosity as well as your skepticism*
+
+
+**Types of information you'll find in graphs and follow up questions**
+
+* typical values
+
+  *which values are in groups? What do groups have in common? What are largest/smallest values and are the surprising values? How might this be misleading?
+  
+* outliers
+
+  *might these be indications of wrong/improperly inputted data?
+  
+* missing values
+
+  *missing values might be valid data in and of themselves
+  
+* patterns
+
+  * could this be due to coincidence? How strong is the relationship? What other variables might affect the relationship?
+  
+  
+## Clustering!
+
+Basically just asking if data shows natural groups by combining rows. 
+Can have multiple dimsensions
+
+What makes a good cluster? 
+
+you want them grouped so distances between points are small within groups, but large between groups
+
+Choosing the number of groups
+
+**Clustering Algorithms**
+
+Most common is K means: Pick k points at random to serve as initial cluster centers, assign each center over and over until htey stabilize
+
+**PAM: Clustering Algorithm 2**
+
+PAM is a robust alternative: Use PAM (partitioning around medoids) when you can!
+
+Still need to scale, but its less of an issue
+
+While centroids are an arbitrary point, medoids are an acutal point that occurs at the center of your dataset
+
+Doesn't compute means, finds the middlemost point
+
+Why is it more robust? Because its robust to outliers. 
+
+**Checking Silhouette Width**
+Average silhouette width 
+
+.71-1.0: Strong structure
+
+.51 - .70: Reasonable structure
+
+.26 - .50 : structure is weak and artificial
+
+0 - .25: no substantial structure found 
+
+**Steps in Clustering**
+
+1. Process data (usually scale numeric)
+
+1. Choose number of clusters k (silhouette method is best)
+
+1. Use only numerics (euclidean distance) or incorporate categoricals (gower)
+
+1. Run cluster analysis (PAM is better, k-means can't use gower)
+
+1. Visualize clusters
+
+1. Interpret clusters
+
+1. Discuss goodness-of-fit (check silhouette width to assess strength of structure)
+
+
+## PCA
+
+Involves dimensionality reduction, which is the combination of columns.
+
+- PCA is used to reveal the underlying structure of your dataset's variance
+
+  - a principle compopnent is a *direction* where your data is the most spread out (highest varaince)
+
+  - you use these directions as the new axis (each PC is always perpindicular to the others) 
+  
+  - you minimize the data so that the axis of a 2D scatterplot are just the two directions that have the greatest variance
+  
+  - then I think you do clustering after this to pick out groups 
+  
+- **In Sum** it's a mathmatical procedure that converts *a lot* of correlated variables into *a few* uncorrelated variables called principal components (PCs) that still contain most of the info.
+
+
+**Steps to doing PCA:**
+
+1. Prepare the data
+
+  1.center and scale the dataset
+
+1. Perform PCA by giving correlation matrix to `eigen()` (this will standardize it for you), or just give the data to `princomp()` or `prcomp()` on prepared variables (this will give you easiest output to interpret)
+
+  -if you have more columns than rows, you can't use `princomp()`, you must use `prcomp()`
+  
+  -fill in from the slides
+
+1. Chose the number of principla components to keep
+
+  1. There's no "right answer", it depends on how much variance you want to retain. Usually 2-5 are retained.
+
+1. Computer/grab PC scores (the new coordinates for each observation on PCs of interest)
+
+1. Visualize and interpret retained PCs and scores
+
+1. (optionally) take the new variables (PC scores) and use them as predictors 
+
+```{R Clustering and PCA}
+# K means clustering
+clust_dat<-iris%>%dplyr::select(Sepal.Length,Petal.Width)
+
+set.seed(348)
+kmeans1 <- clust_dat %>% kmeans(3)
+kmeansclust<-clust_dat%>%mutate(cluster=as.factor(kmeans1$cluster)) #save the cluster solution in your dataset
+
+kmeansclust%>%ggplot(aes(Sepal.Length,Petal.Width,color=cluster))+geom_point() #vizualize it
+
+# Scaling:
+kmeans1 <- clust_dat %>% scale %>% kmeans(3)
+
+#PAM Clustering
+library(cluster)
+pam1<-clust_dat%>%pam(k=3)
+pamclust<-clust_dat%>%mutate(cluster=as.factor(pam1$clustering)) #save the cluster solution in your dataset
+pamclust%>%ggplot(aes(Sepal.Length,Petal.Width,color=cluster))+geom_point() #visualize it
+
+# how to determine how many clusters to use by using k-medoids (PAM)
+library(cluster)
+sil_width<-vector() #empty vector to hold mean sil width
+for(i in 2:10){  
+  kms <- kmeans(clust_dat,centers=i) #compute k-means solution
+  sil <- silhouette(kms$cluster,dist(clust_dat)) #get sil widths
+  sil_width[i]<-mean(sil[,3]) #take averages (higher is better)
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name="k",breaks=1:10)
+
+
+# PCA
+
+poke1 <-  read_csv("http://www.nathanielwoodward.com/pokemon.csv")
+
+```
+
+
+# Visualizing Data
+
+## Base R
+FIGURE OUT IF YOU CAN CHANGE THE WD IN MARKDOWN
+
+# Link to making graphs in R https://r-graph-gallery.com/ 
+
+```{r Visualization Base R, eval = TRUE}
+setwd("C:\\Users\\annak\\OneDrive\\Documents\\Classes\\Junior Year\\Animal Behavior\\Final Project MDominance\\AB Proj Data and Analysis\\")
+dom_data <-read.csv("Data_Analysis_Sheets.csv")
+
+#to see a list of colors:
+#colors()
+
+head(iris)
+iris <-  iris
+table(iris$Species)
+#making a barplot
+barplot(table(iris$Species), ylab = "Frequency", main = "Species of Plant", xlab = "Species", col = "dark blue")
+
+barplot(table(dom_data$RS), ylab = "Frequency", main = "Title of Graph",
+        xlab = "Reproductive Strategies", col = "dark blue")
+
+#making a table
+table(dom_data$RS)
+
+#make a box plot
+boxplot(merged_data_noambig$Frequency~merged_data_noambig$Treatment,
+        xlab = "Treatment", ylab = "Number of Dominance Interactions per Tank",
+        main = "Dominance Interactions Per Tank by Treatment Group (W/O Gender Ambig)", 
+        col = c("light blue","light green", "light pink", "salmon"))
+#can flip a box plot horizontally
+boxplot(data,horizontal = T)
+
+```
+
+## Making Tables
+
+These can be made in the kable package, more information on which can be found [here](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
+```{R Tables}
+library(kableExtra)
+dt <- mtcars[1:5, 1:6]
+#Basic table
+kbl(dt)
+#More themes
+dt %>%
+  kbl() %>%
+  kable_styling()
+
+```
+
+
+# Esquisse
+
+```{r}
+esquisser()
+# Run this code to pull up a window to work with graphs
+
+```
+
+#GGPlot2
+
+**Advantages of using ggplot:**
+
+* clean, consistent defaults
+* infinitely customizable
+
+
+```{r Visualization GGplot2 Basics}
+penguin <- read_csv("C:/Users/annak/OneDrive/Documents/UM/Classes - Graduate/WILD540 Research Design/Resarch_Design_Lab/data/penguins_clean.csv")
+###structure of ggplot
+# ggplot(data = <DATA>) +
+#   <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+# 
+# ## More complicated version
+# ggplot(data = <DATA>) + 
+#   <GEOM_FUNCTION>(
+#     mapping = aes(<MAPPINGS>),
+#     stat = <STAT>, 
+#     position = <POSITION>
+#   ) +
+#   <COORDINATE_FUNCTION> +
+#   <FACET_FUNCTION>
+
+# Example of a basic scatter plot: 
+ggplot(data = dataframe, aes(x = variable_1, y = variable_2)) + geom_point()
+#aes is aesthetics. An aesthetic is a visual property of the objects in your plot. 
+##basically, it's where you map variables in data to the components of the plot 
+##it will expect the dataset as the first argument, and it will expect the x then the y argument
+##as the first things within the aesthetics function 
+#aesthetic is how to set up the plot, the geometry layers are what to put within the plot
+## you can put aesthetics inside the geometry function
+```
+
+```{r geom_point() for scatterplots}
+# Basic scatter plot
+ggplot(data = penguin,
+ mapping = aes(x = body_mass_g, 
+ y = flipper_length_mm)) + 
+ geom_point()
+
+# Change the way the plots appear
+ggplot(data = penguin,
+ mapping = aes(x = body_mass_g, 
+ y = flipper_length_mm)) + 
+ geom_point(alpha = 0.4, color = "blue")
+
+# link the color to a categorical variable
+ggplot(data = penguin,
+ mapping = aes(x = body_mass_g, 
+ y = flipper_length_mm,
+ color = Species)) + 
+ geom_point()
+
+```
+
+**Explanation**
+
+*Also included in [R for Data Science Ch 3.3](https://r4ds.had.co.nz/data-visualisation.html#aesthetic-mappings)*
+
+`aes()` is aesthetics. An aesthetic is a visual property of the objects in your plot. Basically, it's where you map variables in the dataframe to the components of the plot.
+
+Aesthetics will expect the dataset as the first argument, then it will expect the x then the y argumnet as the first things within the aesthetics function.
+
+If aesthetics is how to set up the plot, the geometry layers are what specifically to put within the plot. You can also put aesthetics into the geometry function if you want to map something in the data to some element of the plot.
+
+Aesthetic specifications that you put in the first `aes()` are global aesthetics, they will apply to every geom unless specified otherwise.
+
+**Not every aesthetic goes with every geom**
+
+*The next couple of sections will go into more detail on geoms, but in the meantime you can *
+[find a list of all geoms here](http://rstudio.com/cheatsheets )
+
+
+## Point Geom for Scatterplots
+
+*Explanation of Geoms can be found in [R for Data science Ch. 3.6](https://r4ds.had.co.nz/data-visualisation.html#geometric-objects)*
+
+```{r geom_point continued, eval = TRUE}
+library(ggplot2)
+#plot two numeric variables 
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+##plot two numeric variables and change  the color of the points
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+### to set an aesthetic manually, set it as an argument of the geom function, outside of aes
+
+#plot two numeric variables on x and y axis and have the third variable (categorical) relate 
+##to the color of the points 
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+##ggplot will automatically choose colors, groupings, and other visual properties for you
+
+#have the third variable relate to the size of the points (not the best fit but you can do it)
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, size = class))
+
+#have the third variable relate to the transparency of the points
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+
+#have the third point relate to the shape of the point
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+## by default, ggplot will ony use six shapes at a time
+##(additional groups will go unplotted)
+
+
+# geom_smooth adds a line of best fit to your scatterplot
+# info on geom_smooth: https://www.sharpsightlabs.com/blog/geom_smooth/
+## the default is loess, but you can change it to a standard error line 
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+
+# you can specify a linear regression line to geom_smooth() with method="lm"
+ggplot(data=peng,aes(x=body_mass_g,y=culmen_depth_mm,color=Species)) + geom_point() + labs(title="Variation in Culmen Length by Body Mass",x="Body Mass (g)", y="Culmen Depth (mm)") + geom_smooth(method="lm")
+#TO remove axis labels
+#+theme(axis.title.x = element_blank())+theme(axis.title.y = element_blank())
+```
+
+
+```{r}
+# adding straight lines https://www.geeksforgeeks.org/add-vertical-and-horizontal-lines-to-ggplot2-plot-in-r/
+
+```
+
+## Text Geom
+*detailed explanation of this geom found in [R for Data science Ch. 28.3](https://r4ds.had.co.nz/graphics-for-communication.html#annotations)*
+
+This geom allows you to add text to your graph
+
+```{r Visualization Geom_text, eval = TRUE}
+library(tidyverse)
+## Filter your data into a smaller dataset that only contains the points of interest
+best_in_class <- mpg %>%
+  group_by(class) %>%
+  filter(row_number(desc(hwy)) == 1)
+
+# then add the geom_text() geom to add these cells onto your graph
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_text(aes(label = model), data = best_in_class)
+
+# switch to geom_label() to provide a rectangle behind the text
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_label(aes(label = model), data = best_in_class, nudge_y = 2, alpha = 0.5)
+
+# use nudge_y to move labels slightly above correstponding points 
+# if any labels are overlapping, use the ggrepel package
+
+```
+
+```{R Visualization Geom_Bar}
+# Really good source on the different types of bar plots: https://www.r-graph-gallery.com/48-grouped-barplot-with-ggplot2.html
+
+# Regular bar plot:
+ggplot(data, aes(fill=condition, y=value, x=specie)) + 
+    geom_bar(position="dodge", stat="identity")
+
+# Stacked bar plot:
+individuals_permonth %>% filter(Month!="April?") %>%
+ggplot(aes(fill=Group,y=n(),x=Month))+
+  geom_bar(position="stack",stat="identity")
+
+# Can use dodge to visualize multiple things on the x axis
+# https://stackoverflow.com/questions/29441912/how-to-make-a-grouped-barchart-with-two-groups-on-x-axis
+# From Beha Eco Group Life Cycle Data Analysis
+group1 <- census_data %>% filter(Group=="I") %>% group_by(Year,Month) %>% summarize(n=n())
+
+ggplot(data=group1, aes(x=factor(Year),y=n, fill=Month)) +
+  geom_bar(stat="identity",position="dodge")+
+  labs(x="Year",y="Number of Individuals",title = "Group One Number of Individuals")
+
+#create a bar plot 
+ggplot(data = mpg, aes(x = class)) +
+  geom_bar()
+#Explanation of geom_bar vs. geom_col: https://ggplot2.tidyverse.org/reference/geom_bar.html
+## geom_bar makes the heigh of the bar proportional to the number of cases in each group (or if the weight aesthetic is supplied, the sum of the weights)
+## If you want the heights of the bars to represent values in the data, use geom_col() instead
+## geom_bar() uses stat_count() by default: it counts the number of cases at each x position. geom_col() uses stat_identity(): it leaves the data as is
+
+
+```
+
+## Other Geoms
+
+*Detailed information can be found in [R for Data Science Ch 3.6](https://r4ds.had.co.nz/data-visualisation.html#geometric-objects)*
+
+```{r geom_line, eval = TRUE}
+library(ggplot2)
+#draw a line chart
+ggplot(data = mpg) +
+  geom_line(mapping = aes(x = displ, y = hwy))
+```
+
+
+```{r geom_histogram}
+#draw a histogram
+ggplot(data = mpg) +
+  geom_histogram(mapping = aes(x = hwy))
+# can change the way that data is displayed by playing with the binwidth. For a good explanation and visualization of binwidth, see this website: https://www.r-graph-gallery.com/220-basic-ggplot2-histogram.html
+# Binwidth goes by seconds in time data
+
+#if you wnat to overlay multiple histograms in the same plot, use geom_freqpoly() instead
+ggplot(data = data_frame, mapping = aes(x = numeric_varib, color = categ_varib)) +
+  geom_freqpoly(binwidth = 0.1)
+
+# Example of a basic histogram
+ggplot(data = penguin,
+ mapping = aes(x = body_mass_g)) + 
+ geom_histogram()
+
+# to add a density curve
+# https://biostats.w.uib.no/combining-a-histogram-and-a-density-plot/
+ggplot(data=peng,aes(x=culmen_depth_mm)) + geom_histogram(aes(y=..density..))+geom_density(col="red")+labs(title="Culmen Depth",x="Culmen Depth (mm)")
+```
+
+
+```{r geom_boxplot}
+#draw a boxplot
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = class, y = hwy))
+# box plot consists of the median (50th %ile of the data, black line in the middle), the interquartile range (the box, shows the data between the 25th percentile and the 75th percentile), and the whiskers (extends from the box to the farthest non-outlier point in the distribution)
+
+# Another example of a box plot
+ggplot(data = penguin,
+ mapping = aes(x = body_mass_g, 
+ y = flipper_length_mm,
+ color = Species)) + 
+ geom_boxplot()
+
+```
+
+
+```{r geom_area}
+#draw an area chart
+#ggplot(data = mpg) +
+#  geom_area(mapping = aes(x = year, y = cty))
+#BROKEN CODE
+
+
+#ADDING MULTIPLE GEOMS
+## When you have more than one geom, put the axis specifications within the mapping in the global aesthetics
+## to avoid changing one axis but not changing all of them (will mess up visualization)
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() + 
+  geom_smooth()
+
+# order matters: if you want one geom to appear "on top" of the other, put it last in the ggplot code
+
+#local arguments will override global ones but only for the ones they specify
+##here, the data for the smooth geom is filtered into only the class of subcompact cars
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+
+ggplot(data = diamonds) +
+  geom_count(mapping = aes(x = cut, y = color))
+#size of each circle in the plot displays how many observation occurred at each combination of values
+
+```
+
+## Facet Wrapping
+
+*Detailed explanation can be found in [R for Data Science Ch 3.6](https://r4ds.had.co.nz/data-visualisation.html#geometric-objects)*
+
+Facet wrapping allows you to split your data into separate charts with the same specifications.
+
+This function is good for displaying differences among categorical variables, and it works especially well for categorical, discrete variables. 
+
+```{r Visualization Facet Wrapping, eval = TRUE}
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+# nrow specifies the number of rows the facet should have
+
+#to facet the plot on a combination of variables, add facet_grid
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ class)
+#can use a . in the rows or columns dimension if you prefer not to facet there
+
+# Can also use grid.arrange()
+#grid.arrange(census_G2,census_G3,census_G4,census_G5,census_G6,ncol=3)
+
+```
+
+##Plotly 
+
+3D plots
+
+```{r}
+library(plotly)
+
+final <-iris %>% select(-Species) %>% scale %>% as.data.frame
+pam2 <- final %>% pam(3)
+
+#now that we ran PAM, save the cluster assignment in the dataset
+final <- final %>% mutate(cluster=as.factor(pam2$clustering))
+final%>%plot_ly(x= ~Sepal.Length,  y = ~Petal.Width, z = ~Petal.Length, color= ~cluster, type = "scatter3d", mode = "markers")
+```
+
+
+## Stats
+
+*Detailed information in [R for Data Science Chv3.7](https://r4ds.had.co.nz/data-visualisation.html#statistical-transformations)*
+
+```{r Stats, eval = TRUE}
+
+#Diet will appear on the x axis and the y axis will be the average chick weight per diet
+ChickWeight <- as.data.frame(ChickWeight)
+ggplot(ChickWeight, aes(x = Diet)) +
+  geom_bar(aes(y = weight),stat="summary", fun = "mean") +
+  labs(
+    y = "Average Weight (g)"
+  )
+
+#you can use the statistical transformation to create the same chart the ggplot makes with geom bar
+
+
+```
+
+Every geom has a default stat and every stat has a default geom.
+
+When would you need to change a stat?
+
+1. When you want to override the default stat for a chart or plot
+1. When you want to override the default mapping from transformed variables to aesthetics
+1. draw greater attention to the statistical transformation in your code 
+
+## Communicating Plots 
+
+In order to communiate your data, you need to have clean, organized plots.
+
+*Detailed information on this can be found in [R for Data Science Ch 28](https://r4ds.had.co.nz/graphics-for-communication.html)*
+
+```{r Making Things Pretty, eval = TRUE}
+
+# CHANGING COLOR
+# color a bar chart with color or fill 
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, colour = cut))
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut))
+
+#change the color of a bar plot
+ChickWeight <- as.data.frame(ChickWeight)
+ggplot(ChickWeight, aes(x = Diet, y = weight)) +
+  geom_bar(aes(fill = Diet),stat="summary", fun = "mean") +
+  labs(
+    y = "Average Weight (g)"
+  )  +
+  geom_errorbar(stat="summary",fun.data=mean_se, width = .4)+ scale_fill_brewer()
+
+# can manually assign colors when assigning a color to a categorical variable with  scale_color_manual("Variable"="Color")
+#ggplot(data=data_tidy, aes(x=Time_Of_Day, color=Event)) + geom_freqpoly(binwidth = 3600) + labs(title="Rain, Howling, and Thunder Daily Distribution",x="Time of Day") +
+#  scale_color_manual(values = c("Call"="forestgreen","Rain"="royalblue","Thunder"="darkviolet"))
+# When you have filled the values in a plot instead of assigning a color to them, use scale_fill_manual()
+#More info: https://r-charts.com/part-whole/stacked-bar-chart-ggplot2/#:~:text=You%20can%20change%20the%20colors,the%20ones%20provided%20by%20scale_fill_brewer%20.&text=If%20you%20prefer%20choossing%20each,colors%20to%20the%20values%20argument  
+
+# for a list of all palattes
+RColorBrewer::display.brewer.all()
+
+
+```
+
+Information on colors and color palattes:
+[ggplot colors shown with their names](http://sape.inf.usi.ch/quick-reference/ggplot2/colour) 
+[Good info on colors in R](http://www.sthda.com/english/wiki/colors-in-r)
+[Palattes based on National Parks](https://github.com/kevinsblake/NatParksPalettes)
+# code to install devtools::install_github("kevinsblake/NatParksPalettes")
+
+```{r Making Things Pretty Cont, eval = TRUE}
+
+# can change the fill aesthetic to another variable which will automatically stack the bars
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+# to make each set of stacked bars the same height, use 
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+# or you can place the different categories next to one another
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+# can do a similar thing with scatterplot by changing the jitter 
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+# OR DO
+ggplot(data = mpg) + 
+  geom_jitter(mapping = aes(x = displ, y = hwy))
+#what parameters to geom_jitter control the amount of jittering?
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_jitter(height = .1)
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_jitter(width = .1)
+#count does something similar to jitter but only changes the sizes of the points
+#what parameters to geom_jitter control the amount of jittering?
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_count()
+
+
+
+#ADDING LABELS
+#add labels to charts with the labs() function
+#all labels are separated by columns 
+ggplot(mpg, aes(displ,hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) + 
+  labs(
+    title = "Fuel efficiency generally decreases with engine size",
+    subtitle = "This is the subtitle",
+    caption = "This is the Caption, maybe where you got the data from",
+    x = "Engine Displacement (L)",
+    y = "Highway fuel economy (mpg)",
+    color = "Car Type"
+  )
+#title adds a main title to the chart
+#subtitle adds additional detail in a smaller font beneath the title
+#caption adds text at the bottom right of the plot,  often used to describe the source of the data
+
+# COORDINATE SYSTEMS
+# flip the axis easily with coord_flip()
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot()
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot() +
+  coord_flip()
+
+# modify the numbers on the axes
+ChickWeight <- as.data.frame(ChickWeight)
+ggplot(ChickWeight, aes(x = Diet)) +
+  geom_bar(aes(y = weight),stat="summary", fun = "mean",breaks = 25) +
+  labs(
+    y = "Average Weight (g)"
+  ) + scale_y_continuous(breaks = seq(0,150, by = 25))
+
+#scale_y_continuous and scale_x_continuous are used for continuous data, scale_y_discrete and scale_x_discrete are used for discrete data
+# If you want the graph scale on an axis to go beyond the upper limit of the data values, specify limits within the scale_x/y_continuous:
+bargraph_datSHAKE %>%
+ggplot(aes(fill=sex_present,y=n_date,x=rs))+
+  geom_bar(position="stack",stat="identity") +
+  labs(title="Sex Distribution on Nights with Calling",subtitle="(Shake Springs PAC)",y="Number of Nights",x="Recording Location")+
+  scale_y_continuous(limits=c(0,15),breaks = seq(0,15, by = 2))
+
+# Changing axis:
+#https://www.delftstack.com/howto/r/scale_y_continuous-in-r/
+#http://www.sthda.com/english/wiki/ggplot2-axis-ticks-a-guide-to-customize-tick-marks-and-labels
+
+#How to change the angle of an axis
+#Change the angle to 45 degrees
+#+ theme(axis.text.x = element_text(angle = 45,hjust = 1))
+#https://www.datanovia.com/en/blog/ggplot-axis-ticks-set-and-rotate-text-labels/
+# LEGENDS
+##turn off the legend with ( theme(legend.position= "none"))
+
+# adding in vertical lines with abline http://www.sthda.com/english/wiki/abline-r-function-an-easy-way-to-add-straight-lines-to-a-plot-using-r-software
+
+```
+
+**Patchwork**
+
+Patchwork: combine multiple plots into one image
+P1 | p2
+Will put them side by side
+P1/P2 will put them on top of one another
+
+
+**THEMES** [Chapter 28.6](https://r4ds.had.co.nz/graphics-for-communication.html#themes)
+
+Customize non-data elements with a theme
+
+There are eight theme built into ggplot:
+
+* theme_bw()
+
+    *white background with grid lines*
+
+* theme_light()
+
+    *light axes and grid lines*
+
+* theme_classic()
+
+    *classic theme, axis but no grid lines*
+
+* theme_linedraw()
+
+    *only black lines*
+
+* theme_dark()
+
+    *dark background for contrast*
+
+* theme_minimal()
+
+    *minimal theme, no background*
+
+* theme_gray()
+
+    *grey background (this is the default theme)*
+
+* theme_void()
+
+    *empty theme, only geoms are visible*
+  
+# Further reading
+
+[R Graphics Cookbook by Winston Chang](http://www.cookbook-r.com/Graphs/)
+
+  
+# Visualizing acoustic data in R
+
+[Resource on seewave package](https://cran.r-project.org/web/packages/seewave/index.html)
+[Resource on dynaSpec package](https://marce10.github.io/dynaSpec/)
+
+## Playing acoustic data in r
+
+[av package for audio](https://www.r-bloggers.com/2020/02/working-with-audio-in-r-using-av/)
+[audio package in r](https://rforge.net/audio/)
+[tuneR to handle audio data?](https://www.rdocumentation.org/packages/tuneR/versions/1.4.1)
+
+```{r Creating Spectrograms}
+install.packages("seewave")
+library(seewave)
+install.packages("dynaSpec")
+library(dynaSpec)
+
+
+
+```
+
+
+# Interacting with the user in R
+
+[taking user input in r](https://www.geeksforgeeks.org/taking-input-from-user-in-r-programming/)
+
+```{r User Input}
+  
+```
+  
+# Statistical Analyses
+
+### measures of spread
+
+`sd(x)` gives you the standard deviation
+
+`IQR(x)` gives you the interquartile range
+
+`mad(x)` gives you the median absolute deviation
+
+### measures of rank
+
+`min(x)` gives you the minimum value
+
+`quantile(x,0.25)` will find a value of x that is greater than 25% of the values and less than the remaining 75%
+
+`max(x)` gives you the maximum value 
+
+
+## Probability and Data Generating Processes
+
+Note: there is no truly random sample on a computer, so these will always be pseudorandom samples
+
+###Four probability functions in R:
+
+**1. Density/mass function (dxxx)**
+
+*Gives the heights of a continuous distribution at a certain point x (gives probability of certain/discrete outcome x)
+
+Functions include dnorm(x), dt(x), dchisq(x), df(x), dbinom(x), dipois(x), etc
+
+**2. Cumulative distribution function (pxxx)**
+
+*Gives the probability of getting a value less than or equal to x from a distribution
+  *basically gives you the z score - just like we would look for in the chart in biostats but now this one is much more accurate 
+
+Functions include pnorm(x), pt(x), pchisq(x), pf(x), pbinom(x), ppois(x), etc
+
+**3. Quantile function (qxxx)**
+
+*Gives the value that cuts off p proportion of the distribution below it (basically the opposity of the density/mass function)
+
+Functions include qnorm(p), at(p), qchisq(p), qf(p), qbinom(p), qpois(p), etc
+
+**4. Random sample function (rxxx)**
+
+*Get n random draws from a distribution
+
+Functions include rnorm(n), rt(n), rchisq(n), rf(n), rbinom(n), rpois(n)
+
+Three arguments for rnorm() are:
+
+1. n - the number of data points you want to create
+
+2. mean - the mean of the normal distribution you want to draw from
+
+2. sd is the standard deviation of the nromal distribution you want to draw from 
+
+
+### Non normal distributions
+
+**Bernoulli distribution:** a discrete yes/no data with outcomes of 1 or 0.
+
+Often used for simulating survival data and occupancy
+
+Use the binomial distribution function `rbinom()`
+
+Arguments to rbonim()
+
+1. n - the number of data points you want to create
+
+2. size - the number of trails in a binomial distribution. For a Bernoulli, this is always 1. 
+
+3. prob - the probability of success
+
+To visualize bernoulli data, plot it with bar chart 
+
+**Poisson distribution:** generally counts (cluthc size, abundance, number of emails, etc.)
+
+usually right skewed
+
+Arguments to rpois()
+
+1. n - number of data points you want to create
+2. lambda - the mean count
+
+
+```{r, Generating Simulation Datasets}
+# randomly generating an integer number from a specified range
+row_num <- sample(1:10,1)
+print(row_num)
+
+# randomly generting a decimal number from a specified range
+row_num <- runif(1,1,10)
+print(row_num)
+# Resource: https://blog.revolutionanalytics.com/2009/02/how-to-choose-a-random-number-in-r.html
+
+# Example: Trout data
+?set.seed()
+set.seed(80) #this tells R where to start when it generates random numbers. Run this line so everyone ends up with the same random numbers
+
+#Create a vector with 10 random lengths of Cutthroat Trout. Mean length of 140 and standard deviation of 40 that follows a normal distribution
+
+cutthroat_length <- rnorm(10, mean = 140, sd = 40)
+
+#Next, create a vector of 10 random lengths for Brown Trout. Mean of 170 and standard deviation of 50
+
+brown_length <- rnorm(10, mean = 170, sd = 50)
+
+#Bind these two lengths together using cbind (column bind)
+
+trout_length <- cbind(cutthroat_length, brown_length)
+
+#Make the matrix a dataframe (named this data frame trout, but it's exactly the same as trout_length)
+
+trout <- as.data.frame(trout_length)
+
+
+# Other simulation data
+
+## for all these functions, you give them the function and the distribution they're looking for it in, the value of interest, the mean, and the standard deviation
+
+# cululative distribution function/ cdf
+pnorm(2, mean = 0, sd = 1)
+## will give you the z score for getting a values less than 2
+
+pnorm(1)-pnorm(1)
+## will give you the probability/z score of getting a value between -1 and 1
+## note that this confirms the empirical rule
+
+1 - pnorm(1450, mean = 1060, sd = 210)
+## this gives you the probability of getting a value gretaer than the one specified 
+
+
+# quantile functions/inverse cdfs
+## you give this function the probability/z score, it gives you the cut-off on the x axis
+## this is like looking in the margin of your table for which value a z score will cut off 
+qnorm(p = .5, mean = 0, sd = 1)
+# output 0
+# note how this is the opposite of the following cdf
+pnorm(0, mean = 0, sd = 1)
+# output: 0.5
+## what score cuts off 25% below it?
+qnorm(p = .25, mean = 0, sd = 1)
+
+## Good explanation of these different functions in SDS348_FinishDistribution slide 24
+
+
+# from online notes:
+# can generate the point probability (density probability) for a specific value of a standard normal distribution
+dnorm(-1.96)
+
+
+# can calculate p-values 
+# 1 - pnorm(<NUMBER>)
+
+# you can calculate the quantiles for a specific distribution 
+# qnorm(<NUM>)
+
+```
+
+
+## Generating Data
+
+Use rxxx(n = ,...) to generat a random sample of size n from any named distribution
+
+Functions include rnorm(), runif()
+
+```{r Generating Random Datasets}
+
+
+# to generate a sample of size 100 from a standard normal distribution
+norm_sample <- rnorm(100)
+
+# change the mean and standard deviation 
+## use format norm_sample rnorm(<SAMPLE SIZE>,<MEAN>,<STANDARD DEVIATION>)
+norm_sample <- rnorm(100, 2, 5)
+
+# can also generate random samples from other distributions
+?rnbinorm()
+?rgamma()
+?rchisq
+
+
+
+# sample(seq(<min>,<max>), <sample size>)
+# ex:
+sample(seq(5, 15), 8)
+
+# can change if they are replaced or not (default is false)
+sample(seq(5, 15), 8, replce = TRUE)
+
+#can have unequal probabilities of being chosen
+sample(5, 10, prob = c(0.3, 0.4, 0.1, 0.1, 0.1), replace = T)
+
+
+# to generate a random sample of a certain number of observations from your data or a certian proportion of your data
+#grab 5 random rows from the dataset
+txhousing %>% sample_n(5)
+#grab a random 10% of the dataset: 8602*.1 = 860.2, so it rounds and gives us 860
+txhousing %>% sample_frac(.1)
+```
+
+
+## Data transformations 
+
+Types of transformations:
+
+1. Log scale
+
+2. Exponential scale
+
+3. Logit function 
+- forces the data to be between 0 and 1
+- good for probabilities
+
+
+## Chi-Squared 
+
+Chi-Squared goodness of fit test/Chi-squared test of independence
+
+*Detailed information in your biostats Lab 7 handout*
+
+https://web.stanford.edu/class/psych10/schedule/P10_W7L1 
+
+```{r Analysis Chi Squared}
+#1. Estabish a table of the values of interest from the dataset
+LS_table <- table(LS_data$RS)
+print(LS_table)
+
+#2. Run a chi squared test on the table, establish your expected frequencies after the p = value
+chisq.test(LS_table, p = c(0.5,0.5))
+#p-value is 0.6935, which is not significant (would be if p < 0.05)
+
+
+```
+
+## T Test
+
+*Detailedinformation in your biostats lab 5 and 6 handout*
+
+
+
+## Correcting for multple comparisons
+P(at least one type one error) = 1 - P(no type 1 errors/false positive)
+
+1-.95^(# tests)
+
+**How to fix this**: bonferroni correction: divide the alpha level you want (usually .5) by the number of tests you've done.
+
+**OR** multiply your P value by the number of tests you do
+
+
+## ANOVA
+
+*Detailed information in your biostats Lab 10 Handout*
+
+A one-way ANOVA can be used to see if the mean of a numeric response variable differs across two  or more groups of categorical explanatory variables.
+
+## ANOVA Review
+
+Sum of Squares total (all variation in the dataset) = Sum of Squares between groups + Sum of Squares within groups (/residuals)
+
+If all groups are the same, this will be zero
+
+This test uses the F statistic- a comparison of the variance between groups and the variance within groups
+
+- For the null hypothesis to be false, you want a big F statistic 
+
+- Small F statistic: either the group means are close together or there is a lot of noise in the data
+
+**Assumptions**
+
+- Random samples, independent observations
+
+- Independent samples (groups)
+
+- Normal distribution in each group or large sample (25+)
+
+- Equal variance (variance/sd of each group is the same)
+
+**Post-Hoc Tests**
+
+If you reject your null hypothesis, you can then see which specific groups differ
+
+Recommended way: pairwise t-tests
+
+- Runs all t-tests with a pooled SE and gives teh p vlaues for each 
+
+
+```{r Analysis ANOVA}
+ 
+#1: Define ANOVA model
+anova_model <- lm(Frequency ~ Treatment, data = merged_data)
+#2:View results using ANOVA function from the car package
+library(car)
+Anova(anova_model, type = 3)
+
+
+```
+
+# MANOVA: Multivariate Analysis of Variance
+
+This is essentially an ANOVA with multiple dependent/response variables 
+
+Use this if you have more than one response variable and you want to conduct a single test to see whether any of them differ by levels of a categorical variables
+
+Simultaneously does multiple one-way ANOVAs with a signal significance test
+
+Ho: for each response variable, the means of all groups are equal
+Ha: for at least one response variable, at least one group mean differs
+
+**Generally, these make too many assumptions**
+
+## BUT it's better to do the PERMANOVA
+### (A randomization test on manova)
+
+MANOVA makes too many assumptions, but you can get around this by doing a randomization test.
+
+Use the adonis function in the vegan package. 
+
+PERMANOVA time! First, let's compute Bray-Curtis dissimilarity
+
+Very common in ecology for comparing species across sites!
+
+Values range between 0 and 1: a 0 value means two sites have all the same species, while a value of 1 means they don't share any species.
+
+Common to take square root first to minimize influence of large abundances/counts
+
+
+```{R}
+
+library(vegan)
+#look in the slide
+dists <- iris %>% select()
+  
+  adonis()
+  
+```
+
+
+
+
+# Linear Regression
+
+The way that you compute values with linear regression is Ordinary least squares (OLS) which means you're minimizing the sum of the squared residuals.
+
+- the line of best fit that you get minimizes the sum of the squared residuals 
+
+## Simple Linear Regression
+
+y = B1x + b0 + e
+
+b0: intercept
+
+b1: slope (effect of the variable)
+
+e: residual (distance from the line of best fit [b1x + b0])
+
+
+Covariance/Variance is an estimator for slope
+
+R^2: proportion of variation in your repsonse variable you can estimate from variation in predictor variable 
+
+This is calculated by taking
+SSregression/SStotal OR by taking 1-(SSerror/SStotal)
+
+
+Regressions are always two tailed
+
+Ho: The true slope of the line of best fit for this data is zero
+
+Ha: the true slope of the line of the best fit for this data is not zero
+
+
+CODE: create this model with `lm(variable1~variable2, data = dataset)`
+
+(lm means simple linear regression)
+
+Gives you the intercept and the effect which you can plug into the equation. 
+
+
+## Multiple regression
+
+Yi = B0 + B1X1 + B2X2 + ... + e
+
+Tells you which variables (X1,X2,etc) are associated with Y holding the other variables constant
+
+B0 is the TRUE value of Y when all X = 0
+
+### General Notes
+
+With multiple regression, you have two or more null hypotheses 
+
+Answers the question: Controlling for one variable, is another variable significant?
+
+Need to have at least ten observations for each predictor variable 
+
+-Lets you incorporate more explanatory variables, control for other factors, test interactions, etc
+
+Two null hypotheses:
+
+  -While controlling for 1, 2 doesn't have a significant difference
+
+  -While controlling for 2, 1 doesn't have a significant difference.
+
+"Controlling for a variable" means removing the effect of that variable: fitting a regression to two variables in a 3D model, then looking at both 2D summaries of this model to see which is significant 
+
+  - Basically, you take a 2D representation and collapse it down to one dimension
+
+  - Another way to think about it
+  
+    - To see the effect of BMI on BP, controlling for Glucose:
+      
+      1. Remove variation in BP explained by Glucose (save the residuals)
+      
+      1. Remove variation in BMI explained by glucose (save residuals)
+      
+      1. Regress residual variation in BP on residual variation in BMI
+      
+      
+      
+Linear Regression Notes:
+https://towardsdatascience.com/linear-regression-explained-1b36f97b7572 
+      
+```{R}
+## Manually controlling (just for illustration)
+
+#remove variation in BP shared with Glucose, save what's left
+resBP<-lm(BP~Glucose, data=meddat)$residuals 
+#remove variation in BMI shared with Glucose, save what's left
+resBMI<-lm(BMI~Glucose, data=meddat)$residuals 
+
+coef(lm(resBP~resBMI)) #regress resid BP on resid BMI (effect of Glucose removed)!
+```
+
+You can add categorical variables to a regression via dummy coding 
+
+  - one level (the "reference") is coded as 0, the other as 1
+  
+  - dummy coefficients are mean differences as compared to the reference group
+  
+  
+What's the point of doing a t test in a regression model?
+
+  -Allows you to control for things like confounding variables and see if there's still an effect value
+
+## General Regression Code
+
+Use the code `lm` for "linear model"
+
+
+lm(<RESONSE> ~ <INDEPENDENT VARIABLE 1> + <INDEPENDENT VARIABLE 2>, data = <DATA NAME>)
+
+Degrees of freedom is 1- sample size 
+f-statistic vs t statistic 
+
+```{R Linear Regression}
+# How to run it: lm(formula = y~x)
+## predict y based on x
+library(tidyverse)
+# Example: Simple Regression
+#Import the data and clean it
+meddat<-read.csv("http://www.nathanielwoodward.com/MedicalData.csv")
+meddat$Gender<-factor(meddat$Gender,labels = c("F","M"))
+meddat$Diabetic<-factor(meddat$Diabetic,labels=c("No","Yes"))
+meddat$Diabetic<-factor(meddat$Diabetic,levels=c("Yes","No"))
+meddat$Edema<-factor(meddat$Edema,labels=c("No","Yes"))
+names(meddat)[1]<-"ID"
+# Visualize the data
+meddat%>%ggplot(aes(BMI,BP))+geom_point()
+# Run the regression
+fit<-lm(BP~BMI, data= meddat)
+summary(fit)
+# To plot the linear model (regression line)
+meddat%>%ggplot(aes(BMI,BP))+geom_point()+geom_smooth(method = 'lm',se=F)
+
+# Multiple regression
+fit<-lm(BP ~ Diabetic + BMI, data=meddat)
+summary(fit)
+
+# Testing for homoskedacticity via a scatterplot
+ggplot(meddat,aes(BMI,Glucose,color=Diabetic))+geom_point()
+# Test for homoskedacticity via BP test
+fit<-lm(Glucose~BMI+Diabetic,data=meddat)
+summary(fit)$coef
+
+library(sandwich); library(lmtest) #install.packages("sandwich");install.packages("lmtest")
+
+bptest(fit)
+
+
+#Add in an interaction
+#(y~x*z)
+#add in myltiple main effects
+#(y~x+z)
+
+```
+
+A final regression model will include:
+
+- explanatory variables that address the primary research question
+
+- explanatory variables that control for important covariates
+
+- investigations of any potential interactions and decision whether to include them in the final model or not
+
+- centered variables where it will help interpretation
+
+-removing unnecessary terms
+
+- LINE assumptions and the presence of influential points have both been checked using residual plots
+
+*Your model should tell a persuasive story parsimoniously*
+
+## General Linear Model 
+
+You're still using ordinary least squares, but this is a line that you can include 
+
+
+## Ordinary Least Squares vs. Generalized Linear Model for Multiple Regression
+
+**Ordinary Least Squares (OLS) Models**
+
+- Assumptions: (think acronym LINE)
+  
+  - L: There is a **linear** relationship between the response (Y) and explanatory (X) variable. 
+  
+  - I: Observations are **independent** of one another 
+  
+  - N: Reponses are approximately **normal** for each level of X
+  
+  - E: Variation in responses is the same (**equal**) for each level of X
+  
+  *Check your assumptions by analyzing univariate or bivariate graphs/charts* 
+  
+  
+  
+## Generalized Linear Model (GLM)
+
+
+GLM is anything you are modeling with a line using a *link function.*
+
+Generalized linear model is what you use when not all of your data is normal
+
+  - A logistic regression is a specific type of a GLM
+
+- Assumptions:
+  
+  - No assumption of linearity
+  
+  - No assumption of normality
+    
+    - allows accomodation of non-normal data such as counts or binary response data
+    
+  - No assumption of equal variance
+  
+  - Observations do still need to be independent 
+    
+    - If they are not, you will need to use multilevel methods
+    
+**General Multiple Regression Formula**
+
+[Datacamp Explanation](https://www.statmethods.net/advstats/glm.html)
+
+y = Bo + B1(Predictor1) + B2(Predictor2) + E
+
+CODE: `glm(variable1~variable2, family = linkFunction, data = dataset)`
+
+Will assume a linear regression unless you give it a link function, in which case it will do a logistic regression
+
+Link function after `family =`
+
+If you follow it with `binomial`, it will do a logistic regression on binomial values 
+
+**Interaction terms** 
+
+If you want to expand the model to allow the effect of one predictor to change depending on the levels of a second predictor, you consider the interaction terms:
+
+y = Bo + B1(Predictor1) + B2(Predictor2) +
+B3(Predictor1 x Predictor2) + E
+
+
+**Logistic Regression**
+
+Used for questions that have binary (yes/no answers or 0/1 answers) or binomial responses. 
+
+To do this, you have to use a link function, which means that your output will be log odds. 
+
+[Explanation of Log Odds](https://www.statisticshowto.com/log-odds/)
+
+```{R GLM}
+#Data
+biopsy<-read.csv("http://www.nathanielwoodward.com/Biopsy.csv")
+# create binary indicator for malignant (y=1), benign (y=0)
+data <- biopsy %>% mutate(y=ifelse(outcome=="malignant",1,0))
+head(data)
+
+#How to run a logistic regression:
+fit<-glm(y ~ clump_thickness, data=data, family=binomial(link="logit"))
+coeftest(fit) #coefficients are on logit scale
+summary(fit)
+#This will tell you the log odds of the outcomes
+
+#To interpret things more clearly, exponentiate everything to get just regular odds:
+exp(coef(fit)) #exponentiate to get odds scale
+
+# To convert the odds to probability:  
+odds2prob<-function(odds){odds/(1+odds)} #define a quickie function to convert odds to probs
+
+# You can get the 95% confidence intervals for a model with 
+# confint(model)
+
+
+# Evaluating your model
+
+# Confusion matrices
+## If we were predicting each individual perfectly perfectly
+table(truth=data$outcome, prediction=data$outcome)%>%addmargins
+
+# We would have 239 true positives, 444 true negatives, 0 false positives, and 0 false negatives
+data %>% mutate(outcome=factor(outcome,levels=c("malignant","benign")))
+data$prob <- predict(fit,type="response")
+# predicted outcomes (if prob>.5, predict malignant, otherwise predict benign)
+data$predicted <- ifelse(data$prob>.5,"malignant","benign")
+
+## But were aren't: Here is our actual confusion matrix:
+table(truth=data$outcome, prediction=data$predicted)%>%addmargins
+# We have 163 true positives, 424 true negatives, 20 false positives, and 76 false negatives
+
+# accuracy: proportion of all cases that were correctly classified
+print("Accuracy")
+(163+424)/683 
+
+# True Positive Rate (tpr) (sensitivity aka recall): proportion of malignant cases that were correctly classified?
+print("Sensitivity")
+163/239 
+
+# True Negative Rate (tnr) (specificity): proportion of benign caeses that were correctly classified?
+print("Specificity")
+424/444
+
+# Positive Predictive Value (ppv) (precision): proportion of cases classified as malignant that actually were malignant?
+print("Precision")
+163/183 
+
+#f1 score (geometric mean of ppv and tpr): a single score that balances both goals
+
+2*(163/239*163/183)/(163/183+163/239)
+
+#make sure that those flagged as malignant actually are (precision), and that we capture as many malignant cases as possible (sensitivity)
+
+
+# Another explanation of the interpretation of the confusion matrix
+#https://www.dataschool.io/simple-guide-to-confusion-matrix-terminology/ 
+# True positives (TP): the instances in which Yes/1 was predicted and Yes was correct
+# True negatives (TN): the instances in which No/0 was predicted and No was correct
+# False positives (FP): the instances in which Yes was predicted, but they were actually No
+# False negatives (FN): the instances in which No was predicted, but they were actually Yes
+
+# Accuracy: Overall, how often was the model correct?
+## (TP+TN)/total
+# True Positive Rate (Sensitivity/Recall): When it's actually Female, how often does the model predict Female?
+## TP/Actual Female
+# True Negative Rate (Specificity): When it's actually male, how often does it predict male? 
+## TN/actual no
+# Positive Predictive Value (Precision): When it predicts female, how often is it correct?
+## TP/predicted F
+
+
+#GLM Logistic regression with another variable
+#let's add marginal adhesion as a second predictor
+fit2 <- glm(y~clump_cat+marg_adhesion, family="binomial", data=data)
+coeftest(fit2)
+# How to visualize it:
+newdat<-data.frame(marg_adhesion=rep(1:10,3),
+                   clump_cat=rep(c("S","M","L"),each=10))
+newdat<-cbind(newdat,predict(fit2,newdat,se=T,type="response"))
+
+ggplot(newdat,aes(marg_adhesion,fit,fill=clump_cat))+geom_line()+
+  geom_ribbon(aes(ymin=fit-se.fit,ymax=fit+se.fit), alpha=.3)
+
+```
+For every 1 increase in clump thickness, your probability of malignancy goes up by a factor of 2.-- (your odds)
+
+
+
+
+# Tests and measures of regression model performance
+
+R^2: variability in response variable explained by the model
+
+Adjusted R^2, same as R^2, but it adds a penalty for model complexity so that you can tell each component of a model added performance that outweighed the cost of an additional component
+
+### Cross Validation 
+
+Tests for overfitting of your model.
+
+```{R}
+library(tidyverse); library(lmtest)
+
+biop<-read.csv("http://www.nathanielwoodward.com/Biopsy.csv")
+biop<-biop%>%mutate(y=ifelse(outcome=="malignant",1,0))
+biop$outcome<-NULL #remove this variable for now
+```  
+
+
+```{R}
+fit <- glm(y~clump_thickness,data=biop,family="binomial") #fit model
+prob <- predict(fit,type="response") #get predicted probabilities
+
+
+# Test how well your model is fitting data with the ROC curve and AUC calculations
+library(plotROC) #install.packages(plotROC)
+#geom_roc needs actual outcome d (0,1) and predicted probability m (or predictor if just one) 
+# Bascially, give it the truth labels and the probability)
+ROCplot<-ggplot(data)+geom_roc(aes(d=y,m=prob), n.cuts=0) 
+ROCplot
+# Calculate the AUC (area under the curve)
+calc_auc(ROCplot)
+
+# Rules for interpreting AUC:
+## If between 0.9 and 1.0, the model is very good
+## If between 0.8 and 0.9, the model is good
+## If between 0.7 and 0.8, the model is fair
+## If between 0,6 and 0.7, the model is poor
+## If between 0.5 and 0.6, the model is bad
+
+#library(pROC) use if you want 95% CI for your AUC!
+#ci.auc(response=data$y,predictor=data$prob,print.auc=T)
+```  
+
+###K-FOLD CROSS VALIDATION STEPS:
+*use this method most often*
+
+1. Partition your data into k groups (usually 10)
+
+1. fit ("train") the model on k - 1 groups (9), validate ("test") it on the other k (the 1 remaining group)
+
+1. do this k times cycling through so each part has been used once as a test set
+
+1. Average prediction performance 
+
+```{R K Fold}
+# Code for K-Fold cross validation
+## k-fold CV
+
+#EXAMPLE 1: Logistic Regression_________________________________________
+set.seed(1234)
+k=10 #choose number of folds
+
+data<-biop[sample(nrow(biop)),] #randomly order rows
+folds<-cut(seq(1:nrow(biop)),breaks=k,labels=F) #create folds
+
+diags<-NULL
+for(i in 1:k){
+  ## Create training and test sets
+  train<-data[folds!=i,] 
+  test<-data[folds==i,]
+  
+  truth<-test$y ## Truth labels for fold i
+  
+  ## Train model on training set (all but fold i)
+  fit<-glm(y~clump_thickness,data=train,family="binomial")
+  
+  ## Test model on test set (fold i) 
+  probs<-predict(fit,newdata = test,type="response")
+  
+  ## Get diagnostics for fold i
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+
+summarize_all(diags,mean) #average diagnostics across all k folds
+
+
+
+#EXAMPLE 2: Logistic Regression_________________________________________
+set.seed(1234)
+k=10
+
+data <- meddat %>% sample_frac #put rows of dataset in random order
+folds <- ntile(1:nrow(data),n=10) #create fold labels
+
+diags<-NULL
+for(i in 1:k){
+  train <- data[folds!=i,] #create training set (all but fold i)
+  test <- data[folds==i,] #create test set (just fold i)
+  truth <- test$Diabetic #save truth labels from fold i
+  
+  fit <- glm(Diabetic~(.)^2, data=train, family="binomial")
+  probs <- predict(fit, newdata=test, type="response")
+  
+  #See how well truth matches the predictions of the model
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean)
+
+#EXAMPLE #: Linear Regression_________________________________________
+set.seed(1234)
+k=5 #choose number of folds (let's do 5: why?)
+
+data1<-mtcars[sample(nrow(mtcars)),] #randomly order rows
+folds<-cut(seq(1:nrow(mtcars)),breaks=k,labels=F) #create folds
+
+diags<-NULL
+for(i in 1:k){
+  train<-data1[folds!=i,]
+  test<-data1[folds==i,]
+  
+  fit<-lm(mpg~.,data=train)
+  yhat<-predict(fit,newdata=test)
+  
+  diags[i]<-mean((test$mpg-yhat)^2) #mean squared error (MSE) - the only difference between this cross validation and cross valudation on logistic regression
+}
+
+mean(diags) #average MSE across folds
+
+
+## lasso with linear regression (and numeric predictors)
+library(glmnet)
+data(mtcars)
+y<-as.matrix(mtcars$mpg)
+x<-mtcars%>%select(-mpg)%>%mutate_all(scale)%>%as.matrix
+
+cv<-cv.glmnet(x,y) #this picks an optimal value for lambda (smallest MSE) via 10-fold CV
+```
+
+###Leave-One-Out Cross Validation Steps
+
+1. use n-1 observations/rows as training set
+
+1. Test model on remining datapoint
+
+1. Repeat n times so each observation/row has been left out once
+
+1. Average performance (accuracy) over N tests
+
+*Use for small datasets*
+
+
+```{R}
+# Code for Leave One Out
+## LOOCV (an alternative for small sample sizes)
+
+acc<-data.frame()
+
+for(i in 1:nrow(data)){
+  
+  ## Create training and test sets
+  train<-data[-i,] #all but observation/row i
+  test<-data[i,] #just observation/row i
+  truth<-test$y
+  
+  ## Fit model on training set (all rows but row i)
+  fit<-glm(y~clump_thickness,data=train,family="binomial")
+
+  ## Test model on remaning datapoint (row i)
+  prob<-predict(fit,newdata = test, type="response")
+
+  ## Save predicted probability and truth label for point i
+  acc<-rbind(acc,c(prob,truth))
+  names(acc)<-c("prob","truth")
+}
+
+
+class_diag(acc$prob,acc$truth) #more conservative
+```  
+
+###Bootstrapping style thing from motes
+
+_________fill in here_________________
+
+*drawback: have to iterate many times, which can take some time*
+
+
+```{R}
+# Code for Repeated Random Sub-Sampling 
+## Repeated Random Sub-Sampling CV (a less-common alternative)
+
+set.seed(1234)
+
+fraction<-0.5 #choose proportion of rows to train
+train_n<-floor(fraction*nrow(data)) #number of rows to train
+
+iter<-500 #number of iterations
+
+diags<-NULL
+for(i in 1:iter){
+  ## Create training and test sets
+  train_index<-sample(1:nrow(data),size=train_n)
+  train<-data[train_index,] 
+  test<-data[-train_index,]
+  truth<-test$y
+  
+  ## Train model on training set (random half of dataset)
+  fit<-glm(y~clump_thickness,data=train,family="binomial")
+  
+  ## Test model on remaning half of dataset; get classification diagnostics
+  probs<-predict(fit,newdata = test,type="response")
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean) #average diagnostics across all 500 iterations
+``` 
+
+## Lassoing
+
+### Once you've determined how well your model works, how do you know which variables to include in the model?
+
+How it works:
+
+- penalizes your model for becoming more complex
+
+- penalizes your model for having large residuals 
+
+Selects only the most important predictors
+
+*DONT USE STEPWISE REGRESSION*
+
+Requires your data to be formatted as matrices 
+
+```{R Lasso}
+#Lasso on medical data
+#Use the package glmnet()
+#install.packages("glmnet")
+library(glmnet)
+y<-as.matrix(meddat$Diabetic) #grab response
+x<-model.matrix(Diabetic~.,data=meddat)[,-1] #predictors (drop intercept)
+#Scale your values (you should always do this)
+x <- scale(x)
+head(x)
+
+
+cv <- cv.glmnet(x,y, family="binomial") #picks an optimal value for lambda through 10-fold CV
+
+#make a plot of the coefficients for different values of lambda
+{plot(cv$glmnet.fit, "lambda", label=TRUE); abline(v = log(cv$lambda.1se)); abline(v = log(cv$lambda.min),lty=2)}
+
+cv<-cv.glmnet(x,y,family="binomial")
+lasso<-glmnet(x,y,family="binomial",lambda=cv$lambda.1se)
+coef(lasso)
+
+```
+
+
+# Randomization Tests
+
+If you scramble the data up, you break any systematic association between group and response.
+
+Good visualization/description of this: https://www.jwilber.me/permutationtest/ 
+
+Good explanation from Dr. Di Fiore: https://difiore.github.io/ada-2021/module-16.html 
+
+**Steps**
+
+1. Calculate the actual observed test statistic
+
+1. Randomly mix up the association between the variables by permuting one
+
+  - literally just take one variable and put it in random order to break any real association between the variables
+  
+1. Recalculate the test statistic on the mixed-up data
+
+1. Repeat these two steps many times 
+
+  - this generates a sampling distribution under the null hypothesis of no association 
+  - due to randomization sometimes there will be associations due to chance
+  
+1. See where the actual test statistic falls in the sampling distribution
+
+  - is the actual test statistic large enough to suggest that the association isn't due to chance?
+  
+  - is the probability of getting a test stat at least as big as ours <.05 in this distribution?
+  
+  
+```{R Randomization, eval=FALSE}
+# First, compute your test statistic
+## This can be the mean, sd, or any other value 
+
+# Create an empty vector to fill with the test stats you calculate from the randomized data
+rand_dist<-vector()
+
+# Randomly sample the data
+for(i in 1:5000){
+new<-data.frame(time=sample(cric$time),condition=cric$condition)
+rand_dist[i]<-mean(new[new$condition=="fed",]$time)-
+mean(new[new$condition=="starved",]$time)}
+
+#Make a histogram of the null distribution with the values you found marked 
+{hist(rand_dist,main="",ylab=""); abline(v = c(-18.258, 18.258),col="red")}
+
+# Calculate the p-value
+mean(rand_dist>18.258 | rand_dist < -18.258) #pvalue: fail to reject H0!
+
+
+```
+
+**Bootstrapping vs Randomization Tests/Permutation Tests**
+From: https://stats.stackexchange.com/questions/20217/bootstrap-vs-permutation-hypothesis-testing 
+
+The *permutation test* is best for testing hypothesis and *bootstrapping* is best for estimating confidence intervals. Permutation tests test a specific null hypothesis of exchangeability (only the random sampling/randomization explains the difference seen). Bootstrapping estimates the variability of the sampling process.
+
+## Bootstrapping
+
+*A robust appeoach to testing data when assumptions are not met (normality or sample size), or you want to test some other statistic than the mean.* *This method allows you to test things without making any assumptions*
+
+*Used to estimated confidence errors or standard deviation, not usually used for hypothesis testing*
+
+1. Treat your sample as the population and draw samples of the same size from it with replacement
+
+1. Compute the mean (or some other estimate) of the new, resampled dataset and save it
+
+1. Repeat this process many times and save all the estimates
+
+1. The distribution generated from the estimates of the samples is the sample (theoretical) distribution 
+
+```{R}
+#Bootstrapping
+means <- vector() #create vector to hold distribution of means
+## You can also do bootstrapping with standard deviation, resituals, whatever you want 
+
+for i in 1:5000){
+  samp <- sample(mtcars$mpg,replace=T) #take bootstrap sample
+  means[i] <- mean(samp) # calculate and save the mean
+}
+
+# Visualize it
+ggplot()+geom_histogram(aes(means))+geom_vline(xintercept=quantile(means,c(.025,.975)))
+#Find your 95% confidence interval
+quantile(means(c(0.025,0.975))
+
+# Creating a function      
+#define a function that takes your data x and returns the 95% CI
+boot95ci<-function(x,n=5000){
+  means<-vector()
+  for(i in 1:n){
+    means[i]<- mean(sample(x,replace=T))
+  }
+  return(quantile(means,c(.025,.975)))
+}
+boot95ci(mtcars$mpg)
+
+# Can define a conditional within the input of the function
+cal_NA <- function(x, na.rm=TRUE){
+  # Provide a message if there is any NAs
+  if(any(is.na(x))) warning ("NA in data") 
+  if(na.rm)x=na.omit(x)
+}
+
+# Information on using return within a function https://www.datamentor.io/r-programming/return-function/ 
+## Should use return() when you create an object inside a function
+```
+
+
+# Mapping in R
+
+```{r}
+# Fill this in later
+
+
+```
+
+
+```{R Making a Website with Github, eval = FALSE}
+# in the terminal 
+# initialize the git repository 
+git remote add origin https://github.com/annakurtin/test_repo.git
+
+
+# to name the respository something that will be recognized as a website, you have to name it usernmae.github.io
+
+```
