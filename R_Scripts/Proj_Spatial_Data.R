@@ -4,7 +4,8 @@ library(ks)
 library(here)
 library(plotrix)
 library(lattice)
-library(dehabitatHR)
+#library(dehabitatHR)
+## Error: no package called this?
 library(maptools)
 library(mapview)
 library(ggplot2)
@@ -15,6 +16,8 @@ library(tmap)
 library(stars)
 library(dplyr)
 library(ggmap)
+library(data.table)
+library(tidyverse)
 
 
 # Load in location file
@@ -25,6 +28,10 @@ str(locs)
 # Check the projection 
 crs(locs, proj =TRUE)
 ## it says the projection is longlat
+
+# Method 2: read data into a data table and then make it into a spatial object
+# giving a weird 
+locs_dat <- fread("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Thesis_ArcGIS_Files\\Cuckoo_Montitoring_Locations\\2022_AllSurveyPoints.shp")
 
 # project it
 ## MT state plane - lambert system?
