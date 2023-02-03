@@ -18,11 +18,15 @@ library(dplyr)
 library(ggmap)
 library(data.table)
 library(tidyverse)
+#install.packages("tidyterra")
+library(tidyterra) ## has the functions geom_spatraster() and geom_spatraster_contour()
+library(ggspatial) ## used for north arrow and scale bar
+library(ggnewscale) ## allows us to plot rasters with different colorscales in ggplot.
 
 
 # Load in location file
 ## Method 1: read it directly into a spatial object
-locs <- st_read("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Thesis_ArcGIS_Files\\Cuckoo_Montitoring_Locations\\2022_AllSurveyPoints.shp")
+locs <- st_read(".\\Data\\Spatial_Data\\2022_AllSurveyPoints.shp")
 # Look at the structure
 str(locs)
 # Check the projection 
@@ -30,26 +34,30 @@ crs(locs, proj =TRUE)
 ## it says the projection is longlat
 
 # Method 2: read data into a data table and then make it into a spatial object
-# giving a weird 
-locs_dat <- fread("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Thesis_ArcGIS_Files\\Cuckoo_Montitoring_Locations\\2022_AllSurveyPoints.shp")
+locs_dat <- fread(".\\Data\\Spatial_Data\\2022_ALLPoints.csv")
+locs_dat <- na.omit(locs_dat)
 ## Don't open a shapefile with fread
+# Do I need to remove NAs or can I do that later? Missing values in coordinates not allowed
+#convert this into a spatial object
+locs_sf <- locs_dat %>% 
+  st_as_sf(coords=c("long", "lat")) 
+
+class(locs_sf)
+crs(locs_sf)
+# no coordinate system
+locs_sf <- locs_sf %>% st_set_crs(32100) 
 
 # project it
 ## MT state plane - lambert system?
 #crs(locs) <- "+proj=lambert +datum=WGS84 +no_defs"
 # this is throwing an error - how do you project this?
 
-#Make a plot using base plot
-base::plot(locs$long,locs$lat,col=c("red","blue","green","orange")[locs$organization],ylab="Latitude",xlab="Longitude")
-#legend(555000,5742500,unique(locs$organization),col=c("blue","red"),pch=1)
-# not showing up on the map 
-
 # for quickly visualizing
-mapview(locs)
+mapview(locs_sf)
 
-locations_plot <- ggmap(basemap, extent="normal") + geom_sf(data=locs) 
-#, mapping=aes(fill=organization),color=c("red","orange","green","blue")
-locations_plot
+ggplot() +
+  geom_sf(data = locs_sf)
+
            
 # set bounding box
 MT_bound <- st_bbox(locs)
@@ -64,4 +72,24 @@ basemap <- get_stamenmap(as.numeric(MT_bound),maptype = "terrain-background", zo
 #can also set the zoom level (10 default)
 #http://maps.stamen.com/terrain-background/#9/47.0010/-109.6450
 
+str(basemap)
+basemap_rast <- rast(basemap)
+# plot this to check how it looks
+plot(basemap_rast)
+class(basemap)
+
+
+# Put the basemap with the data
+ggplot() +
+  geom_sf(data = locs_sf) +
+  geom_spatraster(data = basemap)
+
 # caltopo for mapping online 
+
+
+
+# code graveyard
+#locations_plot <- ggmap(locs_sf, extent="normal") + geom_sf(data=locs) 
+#, mapping=aes(fill=organization),color=c("red","orange","green","blue")
+#locations_plot <- ggmap(basemap, extent="normal") + geom_sf(data=locs) 
+#locations_plot

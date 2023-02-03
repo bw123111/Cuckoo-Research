@@ -1386,13 +1386,15 @@ Intro/tutorials:
 
 [Intro to Raster Data in R](https://www.neonscience.org/resources/learning-hub/tutorials/dc-plot-raster-data-r)
 
+[R and GIS for Economists](https://tmieno2.github.io/R-as-GIS-for-Economists/raster-data-object-classes.html)
+
 [For making a hexagonal tessellation](https://search.r-project.org/CRAN/refmans/spatstat.geom/html/hextess.html)
 
 ### Notes and definitions
 
 Easting is the x coordinate and northing is the y coordinate in UTM projections
 
-```{r Vector Data}
+```{r Working with Vector Data}
 #Step 1: load in the data
 ## If you're loading in a datasheet or non-spatial data type, it is helpful to load it in as just a dataframe and then convert it to a spatial object
 dat <- fread("C:\\Users\\annak\\OneDrive\\Documents\\Research\\Helpful_Coding_Things\\R_Resources\\Spatial Data Workshop\\Arctic fox Bylot - GPS tracking.csv")
@@ -1433,13 +1435,29 @@ canada <- ne_states(country = "canada", returnclass = "sf") %>%
   st_transform(3995)
 
 
-#Step 5: use geom_sf() to plot
+#Step 5: plot the points 
+## Method 1: use geom_sf() to plot
 # This is within sf but talks to ggplot and uses the same syntax as ggplot
 ## I'm going to plot using ggplot. Both "country_outline" and "dat_sf" are sf objects, so we can use the geom_sf() function to plot them.
 
 ggplot()+
   geom_sf(data = canada)+
   geom_sf(data = dat_sf, color = "red")
+
+## Method 2: mapview
+## good for quickly visualizing things
+mapview(locs)
+
+## Method 3: tmap
+## fill in 
+
+## Method 4: base R
+# base plot of wolf packs by color with legend
+# specify to use the plot function from the base package
+base::plot(wolfyht$EASTING,wolfyht$NORTHING,col=c("red","blue")[wolfyht$PackID],ylab="Northing",xlab="Easting")
+legend(555000,5742500,unique(wolfyht$Pack),col=c("blue","red"),pch=1)
+
+
 
 #Step 6: correct any needed points
 ## This is why we read in the datasheet separately, so we can fix things when needed
@@ -1474,8 +1492,32 @@ ggplot()+
 
 ```
 
+For most plotting, you'll also need a basemap. There are several different options for this:
 
-```{r Raster Data}
+[CalTopo](https://caltopo.com/map.html#ll=33.20829,-109.73145&z=8&b=mbt)
+
+[Stamen Maps](http://maps.stamen.com/#toner/12/37.7706/-122.3782)
+
+```{r Base Maps}
+# Importing from CalTopo
+
+# Importing from Stamen Maps
+#1. set bounding box
+MT_bound <- st_bbox(locs_dat)
+#xmin, ymin, xmax, ymax
+
+#MT_bound[1] <- MT_bound[1]-5# assign it a number 
+# might require you to put names in 
+## can go through and add buffer
+
+#2. load in background map
+basemap <- get_stamenmap(as.numeric(MT_bound),maptype = "terrain-background", zoom=6)
+#can also set the zoom level (10 default)
+#http://maps.stamen.com/terrain-background/#9/47.0010/-109.6450
+```
+
+
+```{r Working with Raster Data}
 # Step 1: Set Bounding Box
 ## First, let's create an object representing the bounding box of the movement data. We'll use this to define the area for retrieving rasters.
 ## Since "dat_sf" is an sf object, we can use the function st_bbox() to return the coordinates of the north, south, east, and west edges.
@@ -1551,7 +1593,7 @@ Plotting spatial data
 
 Way to do this are through geom_sf, plotly, or mapview
 
-```{R Plotting Spatial Data}
+```{R Plotting Spatial Data Togehter }
 ## With the exception of quick raster plots (as above), I exclusively use ggplot for plotting spatial data in R.
 ## However, ggplot itself lacks built-in functions for accepting spatial objects, so we have to rely on some from 
 ## sf (geom_sf()) and tidyterra (geom_spatraster()).
