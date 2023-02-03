@@ -13,9 +13,11 @@
 *.txt
 *.wav
 *.mp3
+*.jpg
 
 # Folders
 Data/
 Archive/
 External_R_Code/
+Python_Scripts/BBCU_YBCU_Call_Training/Training_Packet
 #Do this for raw data and for outputs

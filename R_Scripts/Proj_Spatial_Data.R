@@ -32,6 +32,7 @@ crs(locs, proj =TRUE)
 # Method 2: read data into a data table and then make it into a spatial object
 # giving a weird 
 locs_dat <- fread("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Thesis_ArcGIS_Files\\Cuckoo_Montitoring_Locations\\2022_AllSurveyPoints.shp")
+## Don't open a shapefile with fread
 
 # project it
 ## MT state plane - lambert system?

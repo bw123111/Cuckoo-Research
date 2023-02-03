@@ -2493,6 +2493,18 @@ There are eight theme built into ggplot:
 
 [R Graphics Cookbook by Winston Chang](http://www.cookbook-r.com/Graphs/)
 
+```{R Exporting Publication Quality Graphics}
+
+#Printing PDFs from R
+pdf("Output/wolf_elev.pdf", width=4, height=4)
+print(ggplot(wolfkde, aes(x=Elevation2, y=used)) + geom_point(colour="gray") + stat_smooth(method="glm", method.args = list(family="binomial")) + xlab("Elevation (m)") + ylab("Predicted Probability of Wolf Use"))
+# turn the printing off 
+dev.off()
+
+#or
+ggsave("Output/elev_wolf2.pdf", width=4, height=4)
+```
+
   
 # Visualizing acoustic data in R
 
