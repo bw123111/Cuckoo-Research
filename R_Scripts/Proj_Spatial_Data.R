@@ -1,5 +1,7 @@
 # reading in shapefile of cuckoo locations
 
+###### Needs more digging into this #####
+
 library(ks)
 library(here)
 library(plotrix)
@@ -22,6 +24,7 @@ library(tidyverse)
 library(tidyterra) ## has the functions geom_spatraster() and geom_spatraster_contour()
 library(ggspatial) ## used for north arrow and scale bar
 library(ggnewscale) ## allows us to plot rasters with different colorscales in ggplot.
+library(leaflet) # for using WMS files in R
 
 
 # Load in location file
@@ -59,8 +62,12 @@ ggplot() +
   geom_sf(data = locs_sf)
 
            
+# Get a basemap from stamenmaps
+
 # set bounding box
 MT_bound <- st_bbox(locs)
+MT_bound <- st_bbox(st_buffer(locs_sf, dist = .1))
+# units?
 #xmin, ymin, xmax, ymax
 
 #MT_bound[1] <- MT_bound[1]-5# assign it a number 
@@ -78,13 +85,40 @@ basemap_rast <- rast(basemap)
 plot(basemap_rast)
 class(basemap)
 
+# project it to match
+basemap_proj <- basemap %>%
+  projectRaster(32100) 
+
+
 
 # Put the basemap with the data
 ggplot() +
   geom_sf(data = locs_sf) +
-  geom_spatraster(data = basemap)
+  geom_raster(data = basemap)
 
-# caltopo for mapping online 
+crs(basemap)
+
+ggmap(basemap)+
+  geom_sf(data = locs_sf,
+          inherit.aes=FALSE,
+          mapping=aes(geometry=geometry)) # specify the geometry within the sf file you're reading in 
+# inherit.aes tells it to bring the aesthetics in from the previously specified sf, not basemap 
+# need to edit bounding box 
+
+
+
+##### Using leaflet to read in WMS files #####
+#https://inbo.github.io/tutorials/tutorials/spatial_wms_services/
+# More info on leaflet
+#https://rspatial.org/terra/spatial/9-maps.html
+land_cov <- "http://www.opengis.net/wms https://www.mrlc.gov/geoserver/schemas/wms/1.3.0/capabilities_1_3_0.xsd"
+
+leaflet() %>% 
+  setView(lng=-107.305, lat=46.27724, zoom=15) %>%
+  addWMSTiles(
+    land_cov,
+    layers="NLCD_2019_Land_Cover_L48"
+  )
 
 
 
