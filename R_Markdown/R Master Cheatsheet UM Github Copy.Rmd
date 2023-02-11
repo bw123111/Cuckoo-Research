@@ -3641,7 +3641,7 @@ boot95ci(mtcars$mpg)
 # Can define a conditional within the input of the function
 cal_NA <- function(x, na.rm=TRUE){
   # Provide a message if there is any NAs
-  if(any(is.na(x))) warning ("NA in data") 
+  if(any(is.na(x))) warning ("NA in data")
   if(na.rm)x=na.omit(x)
 }
 
@@ -3650,14 +3650,17 @@ cal_NA <- function(x, na.rm=TRUE){
 ```
 
 
-# Mapping in R
+# Occupancy models
 
-```{r}
+[Occupancy models in R with code examples](https://jamesepaterson.github.io/jamespatersonblog/2021-01-01_dynamicoccupancy.html)
+
+```{r Occupancy Models}
 # Fill this in later
 
 
 ```
 
+# Making and Maintaining a Website in Github
 
 ```{R Making a Website with Github, eval = FALSE}
 # in the terminal 
