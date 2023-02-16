@@ -1510,7 +1510,16 @@ For most plotting, you'll also need a basemap. There are several different optio
 MT_bound <- st_bbox(locs_dat)
 #xmin, ymin, xmax, ymax
 
-#MT_bound[1] <- MT_bound[1]-5# assign it a number 
+# Changing bbox boundaries
+# lets reset the boundaries to what we want, the order is:
+#xmin, ymin, xmax, ymax
+MT_bound[1] <- xmin_proj
+MT_bound[2] <- ymin_proj
+MT_bound[3] <- xmax_proj
+MT_bound[4] <- ymax_proj
+
+# You can also edit it based on the existing data
+MT_bound[1] <- MT_bound[1]-5# assign it a number 
 # might require you to put names in 
 ## can go through and add buffer
 

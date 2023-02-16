@@ -77,6 +77,7 @@ MT_bound <- st_bbox(st_buffer(locs_sf, dist = .1))
 # load in background map
 basemap <- get_stamenmap(as.numeric(MT_bound),maptype = "terrain-background", zoom=6)
 #can also set the zoom level (10 default)
+## Higher is more detail, lower is less detail
 #http://maps.stamen.com/terrain-background/#9/47.0010/-109.6450
 
 str(basemap)
@@ -107,18 +108,18 @@ ggmap(basemap)+
 
 
 
-##### Using leaflet to read in WMS files #####
+##### NOT WORKING: Using leaflet to read in WMS files #####
 #https://inbo.github.io/tutorials/tutorials/spatial_wms_services/
 # More info on leaflet
 #https://rspatial.org/terra/spatial/9-maps.html
-land_cov <- "http://www.opengis.net/wms https://www.mrlc.gov/geoserver/schemas/wms/1.3.0/capabilities_1_3_0.xsd"
-
-leaflet() %>% 
-  setView(lng=-107.305, lat=46.27724, zoom=15) %>%
-  addWMSTiles(
-    land_cov,
-    layers="NLCD_2019_Land_Cover_L48"
-  )
+# land_cov <- "http://www.opengis.net/wms https://www.mrlc.gov/geoserver/schemas/wms/1.3.0/capabilities_1_3_0.xsd"
+# 
+# leaflet() %>% 
+#   setView(lng=-107.305, lat=46.27724, zoom=15) %>%
+#   addWMSTiles(
+#     land_cov,
+#     layers="NLCD_2019_Land_Cover_L48"
+#   )
 
 
 
