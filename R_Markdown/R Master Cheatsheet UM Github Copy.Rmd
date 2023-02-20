@@ -1398,6 +1398,8 @@ Easting is the x coordinate and northing is the y coordinate in UTM projections
 
 ```{r Working with Vector Data}
 #Step 1: load in the data
+## Loading in shapefiles
+shapefile <- st_read("Path\\To\\File")
 ## If you're loading in a datasheet or non-spatial data type, it is helpful to load it in as just a dataframe and then convert it to a spatial object
 dat <- fread("C:\\Users\\annak\\OneDrive\\Documents\\Research\\Helpful_Coding_Things\\R_Resources\\Spatial Data Workshop\\Arctic fox Bylot - GPS tracking.csv")
 
@@ -1453,7 +1455,16 @@ mapview(locs)
 ## Method 3: tmap
 ## fill in 
 
-## Method 4: base R
+## Method 4: ggmap
+### only works with ggmap objects, which is what stamenmap automatical=lly gives you
+basemap_proj <- get_stamenmap(as.numeric(proj_bound),maptype = "terrain-background", zoom=6)
+ggmap(basemap_proj)
+# but you can also plot other objects on top of it
+ggmap(basemap_proj)+geom_sf(data = locs_sf,
+                            inherit.aes=FALSE,
+                            mapping=aes(geometry=geometry, color = organization))
+
+## Method 5: base R
 # base plot of wolf packs by color with legend
 # specify to use the plot function from the base package
 base::plot(wolfyht$EASTING,wolfyht$NORTHING,col=c("red","blue")[wolfyht$PackID],ylab="Northing",xlab="Easting")
@@ -1529,6 +1540,23 @@ basemap <- get_stamenmap(as.numeric(MT_bound),maptype = "terrain-background", zo
 #http://maps.stamen.com/terrain-background/#9/47.0010/-109.6450
 ```
 
+## Raster Data 
+
+Can be a different beast in R.
+
+[Reading in .tiff files with their auxillary data in R](https://gis.stackexchange.com/questions/273372/how-to-access-the-attribute-table-of-a-tif-map-in-r)
+
+### A Note On Lining up Raster Data
+
+Here we will go through some typical raster operations when creating a set of spatially consistent raster layers. Our goal is to create a consistent stack of rasters - a raster stack, or brick, of the same raster extent, resolution and projection for all subsequent analyses in R. 
+
+1. Mask - we create a consistent raster MASK upon which to base all subsequent operations. (basically you set the study area). This standardizes the extent, resolution and projection of the mask, and sets all values of the mask to be 0. This will make all things outside your bounding box to NA.
+
+2. `rasterize()` - we then use this operation to convert a vector file, a shapefile, to a raster. 
+
+3. `resample()` - note that existing raster layers, e.g., elevation, distance to human access, had a different set of dimensions (extents) last week when we created our raster stack. They may have also had different resolutions (ex. 30x30m grain size for the raster - don't necessarily need to make this consistent), in which case we need to resample to a consistent resolution. 
+- resample starts form a top corner and resamples everything to be the same resolution and registration (same grid size, all corners line up)
+
 
 ```{r Working with Raster Data}
 # Step 1: Set Bounding Box
@@ -1577,6 +1605,7 @@ plot(lcov, add=T)
 
 ## Elev is quite a bit bigger than lcov, and the resolutions are similar but don't quite match.
 # Function to get them to match extents: crop()
+# cropped_data <- crop(data_orig, data_to_match, snap="near")
 # Function to get them to match resolution: resample()
 ## Let's crop elev to the extent of lcov, then resample the resolution of lcov to match elev.
 elev <- crop(elev, lcov, snap = "near")
@@ -1588,6 +1617,24 @@ lcov <- resample(lcov, elev, method = "near")
 ## Plot side-by-side to make sure they're looking good.
 plot(c(elev, lcov))
 # Now we can see it's the same extent and resolution now 
+
+
+# Another way to do this: masking (listed above)
+#1.  Create a mask raster to use as a template for converting shapefile data to rasters
+#create an empty raster
+mask.raster <- rast()
+#2. set extent (note that I customized this extent so it covered both elc_habitat and humanacess) (this usually requires some research to set your bounding box)
+ext(mask.raster) <- c(xmin=443680.6, xmax=650430.4, ymin=5618416, ymax=5789236) 	
+#3. set the resolution to 300 m 
+res(mask.raster)<-300
+#4.get the projection you're working with
+crs(mask.raster)<- "+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"
+
+# next resample the raster data to make it match - continuous data
+elevation2<-resample(elevation2, mask.raster, method="bilinear")
+disthumanaccess2<-resample(disthumanaccess, mask.raster, method="bilinear")
+## method = "bilinear" means bilinear interpolation and uses a weighted average of the four nearest cell centers. Best used for continuous data.
+## method = "near" mean nearest neighbor and the value of the output cell is determined by the nearest cell center on the input grid. Best used for categorical data. 
 
 
 # Step 5: change the classification of the land cover or categorical variable if needed
