@@ -1571,6 +1571,7 @@ dat_bbox <- st_bbox(st_buffer(dat_sf, dist = 1000))
 ## Download elevation raster using elevatr. Note the different CRS format required here. You can play with z (zoom) to get different resolutions (which we'll do later).
 elev <- get_elev_raster(dat_sf, z = 6, prj = "EPSG:3995") 
 lcov <- terra::rast("C:\\Users\\annak\\OneDrive\\Documents\\Research\\Helpful_Coding_Things\\R_Resources\\Spatial Data Workshop\\MCD12Q1_LC1_2018_001.tif")
+# If you import a .tif file from an arcGIS file that has more .tif.aux files and things like that you only need the .tif to visualize it and work with
 
 # Step 3: convert your data type and layer names if needed
 ## There are two main packages for working with raster data in R: raster and terra. The raster package has been around for a while and uses
@@ -1602,6 +1603,7 @@ ext(lcov)
 
 plot(elev)
 plot(lcov, add=T)
+# A little bit about plotting rasters using plot() and taking rasters from GIS files https://gis.stackexchange.com/questions/276694/visualizing-raster-in-r
 
 ## Elev is quite a bit bigger than lcov, and the resolutions are similar but don't quite match.
 # Function to get them to match extents: crop()

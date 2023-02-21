@@ -55,7 +55,7 @@ ggmap(basemap_orig)+geom_sf(data = locs_sf,
 # Next lets take a look at the landcover data
 # read the file in as a spatraster
 ## 2019
-lcov <- terra::rast("D:\\MT_Spatial_Data\\NLCD_2019_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
+lcov <- terra::rast("E:\\MT_Spatial_Data\\NLCD_2019_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
 # visualize it quickly
 plot(lcov)
 ## just for funsies, lets look at the others:
@@ -68,11 +68,12 @@ plot(lcov16)
 
 ## Looks like for the land cover data we need to fix the projection system (it is slanted, so we need to reproject it into the montana state plane system)
 # we also need to assign values to the land cover data
-# get this from the legend:
-lcov_cats <- read_csv("D:\\MT_Spatial_Data\\NLCD_landcover_legend_2018_12_17_MRafobliFr55aJu210wR.csv")
-# remove unnamed categories
-lcov_cats <- na.omit(lcov_cats)
-lcov_cats
+# # OLD from the legend provided (codes are wrong):
+# lcov_cats <- read_csv("D:\\MT_Spatial_Data\\NLCD_landcover_legend_2018_12_17_MRafobliFr55aJu210wR.csv")
+# # remove unnamed categories
+# lcov_cats <- na.omit(lcov_cats)
+# lcov_cats
+
 # make a matrix of the values and the corresponding land cover
 # find out how many elements we need
 list <- c(0,70,209, 222, 217,235, 171, 179, 104, 28, 181, 204, 223, 220, 184, 108)
@@ -87,16 +88,34 @@ cats[,2] <- c("null","open_water","ice_snow","developed_open","developed_low","d
 
 # now that the numbers in the legend have the correct levels, we just need to change them to be the land cover class
 levels(lcov)
+# change the levels in the red column to match up with the levels in the cats matrix
+##LOOK IN HEBBLEWHITE CODE FOR THIS
 
 # need to find a way to rename the IDs to the values that make sense or line up the cats with the raster file___________________________________
 
-# lets look at the other land cover data to see if it helps us
-change_index <- xmlParse("D:\\MT_Spatial_Data\\NLCD_2001_2019_change_index_L48_20210604_MRafobliFr55aJu210wR.tiff.aux.xml")
-root_changeIndex <- xmlRoot(change_index)
-print(root_changeIndex[1])
+# Load in the downloads from the MT LiDAR
+## Load in CHM data - What is this??
+musselshell_CHM <- terra::rast("D:\\Musselshell_Spatial_Data\\CHM.tif")
+plot(musselshell_CHM, main = "Musselshell CHM")
 
+## Read in digital surface model
+musselshell_DSM <- terra::rast("D:\\Musselshell_Spatial_Data\\DSM.tif")
+plot(musselshell_DSM, main = "Musselshell Digital Surface Model")
+## Find a way to zoom in on this to see more of what you're working with
 
+## Read in HF DEM
+musselshell_HFDEM <- terra::rast("D:\\Musselshell_Spatial_Data\\HFDEM.tif")
+plot(musselshell_HFDEM, main = "Musselshell HFDEM") 
 
+## Read in hillshade
+musselshell_Hillshade <- terra::rast("D:\\Musselshell_Spatial_Data\\Hillshade.tif")
+plot(musselshell_Hillshade, main = "Musselshell Hillshade")
+
+## Read in intensity
+musselshell_Intensity <- terra::rast("D:\\Musselshell_Spatial_Data\\Intensity.tif")
+plot(musselshell_Intensity, main = "Musselshell Intensity")
+
+# What do these tell us?___________________________________
 
 ###### making a raster stack #######
 # check the resolution and extent
@@ -203,11 +222,20 @@ mapview(rivers_new)
 
 
 ###### CODE GRAVEYARD ####
-lcov_test <- crop(lcov, basemap_proj, snap = "near")
+
+## Resources https://gis.stackexchange.com/questions/273372/how-to-access-the-attribute-table-of-a-tif-map-in-r
+# https://stackoverflow.com/questions/47885065/crop-raster-with-polygon-in-r-error-extent-does-not-overlap
+# lcov_test <- crop(lcov, basemap_proj, snap = "near")
+# 
+# 
+# 
+# basemap_test <- basemap_proj %>% projectRaster(crs=32100)
+# basemap2 <- rast(basemap_proj)
+# basemap3 <- basemap2
+# basemap3 <- basemap2 %>% projectRaster(from = basemap2, to = basemap3, crs = 32100)
 
 
-
-basemap_test <- basemap_proj %>% projectRaster(crs=32100)
-basemap2 <- rast(basemap_proj)
-basemap3 <- basemap2
-basemap3 <- basemap2 %>% projectRaster(from = basemap2, to = basemap3, crs = 32100)
+# # lets look at the other land cover data to see if it helps us
+# change_index <- xmlParse("D:\\MT_Spatial_Data\\NLCD_2001_2019_change_index_L48_20210604_MRafobliFr55aJu210wR.tiff.aux.xml")
+# root_changeIndex <- xmlRoot(change_index)
+# print(root_changeIndex[1])
