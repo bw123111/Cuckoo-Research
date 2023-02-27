@@ -1,16 +1,19 @@
 ############### Land Cover Sampling Data ###############
 
-library(data.table)
-library(sf)
-library(ggmap)
-library(terra)
-library(raster)
-library(mapview)
-library(tidyverse)
-library(rgdal)
-library(XML)
-library(methods)
+# library(data.table)
+# library(sf)
+# library(ggmap)
+# library(terra)
+# library(raster)
+# library(mapview)
+# library(tidyverse)
+# library(rgdal)
+# library(XML)
+# library(methods)
 
+packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData")
+source(".\\R_Scripts\\Install_Load_Packages.R")
+load_packages(packages)
 
 ############ TO DO ##############
 
@@ -22,7 +25,7 @@ library(methods)
 ## Might be multi band and it's just mapping one of the bands 
 
 
-########### 1: Load in the data and visualize it #############
+########### Survey Points Data, Bounding Box and Basemap #############
 # load in locations data
 locs_dat <- fread(".\\Data\\Spatial_Data\\2022_ALLPoints.csv")
 locs_dat <- na.omit(locs_dat)
@@ -63,7 +66,7 @@ ggmap(basemap_orig)+geom_sf(data = locs_sf,
 
 
 
-# Next lets take a look at the landcover data
+#################### Landcover Data ##########################
 # read the file in as a spatraster
 # Pull into ArcGIS
 ## 2019
@@ -71,19 +74,41 @@ ggmap(basemap_orig)+geom_sf(data = locs_sf,
 #plot(lcov2)
 lcov <- terra::rast("E:\\MT_Spatial_Data\\MRLC_Data\\NLCD_2019_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
 # visualize it quickly
-terra::plotRGB(lcov,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
-levels(lcov)
-cats(lcov)
+lcov_subset <- subset(lcov,1)
+nlayer(lcov)
+plot(lcov)
+terra::plotRGB(lcov_subset,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
+#levels(lcov)
+#cats(lcov)
 ## Why so much development?? This land cover type is wrong - should be cultivated crops
+
+# Renaming the categories with FedData
+# Working with NLCD data: https://smalltownbigdata.github.io/feb2021-landcover/feb2021-landcover.html
+# load in the legend 
+legend <- pal_nlcd()
+# make a vector of all the values we have in our study area and select those from the legend object
+
+vals <- unique(lcov[[1]])
+
+df <- legend[legend$ID %in% vals$Red,]
+# There are none of the values in Red that line up with values in legend - once again becuase it's reading it in as RGB values
+
+
+
+
+
+
+
+
+
 # Trying to download again
 # Latitude: 
 #ymin <- 44.99590
 #ymax <- 49.01381
 #xmax <- -103.97005
 #xmin <- -112.81392
-lcov
-lvls <- levels(lcov)
-length(lvls)
+#lvls <- levels(lcov)
+#length(lvls)
 
 # lcov2 <- terra::rast("E:\\MT_Spatial_Data\\MRLC_Data_LC_Only\\NLCD_2019_Land_Cover_L48_20210604_wL2onyRXwRRRtc1Y7tTR.tiff")
 # # visualize it quickly
@@ -92,21 +117,18 @@ length(lvls)
 # the values in the "red" category correspond to the land cover types
 ## just for funsies, lets look at the others:
 ## 2016
-lcov16 <- terra::rast("D:\\MT_Spatial_Data\\NLCD_2016_Tree_Canopy_L48_20190831_MRafobliFr55aJu210wR.tiff")
-plot(lcov16)
-
-lcov01 <- terra::rast("D:\\MT_Spatial_Data\\NLCD_2001_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
-plot(lcov16)
+##lcov16 <- terra::rast("D:\\MT_Spatial_Data\\NLCD_2016_Tree_Canopy_L48_20190831_MRafobliFr55aJu210wR.tiff")
+##plot(lcov16)
+## 2001
+##lcov01 <- terra::rast("D:\\MT_Spatial_Data\\NLCD_2001_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
+##plot(lcov16)
 
 ## Looks like for the land cover data we need to fix the projection system (it is slanted, so we need to reproject it into the montana state plane system)
 # we also need to assign values to the land cover data
-# # OLD from the legend provided (codes are wrong):
-# lcov_cats <- read_csv("D:\\MT_Spatial_Data\\NLCD_landcover_legend_2018_12_17_MRafobliFr55aJu210wR.csv")
-# # remove unnamed categories
-# lcov_cats <- na.omit(lcov_cats)
-# lcov_cats
 
-# make a matrix of the values and the corresponding land cover
+
+######### Matrix for Renaming Values ############
+#make a matrix of the values and the corresponding land cover
 # find out how many elements we need
 list <- c(0,70,209, 222, 217,235, 171, 179, 104, 28, 181, 204, 223, 220, 184, 108)
 length(list)
@@ -121,11 +143,53 @@ levels(lcov)
 
 # now that the numbers in the legend have the correct levels, we just need to change them to be the land cover class
 levels(lcov)
+lcov[[2]]
 # change the levels in the red column to match up with the levels in the cats matrix
 ##LOOK IN HEBBLEWHITE CODE FOR THIS
 
 # need to find a way to rename the IDs to the values that make sense or line up the cats with the raster file___________________________________
 
+# # OLD from the legend provided (codes are wrong):
+# lcov_cats <- read_csv("D:\\MT_Spatial_Data\\NLCD_landcover_legend_2018_12_17_MRafobliFr55aJu210wR.csv")
+# # remove unnamed categories
+# lcov_cats <- na.omit(lcov_cats)
+# lcov_cats
+
+
+
+
+
+
+################ Set the boundaries of the survey area in the river valleys ######################
+
+# read in the file
+hydro <- st_read("E:\\MT_Spatial_Data\\MT_Lakes_Streams\\hd43a\\hd43a.shp")
+#mapview(hydro)
+#plot(hydro) - plotting this data takes a very long time
+#str(hydro)
+
+# Filter out only the rivers in our study area
+names <- c("Milk River", "Missouri River","Yellowstone River","Musselshell River")
+proj_hydro <- hydro %>% filter(NAME %in% names)
+proj_hydro <- proj_hydro %>% dplyr::select(NAME, geometry)
+#str(proj_hydro)
+plot(proj_hydro, main = "Study Area Rivers")
+crs(proj_hydro)
+
+## Drawing a buffer: "Geometrical operations" in this source: https://cran.r-project.org/web/packages/sf/vignettes/sf1.html
+# I want to create a new shapefile that consists of polygons of the buffers around the rivers
+buff <- st_buffer(proj_hydro, dist = 1500)
+plot(buff, main = "1500 m Buffer Around Rivers")
+# what distance to use? 
+## google earth measuring distance from river to edge of cottonwood habitat
+## 105 m
+## 350 seems to get areas close to the river without going to far out of the river valley
+#1,500 seems to be the max for areas in the lower missouri and yellowstone
+#st_crs(proj_hydro)$units
+# now plot these rivers on the land cover data
+
+
+############# MT LiDAR Data #####################
 # Load in the downloads from the MT LiDAR
 ## Load in CHM data - What is this??
 musselshell_CHM <- terra::rast("D:\\Musselshell_Spatial_Data\\CHM.tif")
@@ -150,99 +214,43 @@ plot(musselshell_Intensity, main = "Musselshell Intensity")
 
 # What do these tell us?___________________________________
 
-################## 2: making a raster stack ##############################
+################## Making a raster stack ##############################
 # check the resolution and extent
-res(lcov)
-ext(lcov)
-crs(lcov)
+#res(lcov)
+#ext(lcov)
+#crs(lcov)
 # lets check the levels to this data
-levels(lcov_proj)
+#levels(lcov_proj)
 
-# check the differences between lcov and the basemap
-# Convert basemap to a raster so that we can make these match
-basemap <- na.omit(basemap_orig)
-basemap <- rast(basemap_orig)
-res_wanted <- res(basemap)
-ext(basemap)
-crs(basemap)
-
-
-# make the resolution and extent match the basemap 
 # create a mask for your raster stack
-mask_raster <- rast()
-ext(mask_raster) <- c(xmin = xmin_proj, xmax = xmax_proj , ymin = ymin_proj, ymax = ymax_proj)
-res(mask_raster) <- res_wanted
-crs(mask_raster) <- "EPSG:32100"
-mask_raster[]<-0
-plot(mask_raster)
+# mask_raster <- rast()
+# ext(mask_raster) <- c(xmin = xmin_proj, xmax = xmax_proj , ymin = ymin_proj, ymax = ymax_proj)
+# res(mask_raster) <- res_wanted
+# crs(mask_raster) <- "EPSG:32100"
+# mask_raster[]<-0
+# plot(mask_raster)
 
-# they are in different coordinate systems, we want them to both be 32100 so that we can make a raster stack
+# We want the land cover raster to be in the same projection as the rivers and buffers dataset 
 lcov_proj <- lcov %>% terra::project("EPSG:32100", method = "near")
 ## NOTE: this takes a while 
-basemap_proj <- basemap %>% terra::project("EPSG:32100", method = "near")
-# resample both of your raster files to make them match 
-basemap_proj <- resample(basemap,mask_raster, method = "near")
-lcov_proj <- resample(lcov, mask_raster, method = "near")
+
 
 # testing results:
 plot(lcov)
-plot(basemap_proj)
-crs(basemap_proj)
-plot(basemap_proj)
-
-# did correctly crop it to the right area but there's nothing on the map - we first need to reprojuect 
-# Didn't reproject them
-crs(basemap_proj)
 crs(lcov_proj)
-crs(lcov)
-
 ext(lcov_proj)
-ext(basemap_proj)
-# map the spatial extents of each 
-
-# rename the levels in the landcover database
-plot(lcov_proj)
-plot(basemap_proj)
 landcov_extents <- ext(lcov)
-basemap_extents <- ext(basemap)
-
-ext(lcov)
-ext(basemap)
-
 #plot(landcov_extents,xlim=c(-))
 str(lcov)
 
 
-################ 3: Set the boundaries of the survey area in the river valleys ######################
-
-# read in the file
-hydro <- st_read("E:\\MT_Spatial_Data\\MT_Lakes_Streams\\hd43a\\hd43a.shp")
-mapview(hydro)
-plot(hydro)
-str(hydro)
-
-# Filter out only the rivers in our study area
-names <- c("Milk River", "Missouri River","Yellowstone River","Musselshell River", "Fort Peck Lake")
-proj_hydro <- hydro %>% filter(NAME %in% names)
-proj_hydro <- proj_hydro %>% select(NAME, geometry)
-str(proj_hydro)
-plot(proj_hydro, main = "Study Area Rivers")
-crs(proj_hydro)
-
-## Drawing a buffer: "Geometrical operations" in this source: https://cran.r-project.org/web/packages/sf/vignettes/sf1.html
-# I want to create a new shapefile that consists of polygons of the buffers around the rivers
-buff <- st_buffer(proj_hydro, dist = 1500)
-plot(buff, main = "1500 m Buffer Around Rivers")
-# what distance to use? 
-## google earth measuring distance from river to edge of cottonwood habitat
-## 105 m
-## 350 seems to get areas close to the river without going to far out of the river valley
-#1,500 seems to be the max for areas in the lower missouri and yellowstone
-st_crs(proj_hydro)$units
-# now plot these rivers on the land cover data
-
-
 ########### Put the river data and survey buffers onto the land cover data ######
+# Check if the rivers line up with the land cover data 
+
+dev.off()
+plot(lcov_proj)
+plot(proj_hydro,add = TRUE)
+
 
 
 
@@ -259,7 +267,23 @@ st_crs(proj_hydro)$units
 #### 4: Implement stratified random sampling within each of the strata #########
 
 
-
+############# OLD basemap code ##################
+# OLD: Basemap code
+# check the differences between lcov and the basemap
+# Convert basemap to a raster so that we can make these match
+# basemap <- na.omit(basemap_orig)
+# basemap <- rast(basemap_orig)
+# res_wanted <- res(basemap)
+# ext(basemap)
+# crs(basemap)
+# basemap_proj <- basemap %>% terra::project("EPSG:32100", method = "near")
+# # resample both of your raster files to make them match 
+# basemap_proj <- resample(basemap,mask_raster, method = "near")
+# lcov_proj <- resample(lcov, mask_raster, method = "near")
+# plot(basemap_proj)
+# crs(basemap_proj)
+# ext(basemap)
+# basemap_extents <- ext(basemap)
 
 ###### CODE GRAVEYARD ####
 
@@ -281,8 +305,6 @@ st_crs(proj_hydro)$units
 # print(root_changeIndex[1])
 
 
-
-###### PART 3
 # METHOD 2: change the values in raster data to a polygon
 # try extract() function? https://geocompr.robinlovelace.net/raster-vector.html
 # look in Mark's labs
@@ -305,3 +327,12 @@ st_crs(proj_hydro)$units
 # mapview(rivers_new)
 # # doesn't look like this will be helpful
 # ## TRY READING IN THE OTHER SHAPEFILES
+
+
+# ggmap(lcov_proj)+geom_sf(data = buff,
+#                          inherit.aes=FALSE,
+#                          mapping=aes(geometry=geometry, color = NAME))
+# # Error ggmap() only works with data types ggmap
+# 
+# ggplot() + geom_sf(data = buff) + geom_raster(data = lcov_proj)
+# # error can't use spatraster

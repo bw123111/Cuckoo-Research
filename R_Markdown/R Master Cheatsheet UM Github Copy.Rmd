@@ -1627,6 +1627,8 @@ ggmap(basemap_proj)+geom_sf(data = locs_sf,
 base::plot(wolfyht$EASTING,wolfyht$NORTHING,col=c("red","blue")[wolfyht$PackID],ylab="Northing",xlab="Easting")
 legend(555000,5742500,unique(wolfyht$Pack),col=c("blue","red"),pch=1)
 
+# if the plots start visualizing weird in the corner, run this code to clear plot settings
+dev.off()
 
 
 #Step 6: correct any needed points
