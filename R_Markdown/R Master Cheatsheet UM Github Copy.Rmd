@@ -193,7 +193,21 @@ packages <- c("ks", "lattice", "adehabitatHR", "maptools", "foreign", "rgdal", "
 ipak(packages)
 ```
 
+```{r Install and Read Packages Function}
+## First specify the packages of interest
+packages = c("ks", "here", "plotrix", "lattice", "adehabitatHR", "maptools", "mapview", "ggplot2","colorRamps", "sf", "terra", "tmap", "stars", "dplyr")
 
+## Now check each packages, if it needs to be installed, install it, then load it
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
 
 ##R Source Materials
 
@@ -465,8 +479,19 @@ fake_data <- fake_data %>% mutate(DateTime = make_datetime(year=Year,month=Month
 If you have large amounts of data you're dealing with, it might be more efficient to use `data.table()`
 [Info on Data Table](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html)
 
-# Syntax: DT[i, j, by]
-## "Take DT, subset/reorder rows using i, then calculate j, grouped by by"
+- Syntax is similar to SQL
+
+`datatable[i,j,by]`
+
+i = where/order by (row)
+j = select/update (column)
+by = group by 
+
+- "Take DT, subset/reorder rows using i, then calculate j, grouped by by"
+- Run things more like python - run the whole script at once 
+- Anything that takes a data frame will also take a data table 
+
+Waldo's recommendation: have a separate data cleaning script where you have an output and bring it into another script 
 
 
 ```{r Data Table Functions}
@@ -475,6 +500,23 @@ library(nycflights13)
 
 # To convert an object to a data table
 # setDT()
+
+# Reading in data to a data table
+photos <- fread("practice_data\\sample_photo_data.csv")
+# if it's not recognizing the column names
+photos <- fread("practice_data\\sample_photo_data.csv", header=TRUE)
+
+# Options when reading in data tables
+# read in only a couple of columns
+fread("data", select = c("stationID","photo_dtm"))
+
+# drop a couple of columns
+fread("data",drop = c())
+# Can read in a certain number of rows
+fread("data", nrows = 20)
+
+# Data.tables work with keys
+## defaults to row numbers but you can specify what you want to use as the key
 
 # To select the first two rows
 ans <- flights[1:2]
@@ -489,7 +531,122 @@ head(ans)
 c_21DT[,c("date","time") :=tstrsplit(file,"_",fixed=TRUE)]
 # https://stackoverflow.com/questions/18154556/split-text-string-in-a-data-table-columns
 
+# pull out rows with spp = MACA
+photos[species == "MACA"]
 
+# subset by more than one variable name
+photos[species== "MACA" & Number_of_Animals > 1]
+
+# pull out a whole column as a vector
+photos[ , stationID]
+# leave the comma to say you want to skip i (include all rows)
+
+
+#pull out the whole column as a data.table
+photos[ , .(stationID)]
+# multiple columns
+photos[ , .(stationID, species)]
+## can also use c()
+# can rename when you pull them out
+photos[ , .(stationID, sp_code = species)]
+
+# if you're changing something about the data.table it will automatically update
+## if you're pulling something out you have to reassign
+## to test your data, make a copy of it 
+# always copy it first then play around withit
+photos2 <- copy(photos)
+class(photos2)
+photos3 <- photos
+class(photos3)
+# make sure that you use copy() because assigning them as the same thing will link them together and one change in it will also change what its associated with 
+
+# can store col names and refer to them with .. (one level up = global enviro)
+select_cols <- c("StationID","species")
+photos[ , ..select_cols]
+ 
+# can pull out columns between columns
+
+# can use ! to specify not this and - to specify the reverse order
+
+# sort by columns with the order function  
+photos[order(stationID,photo_dtm,-species)]
+
+# Rename one column
+colnames(UMBEL_aru_dt)[7] <- "2022_status"
+
+# can use set attribute functions to modify dataset
+setorder() 
+setnames()
+setcolorder()
+# will move columns not specified to the end 
+# all functions and prior automatically reassign the value, but you can reassign it and use the function copy() to create a new value
+
+# to update/add a column for all rows
+photos[, project := "Camera Project"]
+
+# have to refresh the environment to see the changes you made take place 
+
+# can specify more than one columns adding at a time - functional form
+photos[, ":=" (project = "Sample Data"),
+       photo_num = substr(photo_id, 1, 6),
+       location = "Montana"]
+
+# removing columns
+photos[ , c("location") := NULL]
+# will completely wipe it from the memory, different from dropping it with a minus
+
+# can also compute within columns
+photos[, sum(species== "TADO")]
+photos[, sum(ind_count > 1, na.rm = TRUE)]
+
+# update/add/calculate a column for only select rows
+photos[species == "TADO", common_name := "Douglas Squirrel"]
+# FILL IN ___________________
+
+# can also chain/pipe things together
+photos[species == "MACA", common_name := "Douglas Squirrel"
+       ][species == "MAAM", common_name := "Marten"]
+
+# .N and how its used
+# holds number of observation in a group or number of rows in a subset
+photos[species == "ODHE", .N]
+
+# by - works as group by 
+photos[, .(.N), by = species]
+
+# can also still subset by other columns 
+photos[month(photo_dtm) == 7, .N, by = species]
+
+# can do calculations with grouping
+photos[month(photo_dtm)==7, mean(photo_dtm), by = species]
+# takes each month of number 7 and takes the mean of the date time for each species 
+## month works with datetime values 
+
+# by vs keyby (keyby is more when you assign keys)
+## use this with a SQL database 
+
+# can use calculations within grouping
+# groups by first part but then by second part if it is true or false
+photos[, .N, by = .(species, month(photo_dtm) > 7)]
+
+# .SD denoates a subset of data
+photos[, print(.SD), by = species]
+# will make a whole new table for each species and save all in a list 
+
+# can combine with lapply
+photos[year(photo_dtm) == 2019,
+       lapply(.SD, mean, na.rm = TRUE),
+       by = species,
+       .SDcols = c("photo_dtm", "station", "ind_count")]
+# takes the mean for each species from 2019
+
+# melt and decast for pivoting long and pivoting wider 
+# should be able to use pivot longer and pivot wider in data.table
+## can use join and merge
+## all tidyverse functions with data.table
+
+# joining
+photos[photos2, on = "column to merge on"]
 
 ```
 
@@ -1502,6 +1659,20 @@ ggplot()+
   geom_sf(data = dat_sf, color = "red") 
 
 
+# Other operations: setting a buffer around a polygon or line
+hydro <- st_read("E:\\MT_Spatial_Data\\MT_Lakes_Streams\\hd43a\\hd43a.shp")
+# Filter out only the rivers in our study area
+names <- c("Milk River", "Missouri River","Yellowstone River","Musselshell River", "Fort Peck Lake")
+proj_hydro <- hydro %>% filter(NAME %in% names)
+proj_hydro <- proj_hydro %>% select(NAME, geometry)
+str(proj_hydro)
+plot(proj_hydro, main = "Study Area Rivers")
+crs(proj_hydro)
+
+## Drawing a buffer: "Geometrical operations" in this source: https://cran.r-project.org/web/packages/sf/vignettes/sf1.html
+# I want to create a new shapefile that consists of polygons of the buffers around the rivers
+buff <- st_buffer(proj_hydro, dist = 1500)
+plot(buff, main = "1500 m Buffer Around Rivers")
 
 ```
 
@@ -2464,6 +2635,8 @@ ggplot(ChickWeight, aes(x = Diet, y = weight)) +
 # for a list of all palattes
 RColorBrewer::display.brewer.all()
 
+# Change the x and y axis
+#+ scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20))
 
 ```
 
