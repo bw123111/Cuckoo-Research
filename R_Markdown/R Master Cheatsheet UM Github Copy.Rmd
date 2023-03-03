@@ -1662,6 +1662,7 @@ ggplot()+
 
 
 # Other operations: setting a buffer around a polygon or line
+## Drawing a buffer: "Geometrical operations" in this source: https://cran.r-project.org/web/packages/sf/vignettes/sf1.html
 hydro <- st_read("E:\\MT_Spatial_Data\\MT_Lakes_Streams\\hd43a\\hd43a.shp")
 # Filter out only the rivers in our study area
 names <- c("Milk River", "Missouri River","Yellowstone River","Musselshell River", "Fort Peck Lake")
@@ -2021,6 +2022,15 @@ crs(rd) <-  "+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +tow
 
 ```
 
+
+### Exporting Spatial Data
+
+```{R}
+# Export rasters with terra::writeRaster(https://tmieno2.github.io/R-as-GIS-for-Economists/read-and-write-a-raster-data-file.html)
+# terra::writeRaster(spatial_object,"Path\\FileName.tiff")
+
+```
+
 # Sampling Design
 
 When designing a survey, you will need to choose locations to sample. The way you choose these samples has important implications for your statistical inference. For a more detailed explanation, refer back to Research Design notes from Fall 2022 with Paul Lukas. How to implement these sampling protocols in R is outlined below.
@@ -2028,9 +2038,16 @@ When designing a survey, you will need to choose locations to sample. The way yo
 **Resources:**
 [Stratified Random Sampling in R](https://www.r-bloggers.com/2022/02/stratified-sampling-in-r-with-examples/)
 
+[Stratified Random Sampling with Spatial Data](https://rdrr.io/cran/spatialEco/man/stratified.random.html)
+
+[Stratified Sampling in R With Examples](https://finnstats.com/index.php/2022/02/20/stratified-sampling-in-r/)
+
+[Ch 4: Stratified simple random sampling](https://dickbrus.github.io/SpatialSamplingwithR/STSI.html)
+
 ```{R Sampling}
 # Fill this in with code
-
+# spatialEco::stratified.random(x, strata, n = 10, reps = 1, replace = FALSE)
+# sampling::strata
 
 ```
 

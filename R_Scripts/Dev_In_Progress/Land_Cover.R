@@ -17,7 +17,9 @@ load_packages(packages)
 
 ############ TO DO ##############
 
-# Reach out to Andy and the Spatial Analysis lab 
+# Meet with Ryan Rock Monday about NLCD data
+
+# Work on implementing stratified random sampling within buff
 
 # NLCD R package
 
@@ -34,6 +36,14 @@ locs_dat <- na.omit(locs_dat)
 #convert this into a spatial object
 locs_sf <- locs_dat %>% 
   st_as_sf(coords=c("long", "lat")) 
+# project this to EPSG?
+
+repeat_locs <- fread(".\\Data\\Spatial_Data\\Repeat_Monitoring_Points_2023.csv")
+# Take this out once Anna sends you the layer with all of the UMBEL data
+repeat_locs <- na.omit(repeat_locs)
+repeats_sf <- repeat_locs %>% st_as_sf(coords=c("longitude","latitude")) %>% st_set_crs(32100) 
+crs(repeats_sf)
+# good to go
 
 
 # Bounding box coordinates from MRLC download 2/15:
@@ -68,37 +78,42 @@ ggmap(basemap_orig)+geom_sf(data = locs_sf,
 
 #################### Landcover Data ##########################
 # read the file in as a spatraster
-# Pull into ArcGIS
 ## 2019
-#lcov2 <- raster("E:\\MT_Spatial_Data\\MRLC_Data\\NLCD_2019_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
-#plot(lcov2)
-lcov <- terra::rast("E:\\MT_Spatial_Data\\MRLC_Data\\NLCD_2019_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
+#lcov <- terra::rast("E:\\MT_Spatial_Data\\MRLC_Data\\NLCD_2019_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
+# We want the land cover raster to be in the same projection as the rivers and buffers dataset 
+#lcov_proj <- lcov %>% terra::project("EPSG:32100", method = "near")
+#terra::writeRaster(lcov_proj,"Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
+## NOTE: this takes a while
+
+# read in the updated, reprojected raster
+lcov <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
 # visualize it quickly
-lcov_subset <- subset(lcov,1)
-nlayer(lcov)
 plot(lcov)
-terra::plotRGB(lcov_subset,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
-#levels(lcov)
-#cats(lcov)
-## Why so much development?? This land cover type is wrong - should be cultivated crops
+# The values of the land cover are wrong - developed land should be cultivated crops
+levels(lcov)
+cats(lcov)
 
 # Renaming the categories with FedData
 # Working with NLCD data: https://smalltownbigdata.github.io/feb2021-landcover/feb2021-landcover.html
 # load in the legend 
 legend <- pal_nlcd()
 # make a vector of all the values we have in our study area and select those from the legend object
-
 vals <- unique(lcov[[1]])
-
 df <- legend[legend$ID %in% vals$Red,]
-# There are none of the values in Red that line up with values in legend - once again becuase it's reading it in as RGB values
+# There are none of the values in Red that line up with values in legend - R is reading it in as RGB values
 
 
 
+# Plot the RGB values
+terra::plotRGB(lcov,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
+# no valid layer selected
+# Select one layer
+lcov_subset <- subset(lcov,1)
+plot(lcov_subset)
+# nlayers(lcov) - can't find the syntax for this
+str(lcov)
 
-
-
-
+terra::plotRGB(lcov_subset,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
 
 
 # Trying to download again
@@ -110,6 +125,7 @@ df <- legend[legend$ID %in% vals$Red,]
 #lvls <- levels(lcov)
 #length(lvls)
 
+# vizualize all of these in just the specific areas where the different riverse of the study sites are
 # lcov2 <- terra::rast("E:\\MT_Spatial_Data\\MRLC_Data_LC_Only\\NLCD_2019_Land_Cover_L48_20210604_wL2onyRXwRRRtc1Y7tTR.tiff")
 # # visualize it quickly
 # plot(lcov2, main = "2019 Land Cover - New Download")
@@ -125,6 +141,12 @@ df <- legend[legend$ID %in% vals$Red,]
 
 ## Looks like for the land cover data we need to fix the projection system (it is slanted, so we need to reproject it into the montana state plane system)
 # we also need to assign values to the land cover data
+
+
+#Montana Land Cover Data
+mt_lcov <- terra::rast("E:\\MT_Spatial_Data\\MT_Landcover\\MTLC_2021_V1.tif")
+plot(mt_lcov)
+# what are the categories of these pixels?
 
 
 ######### Matrix for Renaming Values ############
@@ -145,19 +167,6 @@ levels(lcov)
 levels(lcov)
 lcov[[2]]
 # change the levels in the red column to match up with the levels in the cats matrix
-##LOOK IN HEBBLEWHITE CODE FOR THIS
-
-# need to find a way to rename the IDs to the values that make sense or line up the cats with the raster file___________________________________
-
-# # OLD from the legend provided (codes are wrong):
-# lcov_cats <- read_csv("D:\\MT_Spatial_Data\\NLCD_landcover_legend_2018_12_17_MRafobliFr55aJu210wR.csv")
-# # remove unnamed categories
-# lcov_cats <- na.omit(lcov_cats)
-# lcov_cats
-
-
-
-
 
 
 ################ Set the boundaries of the survey area in the river valleys ######################
@@ -174,12 +183,12 @@ proj_hydro <- hydro %>% filter(NAME %in% names)
 proj_hydro <- proj_hydro %>% dplyr::select(NAME, geometry)
 #str(proj_hydro)
 plot(proj_hydro, main = "Study Area Rivers")
-crs(proj_hydro)
 
 ## Drawing a buffer: "Geometrical operations" in this source: https://cran.r-project.org/web/packages/sf/vignettes/sf1.html
 # I want to create a new shapefile that consists of polygons of the buffers around the rivers
 buff <- st_buffer(proj_hydro, dist = 1500)
 plot(buff, main = "1500 m Buffer Around Rivers")
+
 # what distance to use? 
 ## google earth measuring distance from river to edge of cottonwood habitat
 ## 105 m
@@ -190,58 +199,102 @@ plot(buff, main = "1500 m Buffer Around Rivers")
 
 
 ############# MT LiDAR Data #####################
-# Load in the downloads from the MT LiDAR
-## Load in CHM data - What is this??
+# Load in the downloads from the MT LiDAR - get a sense of what we're dealing with
+# Resources
+# https://geodetics.com/dem-dsm-dtm-digital-elevation-models/
+
+## Load in Canopy Height Model - pixels represent tree overstory over underlying ground topography
+## Isolate this into categories of shrub height/tree height
 musselshell_CHM <- terra::rast("D:\\Musselshell_Spatial_Data\\CHM.tif")
 plot(musselshell_CHM, main = "Musselshell CHM")
+cats(musselshell_CHM) # NULL?
 
-## Read in digital surface model
+## Read in Digital Surface Model - Captures both natural and artificial features of the environment
+## Could this potentially get at understory density?
 musselshell_DSM <- terra::rast("D:\\Musselshell_Spatial_Data\\DSM.tif")
 plot(musselshell_DSM, main = "Musselshell Digital Surface Model")
 ## Find a way to zoom in on this to see more of what you're working with
 
-## Read in HF DEM
+## Read in HF Digital Elevation Model - represents the bare-earth surface, removing all natural and built features 
+## DSM - DEM = canopy height model?
 musselshell_HFDEM <- terra::rast("D:\\Musselshell_Spatial_Data\\HFDEM.tif")
 plot(musselshell_HFDEM, main = "Musselshell HFDEM") 
 
-## Read in hillshade
+## Read in hillshade - created from a digital elevation model as if it were illuminated with a light source shining from the northwest
 musselshell_Hillshade <- terra::rast("D:\\Musselshell_Spatial_Data\\Hillshade.tif")
 plot(musselshell_Hillshade, main = "Musselshell Hillshade")
 
-## Read in intensity
+## Read in intensity - the smount of light energy recorded by the sensor, showing the composition of the object reflecting the laser beam
 musselshell_Intensity <- terra::rast("D:\\Musselshell_Spatial_Data\\Intensity.tif")
 plot(musselshell_Intensity, main = "Musselshell Intensity")
 
-# What do these tell us?___________________________________
+## Stack the hillshades for the LiDAR data I'll use for my project
+# Read them in 
+milk_BLAINEhs <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\BLAINE_2018_MilkRvr\\Hillshade.tif")
+plot(milk_BLAINEhs, main = "Blaine Milk River Hillshade")
+
+milk_HILL1hs <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\HILL_2018_MilkRvrHavre\\Hillshade.tif")
+plot(milk_HILL1hs, main = "Hill Milk River Hillshade")
+
+milk_VALLEYhs <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\MT_Valley_2018_MilkRvrHinsdale\\Hillshade.tif")
+plot(milk_VALLEYhs, main = "Valley Milk River Hillshade")
+res_wanted <- res(milk_VALLEYhs)
+
+milk_PHILLIPShs <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\PHILLIPS_2018_MilkRvr\\Hillshade.tif")
+  
+milk_HILL2hs <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\HILL_2018_Hillcnty\\Hillshade.tif")
+lcov <- 
+
+# Stack them in R
+# Do this with proj_bound bounding box
+milk <- brick(milk_HILL1hs,milk_BLAINEhs)
+milk_mos <- mosaic(milk_HILL1hs,milk_BLAINEhs)
+res(milk_HILL1hs)
+res(milk_BLAINEhs)
+milk_HILL1hs <- resample(milk_HILL1hs, milk_BLAINEhs, method = "near")
+
+plot(milk_PHILLIPShs)
+plot(milk_HILL1hs, add = TRUE)
+
 
 ################## Making a raster stack ##############################
-# check the resolution and extent
-#res(lcov)
-#ext(lcov)
-#crs(lcov)
-# lets check the levels to this data
-#levels(lcov_proj)
 
 # create a mask for your raster stack
-# mask_raster <- rast()
-# ext(mask_raster) <- c(xmin = xmin_proj, xmax = xmax_proj , ymin = ymin_proj, ymax = ymax_proj)
-# res(mask_raster) <- res_wanted
-# crs(mask_raster) <- "EPSG:32100"
-# mask_raster[]<-0
-# plot(mask_raster)
+mask_raster <- rast()
+ext(mask_raster) <- c(xmin = xmin_proj, xmax = xmax_proj , ymin = ymin_proj, ymax = ymax_proj)
+res(mask_raster) <- res_wanted
+crs(mask_raster) <- "EPSG:32100"
+mask_raster[]<-0
+plot(mask_raster)
 
-# We want the land cover raster to be in the same projection as the rivers and buffers dataset 
-lcov_proj <- lcov %>% terra::project("EPSG:32100", method = "near")
-## NOTE: this takes a while 
+# align all of the rasters
+lcov_stack <- terra::rasterize(lcov, mask_raster)
+# try crop and resample
+lcov_stack <- resample(lcov, mask_raster, method = "near")
+#lcov_stack <- crop(lcov,mask_raster,snap = "near")
+# get a polygon into google earth pro and check the extents - or use ArcGIS
+# check arguments in the function you use to read them in and you use to plot it 
+
+# crop and resample for LiDAR 
+milk_BLAINEhs_stack <- resample(milk_BLAINEhs, mask_raster, method = "near")
+milk_BLAINEhs_stack <- crop(milk_BLAINEhs_stack, mask_raster, snap= "near" )
+plot(milk_BLAINEhs_stack)
+# nothing is coming up
+# stack them with c()
+milk_HILL1hs_stack <- resample(milk_HILL1hs, mask_raster, method = "near")
+milk_HILL1hs_stack <- crop(milk_HILL1hs_stack, mask_raster, snap= "near" )
+
+plot(milk_BLAINEhs_stack)
+plot(milk_HILL1hs_stack, add = TRUE)
 
 
-# testing results:
-plot(lcov)
-crs(lcov_proj)
-ext(lcov_proj)
-landcov_extents <- ext(lcov)
-#plot(landcov_extents,xlim=c(-))
-str(lcov)
+
+
+
+deer_w<-terra::rasterize(elc_habitat, mask.raster, field="DEER_W")
+
+
+
 
 
 ########### Put the river data and survey buffers onto the land cover data ######
@@ -250,11 +303,39 @@ str(lcov)
 dev.off()
 plot(lcov_proj)
 plot(proj_hydro,add = TRUE)
+plot(buff, add = TRUE)
+plot(repeats_sf$geometry,size = 50,add=TRUE) # not appearing on the map
 
+# combining layers: intersect them to find out how they relate to each other with extract() from the raster package
 
+# What I want in the same shapefile(?)
+# proj_hydro (vector)
+crs(proj_hydro)
+# buff (polygon)
+crs(buff)
+# repeats_sf (points)
+crs(repeats_sf)
+# lcov_proj (raster)
+crs(lcov_proj)
 
+# combine the layers
+# monitoring <- raster::extract(lcov_proj,
+#                               proj_hydro,
+#                               buff,
+#                               repeats_sf, 
+#                               na.rm = TRUE)
+# 
+# monitoring <- raster::extract(lcov_proj,
+#                               proj_hydro, 
+#                               factors = TRUE,
+#                               df = TRUE,
+#                               na.rm = TRUE)
+# at every point, takes the value for the raster data and assigns it to a new column
 
-
+# instead, crop the raster to be within the buffers
+lcov_crop <- crop(lcov_proj, buff, snap = "near")
+plot(lcov_crop)
+plot(buff, add = TRUE)
 
 
 
@@ -265,6 +346,8 @@ plot(proj_hydro,add = TRUE)
 
 
 #### 4: Implement stratified random sampling within each of the strata #########
+
+# making a hexagonal grid: https://search.r-project.org/CRAN/refmans/spatstat.geom/html/hextess.html
 
 
 ############# OLD basemap code ##################
@@ -336,3 +419,10 @@ plot(proj_hydro,add = TRUE)
 # 
 # ggplot() + geom_sf(data = buff) + geom_raster(data = lcov_proj)
 # # error can't use spatraster
+
+
+# # OLD from the legend provided (codes are wrong):
+# lcov_cats <- read_csv("D:\\MT_Spatial_Data\\NLCD_landcover_legend_2018_12_17_MRafobliFr55aJu210wR.csv")
+# # remove unnamed categories
+# lcov_cats <- na.omit(lcov_cats)
+# lcov_cats
