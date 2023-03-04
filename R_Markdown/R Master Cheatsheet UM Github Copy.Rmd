@@ -1975,6 +1975,19 @@ Here we will go through some typical raster operations when creating a set of sp
 3. `terra::resample()` - note that existing raster layers, e.g., elevation, distance to human access, had a different set of dimensions (extents) last week when we created our raster stack. They may have also had different resolutions (ex. 30x30m grain size for the raster - don't necessarily need to make this consistent), in which case we need to resample to a consistent resolution. 
 - resample starts form a top corner and resamples everything to be the same resolution and registration (same grid size, all corners line up)
 
+**Resources:**
+
+[Combining Vector and Raster Data](https://doi90.github.io/EE_Intro_Spatial_Workshop/combining-vector-and-raster-data.html)
+
+[Data Carpentry: Manipulating Raster Data](https://datacarpentry.org/r-raster-vector-geospatial/11-vector-raster-integration/)
+
+[Spatial Data Science: Raster data manipulation](https://rspatial.org/spatial-terra/8-rastermanip.html)
+
+[NSF NeonScience: Raster Data in R](https://www.neonscience.org/resources/learning-hub/tutorials/raster-data-r)
+
+[Getting National Land Cover Data](https://www.rdocumentation.org/packages/FedData/versions/2.5.7/topics/get_nlcd)
+
+[Working with NLCD Data](https://smalltownbigdata.github.io/feb2021-landcover/feb2021-landcover.html)
 
 ```{r}
 # Create a mask raster to use as a template for converting shapefile data to rasters
@@ -2048,6 +2061,8 @@ When designing a survey, you will need to choose locations to sample. The way yo
 # Fill this in with code
 # spatialEco::stratified.random(x, strata, n = 10, reps = 1, replace = FALSE)
 # sampling::strata
+
+# hexagonal grid/tesselation: https://search.r-project.org/CRAN/refmans/spatstat.geom/html/hextess.html
 
 ```
 

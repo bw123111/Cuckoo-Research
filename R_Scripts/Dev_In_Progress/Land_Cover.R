@@ -1,16 +1,5 @@
 ############### Land Cover Sampling Data ###############
 
-# library(data.table)
-# library(sf)
-# library(ggmap)
-# library(terra)
-# library(raster)
-# library(mapview)
-# library(tidyverse)
-# library(rgdal)
-# library(XML)
-# library(methods)
-
 packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData")
 source(".\\R_Scripts\\Install_Load_Packages.R")
 load_packages(packages)
@@ -104,7 +93,7 @@ df <- legend[legend$ID %in% vals$Red,]
 
 
 
-# Plot the RGB values
+# Plot the RGB values https://stackoverflow.com/questions/47393629/r-raster-band-combination-not-showing-rgb
 terra::plotRGB(lcov,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
 # no valid layer selected
 # Select one layer
@@ -287,7 +276,9 @@ milk_HILL1hs_stack <- crop(milk_HILL1hs_stack, mask_raster, snap= "near" )
 plot(milk_BLAINEhs_stack)
 plot(milk_HILL1hs_stack, add = TRUE)
 
-
+# terra equivalent for raster::stack() https://stackoverflow.com/questions/71213802/terra-equivalent-for-rasterstack
+# another resource on stacking rasters: https://stackoverflow.com/questions/73581740/converting-a-spatraster-to-a-rasterstack
+# also look at this? https://gis.stackexchange.com/questions/336691/create-new-raster-from-both-overlapping-and-non-overlapping-values-of-two-other
 
 
 
