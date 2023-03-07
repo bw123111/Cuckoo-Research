@@ -1,15 +1,26 @@
 ############## Power Analysis #################
 
 # This is a script to determine how many sites we need to find a significant effect of habitat on occupancy
-# Code drawn from Research Design Project
-# Last updated: 2/27/23
-# Maybe redo this after you have a better idea of how you'll be stratifying habitat variables
+## Code drawn from Research Design Project
+## Last updated: 2/27/23
+## Maybe redo this after you have a better idea of how you'll be stratifying habitat variables
 
-# Specific questions:
+# Specific questions:_____________________________________________________________
+# Should we pair up ARUs or have one at each site?
+## Paul says it looks more like single sites would be better since more sites reduces your coefficient of variation 
+## If we test them before we put the monitors out we can reduce the failure rate (Andy said 3-5% failure rate?)
+## Tradeoff between losing data at certain sites with failure vs covering more ground 
+# How many more does FWP need to buy?
+## No specific cutoff, just mention it to them and show the graphs. We'll take however many more we can get.
+## There's no specific cut point where it looks like it cleanly drops off
+## If FWP wants to set up a long term monitoring site, don't choose land cover - use soil type instead, land ownership 
+
 ## Given the total number of ARUs available minus the number needed to monitor the sites that will remain consistent from year to year (UMBEL long term sites with a number as an ID, sites that Brandi mentioned): how many additional sites could we monitor? Do we have enough ARUs to pair them at a site in case of mechanical failure?
 
-# Thoughts/Questions for Paul
-## Need to go through and revisit the parameters I'm using in the power analyses 
+# Thoughts/Questions for Paul______________________________________________________
+## Should I be using a fancier way/way closer to how I'll actually be analyzing the data (like occ model?) for the power analysis, or is this fine? 
+# percentage vs proportion
+## Not using stratified habitat simulation bc I'm selecting points in R with landcover, not actually stratifying by the habitat types I'm looking at
 ## nreps = 6? I remember Paul said that this won't help your CV estimation, it will just tighten the points around the current trend 
 
 ## Should I be using a simple logistic regression, or would it be better to simulate occupancy data and plug that into an occupancy analysis package?
@@ -35,13 +46,14 @@ source(".\\R_Scripts\\Plot_SimulateOcc_By_Hab.R")
 # Which function to use: the regular simulated data or the data weighted towards high quality and low quality habitat?
 ## ideally, I'll be shooting for the high quality and low quality habitat only, but I'll also be using the regular simulation
 ## this will work to see the effects of the habitat variables that I expect to vary linearly with probability of occupancy. Are there any that I expect to vary in a non-linear way?
+#________Hypothesis________
 ## Subcanopy vegetation structure:
 ### I expect probability of occupancy to increase linearly as the subcanopy density increases
-## canopy cover
+## canopy cover:
 ### I expect the probability of occupancy to decrease as canopy cover increases but they also won't be present in areas with zero/very low canopy cover - quadratic relationship?
-## habitat patch size 
+## habitat patch size: 
 ### no relationship 
-## Species presence - forest composition
+## Species presence - forest composition:
 ### Not sure about the relationship
 
 
@@ -112,7 +124,6 @@ hab_arus_wpurchase <- hab_arus+50
 samps <- c(round(hab_arus/2, digits = 0):round(hab_arus_wpurchase/2, digits=0))
 max(samps)
 
-# is nreps the right thing to put there? what about the sub periods within each survey?  ?????????????????????????
 # With a 70% change in occupancy
 #doubled_up <- simulate_data(sample_sizes=samps,nreps=6,possible_vals=possibleVals_lE)
 # With a 100% change in occupancy
@@ -120,7 +131,6 @@ doubled_up <- simulate_data(sample_sizes=samps,nreps=6,possible_vals=possibleVal
 
 doubled_up_plot <- plot_occ_pwr_analysis(data=doubled_up,plot_title="Power Analysis of Paired ARUs")
 doubled_up_plot
-## no clearly evident trend - changed nreps to 6
 
 # Power Analysis 2: ARUs not doubled up
 
@@ -141,8 +151,11 @@ singles_plot
 # with nreps = 2 no clearly evident trend - changed nreps to 6
 # with 100% change in occupancy, looks like around 120-130 the CV starts getting to .3 ish 
 
-
-
+# Looking at a large sample size
+samps3 <- c(hab_arus:1000)
+singles_strat3 <- simulate_data(sample_sizes=samps3,nreps=3,possible_vals=possibleVals_FullE)
+singles_strat3_plot <- plot_occ_pwr_analysis(data=singles_strat3,plot_title="Power Analysis of Single ARUs")
+singles_strat3_plot
 
 ########### Power analysis using stratified habitat values ################
 
@@ -173,8 +186,8 @@ singles_strat_plot
 
 
 # Look at the asymptote
-samps3 <- c(hab_arus:1000)
-singles_strat3 <- simulate_data_stratified(sample_sizes=samps3,nreps=6,possible_vals=possibleVals_lE)
-singles_strat3_plot <- plot_occ_pwr_analysis(data=singles_strat3,plot_title="Power Analysis of Single ARUs Stratified Habitat")
-singles_strat3_plot
+samps4 <- c(hab_arus:1000)
+singles_strat4 <- simulate_data_stratified(sample_sizes=samps4,nreps=6,possible_vals=possibleVals_lE)
+singles_strat4_plot <- plot_occ_pwr_analysis(data=singles_strat3,plot_title="Power Analysis of Single ARUs Stratified Habitat")
+singles_strat4_plot
 # for this one, the CV flattens out around 375 ARUs

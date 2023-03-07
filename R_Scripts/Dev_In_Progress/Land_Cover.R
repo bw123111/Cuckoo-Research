@@ -10,10 +10,14 @@ load_packages(packages)
 
 # Work on implementing stratified random sampling within buff
 
+# Recommendations:
 # NLCD R package
-
 # try exporting it from Arc with just one field (flat) and then take it into R 
 ## Might be multi band and it's just mapping one of the bands 
+
+# once you have the vector of the boundaries, create a new raster that makes everything outside of the boundaries a null value (set all pixels to NA outside buffer)
+# mask() in raster, not sure what it is in terra
+# he'll send me rebecca's email and this function 
 
 
 ########### Survey Points Data, Bounding Box and Basemap #############
@@ -56,28 +60,37 @@ proj_bound[4] <- ymax_proj
 # let's now grab a basemap from stamenmap just to check our bounding box is set up correctly
 basemap_orig <- get_stamenmap(as.numeric(proj_bound),maptype = "terrain-background", zoom=8)
 
+# making a map for my proposal
 # take a look:
 ggmap(basemap_orig)
 ggmap(basemap_orig)+geom_sf(data = locs_sf,
                             inherit.aes=FALSE,
                             mapping=aes(geometry=geometry, color = organization))
-# Looks good!
 
 
+# figure out how to do this
+plot(basemap_orig)
+plot(proj_hydro, add = TRUE)
+plot(locs_sf$geometry, add = TRUE)
 
 #################### Landcover Data ##########################
 # read the file in as a spatraster
 ## 2019
-#lcov <- terra::rast("E:\\MT_Spatial_Data\\MRLC_Data\\NLCD_2019_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
+#lcov_orig <- terra::rast("E:\\MT_Spatial_Data\\MRLC_Data\\NLCD_2019_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
+#plot(lcov_orig)
 # We want the land cover raster to be in the same projection as the rivers and buffers dataset 
 #lcov_proj <- lcov %>% terra::project("EPSG:32100", method = "near")
 #terra::writeRaster(lcov_proj,"Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
 ## NOTE: this takes a while
 
+# try opening it with sp 
+# Ryan thinks its something with how the data is being read into R
+
 # read in the updated, reprojected raster
 lcov <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
+lcov <- as.factor(lcov)
 # visualize it quickly
-plot(lcov)
+plot(as.factor(lcov))
 # The values of the land cover are wrong - developed land should be cultivated crops
 levels(lcov)
 cats(lcov)
@@ -292,10 +305,10 @@ deer_w<-terra::rasterize(elc_habitat, mask.raster, field="DEER_W")
 # Check if the rivers line up with the land cover data 
 
 dev.off()
-plot(lcov_proj)
+plot(lcov)
 plot(proj_hydro,add = TRUE)
 plot(buff, add = TRUE)
-plot(repeats_sf$geometry,size = 50,add=TRUE) # not appearing on the map
+#plot(repeats_sf$geometry,size = 50,add=TRUE) # not appearing on the map
 
 # combining layers: intersect them to find out how they relate to each other with extract() from the raster package
 
@@ -324,7 +337,7 @@ crs(lcov_proj)
 # at every point, takes the value for the raster data and assigns it to a new column
 
 # instead, crop the raster to be within the buffers
-lcov_crop <- crop(lcov_proj, buff, snap = "near")
+lcov_crop <- crop(lcov, buff, snap = "near")
 plot(lcov_crop)
 plot(buff, add = TRUE)
 
