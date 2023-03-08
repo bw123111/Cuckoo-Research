@@ -1,6 +1,6 @@
 ############### Land Cover Sampling Data ###############
 
-packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData")
+packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra")
 source(".\\R_Scripts\\Install_Load_Packages.R")
 load_packages(packages)
 
@@ -90,7 +90,7 @@ plot(locs_sf$geometry, add = TRUE)
 lcov <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
 lcov <- as.factor(lcov)
 # visualize it quickly
-plot(as.factor(lcov))
+plot(lcov)
 # The values of the land cover are wrong - developed land should be cultivated crops
 levels(lcov)
 cats(lcov)
@@ -101,21 +101,50 @@ cats(lcov)
 legend <- pal_nlcd()
 # make a vector of all the values we have in our study area and select those from the legend object
 vals <- unique(lcov[[1]])
-df <- legend[legend$ID %in% vals$Red,]
-# There are none of the values in Red that line up with values in legend - R is reading it in as RGB values
+# pull out the values of the legend that are in the values of my map
+df <- legend[legend$ID %in% vals$label,]
+# recognize it as a categorical raster using ratify()
+rat <- as.factor(lcov[[1]])
+# make a curstom legend
+myKey <- list(rectangles=list(col = df$Color),
+                                text=list(lab=df$Class),
+                              space='left',
+              columns=1,
+              size=2,
+              cex=.6)
+
+# plot it
+levelplot(lcov,att="ID",
+          col.regions=df$Color,
+          par.settings=list(axis.line=list(col="transparent"),
+                            strip.border=list(col="transparent")),
+          scales=list(col="transparent"),
+          colorKey=FALSE,
+          key=myKey)
+# not visualizing the right colors
+plot(lcov)
+levels(lcov)
+#lcov_test <- merge(lcov, df, by = "ID")
+lcov_test <- lcov
+
+levels(lcov) <- df[,c("ID","Class")]
+# need to relate the colors that it plots the raster to specific variables 
+colors=c("#5475A8","#FFFFFF","#E8D1D1","#E29E8C","#ff0000","#B50000","#D2CDC0","#85C77E","#38814E","#D4E7B0","#DCCA8F","#FDE9AA","#FBF65D","#CA9146","#C8E6F8","#64B3D5")
+#lcov_colors <- list(df$Color)
+ggplot() + 
+  geom_spatraster(data = lcov) + scale_fill_manual(values=colors)
+# try this onescale_color_manual()
+
+# original
+# levelplot(lcov,att="ID",
+#           col.regions=df$Color,
+#           par.settings=list(axis.line=list(col="transparent"),
+#                             strip.border=list(col="transparent")),
+#           scales=list(col="transparent"),
+#           colorKey=F,
+#           key=myKey)
 
 
-
-# Plot the RGB values https://stackoverflow.com/questions/47393629/r-raster-band-combination-not-showing-rgb
-terra::plotRGB(lcov,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
-# no valid layer selected
-# Select one layer
-lcov_subset <- subset(lcov,1)
-plot(lcov_subset)
-# nlayers(lcov) - can't find the syntax for this
-str(lcov)
-
-terra::plotRGB(lcov_subset,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
 
 
 # Trying to download again
@@ -146,8 +175,8 @@ terra::plotRGB(lcov_subset,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "l
 
 
 #Montana Land Cover Data
-mt_lcov <- terra::rast("E:\\MT_Spatial_Data\\MT_Landcover\\MTLC_2021_V1.tif")
-plot(mt_lcov)
+#mt_lcov <- terra::rast("E:\\MT_Spatial_Data\\MT_Landcover\\MTLC_2021_V1.tif")
+#plot(mt_lcov)
 # what are the categories of these pixels?
 
 
@@ -341,6 +370,10 @@ lcov_crop <- crop(lcov, buff, snap = "near")
 plot(lcov_crop)
 plot(buff, add = TRUE)
 
+ggplot()+
+  geom_spatraster(data = lcov_crop) + scale_fill_manual(values=colors)+
+  geom_sf(data=buff)
+
 
 
 ##### 3: Within this area, subset each of the land cover types and establish your unit size #######
@@ -430,3 +463,14 @@ plot(buff, add = TRUE)
 # # remove unnamed categories
 # lcov_cats <- na.omit(lcov_cats)
 # lcov_cats
+
+# Plot the RGB values https://stackoverflow.com/questions/47393629/r-raster-band-combination-not-showing-rgb
+# terra::plotRGB(lcov,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
+# # no valid layer selected
+# # Select one layer
+# lcov_subset <- subset(lcov,1)
+# plot(lcov_subset)
+# # nlayers(lcov) - can't find the syntax for this
+# str(lcov)
+# 
+# terra::plotRGB(lcov_subset,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
