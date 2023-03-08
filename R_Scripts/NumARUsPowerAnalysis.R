@@ -154,7 +154,7 @@ singles_plot
 # Looking at a large sample size
 samps3 <- c(hab_arus:1000)
 singles_strat3 <- simulate_data(sample_sizes=samps3,nreps=3,possible_vals=possibleVals_FullE)
-singles_strat3_plot <- plot_occ_pwr_analysis(data=singles_strat3,plot_title="Power Analysis of Single ARUs")
+singles_strat3_plot <- plot_occ_pwr_analysis(data=singles_strat3,plot_title="Power Analysis of Single ARUs - Large Sample Size")
 singles_strat3_plot
 
 ########### Power analysis using stratified habitat values ################

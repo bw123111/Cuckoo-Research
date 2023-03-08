@@ -21,7 +21,7 @@ plot_occ_pwr_analysis <- function(data, plot_title) {
   
   plot <- ggplot(total_sim_dat) +
     aes(x = Sample_Size, y = CV) + geom_point(shape = "circle", size = 1.5, colour = "gray69") + geom_smooth(se = FALSE, size=1.5, color="cornflowerblue") +
-    labs(x = "Sample Size", y = "Coefficient of Variation of Logistic Regression", title=plot_title) +
+    labs(x = "Sample Size (Points Surveyed)", y = "Coefficient of Variation of Logistic Regression", title=plot_title) +
     theme_minimal() + scale_y_continuous(limits=c(0,5), breaks=seq(0,5,by=.5)) + geom_hline(yintercept = .2, color = "brown1")
   
   return(plot)
