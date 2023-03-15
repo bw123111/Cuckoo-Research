@@ -1,19 +1,13 @@
 ############### Land Cover Sampling Data ###############
 
-packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra")
+packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap")
 source(".\\R_Scripts\\Install_Load_Packages.R")
 load_packages(packages)
 
+
 ############ TO DO ##############
 
-# Meet with Ryan Rock Monday about NLCD data
-
 # Work on implementing stratified random sampling within buff
-
-# Recommendations:
-# NLCD R package
-# try exporting it from Arc with just one field (flat) and then take it into R 
-## Might be multi band and it's just mapping one of the bands 
 
 # once you have the vector of the boundaries, create a new raster that makes everything outside of the boundaries a null value (set all pixels to NA outside buffer)
 # mask() in raster, not sure what it is in terra
@@ -28,7 +22,7 @@ locs_dat <- na.omit(locs_dat)
 # Do I need to remove NAs or can I do that later? Missing values in coordinates not allowed
 #convert this into a spatial object
 locs_sf <- locs_dat %>% 
-  st_as_sf(coords=c("long", "lat")) 
+  st_as_sf(coords=c("long", "lat")) %>% st_set_crs(32100)
 # project this to EPSG?
 
 repeat_locs <- fread(".\\Data\\Spatial_Data\\Repeat_Monitoring_Points_2023.csv")
@@ -37,6 +31,9 @@ repeat_locs <- na.omit(repeat_locs)
 repeats_sf <- repeat_locs %>% st_as_sf(coords=c("longitude","latitude")) %>% st_set_crs(32100) 
 crs(repeats_sf)
 # good to go
+
+
+
 
 
 # Bounding box coordinates from MRLC download 2/15:
@@ -48,6 +45,7 @@ xmax_proj <- -103.97674
 # pull up the basemap to see if you have the right bounding box area
 #have to give st_bbox an object
 proj_bound <- st_bbox(locs_sf)
+
 # or not?
 # proj_bound <- st_bbox() no you do have to give it an object
 # lets reset the boundaries to what we want, the order is"
@@ -59,19 +57,81 @@ proj_bound[4] <- ymax_proj
 
 # let's now grab a basemap from stamenmap just to check our bounding box is set up correctly
 basemap_orig <- get_stamenmap(as.numeric(proj_bound),maptype = "terrain-background", zoom=8)
+# base plot 
+# figure out how to do this
+plot(basemap_proj)
+#plot(proj_hydro, add = TRUE)
+plot(locs_sf$geometry, add = TRUE)
 
-# making a map for my proposal
+# as ggmap object 
+# basemap_orig <- basemap_orig %>% project("EPSG:32100") can't reproject 
 # take a look:
 ggmap(basemap_orig)
 ggmap(basemap_orig)+geom_sf(data = locs_sf,
                             inherit.aes=FALSE,
                             mapping=aes(geometry=geometry, color = organization))
 
+ggmap(basemap_orig)+geom_sf(data = buff,
+                             inherit.aes=FALSE,
+                             mapping=aes(geometry=geometry, color = NAME))
 
-# figure out how to do this
-plot(basemap_orig)
-plot(proj_hydro, add = TRUE)
-plot(locs_sf$geometry, add = TRUE)
+# change it into a spatraster to work with ggplot
+basemap_raster <- terra::rast(basemap_orig)
+# reproject it to MT state plane
+basemap_proj <- basemap_raster %>% terra::project("EPSG:32100", method = "near")
+str(basemap_proj)
+# making a map for my proposal
+
+
+## Trying with land cover
+ggplot()+
+  geom_spatraster(data = lcov) + scale_fill_manual(values=colors)+
+  geom_sf(data=proj_hydro, aes(color=NAME)) + theme(legend.position = "none")
+
+# plot for Figure 1 of proposal 
+ggplot()+
+  geom_spatraster(data = lcov_crop) + 
+  scale_fill_manual(values=colors)+
+  geom_sf(data=buff) + 
+  theme(legend.position = "none") + 
+  labs(title = "Study Area Rivers")
+
+
+# working making this map better with an insert:
+## also try adding a scale bar and north arrow
+# plot map of entire US
+data("us_states", package = "spData")
+#montana = read_sf(system.file("shape/mt.shp", package = "sf"))
+us_states_2163 <-  st_transform(us_states, crs = 2163)
+montana <- us_states_2163 %>% filter(NAME=="Montana")
+plot(montana)
+plot(us_states_2163)
+
+ggplot() + 
+  geom_sf(data = us_states_2163, fill = "white") +
+  geom_sf(proj_bound)
+  #geom_sf(data = montana, fill = "light green") # add bounding box around project area
+
+# not working: 
+# ggplot()+
+#   geom_spatraster(data = lcov_crop) + 
+#   scale_fill_manual(values=colors)+
+#   geom_sf(data=proj_hydro) + 
+#   geom_sf_label(data = proj_hydro, aes(label = NAME))+
+#   theme(legend.position = "none") + 
+#   labs(title = "Study Area Rivers")
+
+
+# plot for Figure 2 of proposal
+ggplot()+
+  geom_spatraster(data = lcov_crop) + 
+  scale_fill_manual(values=colors)+
+  geom_sf(data=buff) + 
+  geom_sf(data = locs_sf, 
+          mapping=aes(geometry=geometry, color = organization))+
+  theme(legend.position = "none") + 
+  labs(title = "Study Area Rivers")
+
 
 #################### Landcover Data ##########################
 # read the file in as a spatraster
@@ -93,40 +153,15 @@ lcov <- as.factor(lcov)
 plot(lcov)
 # The values of the land cover are wrong - developed land should be cultivated crops
 levels(lcov)
-cats(lcov)
-
-# Renaming the categories with FedData
-# Working with NLCD data: https://smalltownbigdata.github.io/feb2021-landcover/feb2021-landcover.html
-# load in the legend 
+#cats(lcov)
+# # Working with NLCD data: https://smalltownbigdata.github.io/feb2021-landcover/feb2021-landcover.html
+# # load in the legend 
 legend <- pal_nlcd()
-# make a vector of all the values we have in our study area and select those from the legend object
-vals <- unique(lcov[[1]])
-# pull out the values of the legend that are in the values of my map
-df <- legend[legend$ID %in% vals$label,]
-# recognize it as a categorical raster using ratify()
-rat <- as.factor(lcov[[1]])
-# make a curstom legend
-myKey <- list(rectangles=list(col = df$Color),
-                                text=list(lab=df$Class),
-                              space='left',
-              columns=1,
-              size=2,
-              cex=.6)
-
-# plot it
-levelplot(lcov,att="ID",
-          col.regions=df$Color,
-          par.settings=list(axis.line=list(col="transparent"),
-                            strip.border=list(col="transparent")),
-          scales=list(col="transparent"),
-          colorKey=FALSE,
-          key=myKey)
-# not visualizing the right colors
-plot(lcov)
-levels(lcov)
 #lcov_test <- merge(lcov, df, by = "ID")
-lcov_test <- lcov
-
+#lcov_test <- lcov
+vals <- unique(lcov[[1]])
+# # pull out the values of the legend that are in the values of my map
+df <- legend[legend$ID %in% vals$label,]
 levels(lcov) <- df[,c("ID","Class")]
 # need to relate the colors that it plots the raster to specific variables 
 colors=c("#5475A8","#FFFFFF","#E8D1D1","#E29E8C","#ff0000","#B50000","#D2CDC0","#85C77E","#38814E","#D4E7B0","#DCCA8F","#FDE9AA","#FBF65D","#CA9146","#C8E6F8","#64B3D5")
@@ -135,69 +170,6 @@ ggplot() +
   geom_spatraster(data = lcov) + scale_fill_manual(values=colors)
 # try this onescale_color_manual()
 
-# original
-# levelplot(lcov,att="ID",
-#           col.regions=df$Color,
-#           par.settings=list(axis.line=list(col="transparent"),
-#                             strip.border=list(col="transparent")),
-#           scales=list(col="transparent"),
-#           colorKey=F,
-#           key=myKey)
-
-
-
-
-# Trying to download again
-# Latitude: 
-#ymin <- 44.99590
-#ymax <- 49.01381
-#xmax <- -103.97005
-#xmin <- -112.81392
-#lvls <- levels(lcov)
-#length(lvls)
-
-# vizualize all of these in just the specific areas where the different riverse of the study sites are
-# lcov2 <- terra::rast("E:\\MT_Spatial_Data\\MRLC_Data_LC_Only\\NLCD_2019_Land_Cover_L48_20210604_wL2onyRXwRRRtc1Y7tTR.tiff")
-# # visualize it quickly
-# plot(lcov2, main = "2019 Land Cover - New Download")
-### Same as before
-# the values in the "red" category correspond to the land cover types
-## just for funsies, lets look at the others:
-## 2016
-##lcov16 <- terra::rast("D:\\MT_Spatial_Data\\NLCD_2016_Tree_Canopy_L48_20190831_MRafobliFr55aJu210wR.tiff")
-##plot(lcov16)
-## 2001
-##lcov01 <- terra::rast("D:\\MT_Spatial_Data\\NLCD_2001_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
-##plot(lcov16)
-
-## Looks like for the land cover data we need to fix the projection system (it is slanted, so we need to reproject it into the montana state plane system)
-# we also need to assign values to the land cover data
-
-
-#Montana Land Cover Data
-#mt_lcov <- terra::rast("E:\\MT_Spatial_Data\\MT_Landcover\\MTLC_2021_V1.tif")
-#plot(mt_lcov)
-# what are the categories of these pixels?
-
-
-######### Matrix for Renaming Values ############
-#make a matrix of the values and the corresponding land cover
-# find out how many elements we need
-list <- c(0,70,209, 222, 217,235, 171, 179, 104, 28, 181, 204, 223, 220, 184, 108)
-length(list)
-# create an empty matrix
-cats <- matrix(nrow=16, ncol=2)
-colnames(cats) <- c("ID","Landcover")
-# input the corresponding values from the dataframe
-cats[,1] <- c(0,70,209, 222, 217,235, 171, 179, 104, 28, 181, 204, 223, 220, 184, 108)
-#match these up with the values from the land cover
-cats[,2] <- c("null","open_water","ice_snow","developed_open","developed_low","developed_med","developed_high","barren","deciduous_forest","evergreen_forest","mixed_forest","shrub_scrub","grasslands_herbaceous","pasture_hay","woody_wetlands","herbaceous_wetlands")
-levels(lcov)
-
-# now that the numbers in the legend have the correct levels, we just need to change them to be the land cover class
-levels(lcov)
-lcov[[2]]
-# change the levels in the red column to match up with the levels in the cats matrix
 
 
 ################ Set the boundaries of the survey area in the river valleys ######################
@@ -209,7 +181,7 @@ hydro <- st_read("E:\\MT_Spatial_Data\\MT_Lakes_Streams\\hd43a\\hd43a.shp")
 #str(hydro)
 
 # Filter out only the rivers in our study area
-names <- c("Milk River", "Missouri River","Yellowstone River","Musselshell River")
+names <- c("Missouri River","Yellowstone River","Musselshell River")
 proj_hydro <- hydro %>% filter(NAME %in% names)
 proj_hydro <- proj_hydro %>% dplyr::select(NAME, geometry)
 #str(proj_hydro)
@@ -217,8 +189,8 @@ plot(proj_hydro, main = "Study Area Rivers")
 
 ## Drawing a buffer: "Geometrical operations" in this source: https://cran.r-project.org/web/packages/sf/vignettes/sf1.html
 # I want to create a new shapefile that consists of polygons of the buffers around the rivers
-buff <- st_buffer(proj_hydro, dist = 1500)
-plot(buff, main = "1500 m Buffer Around Rivers")
+buff <- st_buffer(proj_hydro, dist = 400)
+plot(buff, main = "400 m Buffer Around Rivers")
 
 # what distance to use? 
 ## google earth measuring distance from river to edge of cottonwood habitat
@@ -365,14 +337,135 @@ crs(lcov_proj)
 #                               na.rm = TRUE)
 # at every point, takes the value for the raster data and assigns it to a new column
 
+ggplot()+
+  geom_spatraster(data = lcov_crop) + scale_fill_manual(values=colors)+
+  geom_sf(data=buff)
+
 # instead, crop the raster to be within the buffers
 lcov_crop <- crop(lcov, buff, snap = "near")
 plot(lcov_crop)
 plot(buff, add = TRUE)
 
-ggplot()+
-  geom_spatraster(data = lcov_crop) + scale_fill_manual(values=colors)+
-  geom_sf(data=buff)
+
+######### Matrix for Renaming Values ############
+
+#make a matrix of the values and the corresponding land cover
+# # find out how many elements we need
+#list <- c(0,70,209, 222, 217,235, 171, 179, 104, 28, 181, 204, 223, 220, 184, 108)
+# length(list)
+# create an empty matrix
+cats <- matrix(nrow=16, ncol=2)
+colnames(cats) <- c("ID","Landcover")
+# input the corresponding values from the dataframe
+cats[,1] <- c(11,12, 21, 22,23, 24, 31, 41, 42, 43, 52, 71, 81, 82, 90,95)
+# #match these up with the values from the land cover
+cats[,2] <- c("open_water","ice_snow","developed_open","developed_low","developed_med","developed_high","barren","deciduous_forest","evergreen_forest","mixed_forest","shrub_scrub","grasslands_herbaceous","pasture_hay","woody_wetlands","herbaceous_wetlands")
+
+############ GRTS SAMPLING ############
+
+# try using mask() to crop lcov to be within the buff layer
+lcov_mask <- mask(lcov_crop,buff)
+plot(lcov_mask)
+levels(lcov_mask)
+
+lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
+
+# run the GRTS/sampling
+# GRTS can't run on rasters/spatrasters - convert this to a polygon
+# convert Spatraster to a raster object
+lcov_raster <- raster(lcov_mask)
+# convert raster to polygons
+#lcov_polygon <- rasterToPolygons(lcov_raster)
+# DONT RUN THIS AGAIN 
+# make a shapefile of the polygon
+#shapefile(lcov_polygon, ".\\Data\\Spatial_Data\\Landcover_Polygon.shp")
+# ONLY USE THE SHAPEFILE
+## read in the shapefile and make sure it is in a projected (not geographic) coordinate system 
+lcov_polygon <- st_read(".\\Data\\Spatial_Data\\Landcover_Polygon.shp") 
+#%>% st_transform(crs=32100)
+
+
+# create a list of the number of the samples you want for each strata
+## NOTE you can't specify zero for this, put in 1 for the ones you don't want
+# adjust this as needed later
+n_strata <- c("11"=1,
+              "21"=1,
+              "22"=1,
+              "23"=1,
+              "24"=1,
+              "31"=1,
+              "41"=16,
+              "42"=16,
+              "43"=16,
+              "52"=16,
+              "71"=16,
+              "81"=1,
+              "82"=1,
+              "90"=16,
+              "95"=16)
+
+## Say how many over samples you want for each strata
+## here is where you can put zero in for classes you don't want 
+n_oversamp <- c("11"=0,
+              "21"=0,
+              "22"=0,
+              "23"=0,
+              "24"=0,
+              "31"=0,
+              "41"=40,
+              "42"=40,
+              "43"=40,
+              "52"=40,
+              "71"=40,
+              "81"=0,
+              "82"=0,
+              "90"=40,
+              "95"=40)
+
+# set the seed before running your sampling protocol so that you get the same randomness every time
+## you can change this if you don't like how the distributions look 
+set.seed(13)
+# unique(lcov_polygon$label)
+# only missing values is 12, this is fine
+
+
+# set up your GRTS function
+sampling_pts <- grts(sframe=lcov_polygon,
+                     n_base=n_strata,# creates a list of the strata and how many points within each strata
+                     stratum_var="label", # what the ID/column in polygon data is that you're stratifying by 
+                     n_over=n_oversamp) # gives you your extra spatially balanced points
+
+# this will give you a grts object
+# only use sampling points object after this
+
+# extract the main sampling points as a tibble
+main_sampling_points <- as_tibble(sampling_pts$sites_base)
+write.csv()
+# extract the over sampled points
+over_sampling_points <- as_tibble(sampling_pts$sites_over)
+write.csv()
+
+# filter out the strata that we don't want (the ones we had to specify to only sample one of)
+main_samples_trimmed <- main_sampling_points %>% filter(!strata %in% lancov_to_exclude)
+# add in a column for the names of each column 
+main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == )
+
+
+# intersect sampling points with the LiDAR data - make a stack for this first 
+# st_intersect() but need to convert Spatraster (try converting to raster)
+
+
+# visualize this with tm_shape(mode=view)
+
+
+
+# Land Ownership: after defining points
+# from MT Library Kedastrel data http://ftpgeoinfo.msl.mt.gov/Data/Spatial/MSDI/Cadastral/Parcels/
+# download the .shp zip from each county
+# stack these
+# run instersect between land ownership and sampling points (st_intersect)
+# use tmap to see interactive map to pull up land ownership (can also overlay these and view it before you intersect it)
+
 
 
 
@@ -474,3 +567,98 @@ ggplot()+
 # str(lcov)
 # 
 # terra::plotRGB(lcov_subset,r=2, g=3, b=4, main = "2019 Land Cover", stretch = "lin")
+
+
+
+# original
+# levelplot(lcov,att="ID",
+#           col.regions=df$Color,
+#           par.settings=list(axis.line=list(col="transparent"),
+#                             strip.border=list(col="transparent")),
+#           scales=list(col="transparent"),
+#           colorKey=F,
+#           key=myKey)
+
+
+# # Renaming the categories with FedData
+
+# # make a vector of all the values we have in our study area and select those from the legend object
+# vals <- unique(lcov[[1]])
+# # pull out the values of the legend that are in the values of my map
+# df <- legend[legend$ID %in% vals$label,]
+# # recognize it as a categorical raster using ratify()
+# rat <- as.factor(lcov[[1]])
+# # make a curstom legend
+# myKey <- list(rectangles=list(col = df$Color),
+#                                 text=list(lab=df$Class),
+#                               space='left',
+#               columns=1,
+#               size=2,
+#               cex=.6)
+# 
+# # plot it
+# levelplot(lcov,att="ID",
+#           col.regions=df$Color,
+#           par.settings=list(axis.line=list(col="transparent"),
+#                             strip.border=list(col="transparent")),
+#           scales=list(col="transparent"),
+#           colorKey=FALSE,
+#           key=myKey)
+# not visualizing the right colors
+
+
+
+
+
+
+# Trying to download again
+# Latitude: 
+#ymin <- 44.99590
+#ymax <- 49.01381
+#xmax <- -103.97005
+#xmin <- -112.81392
+#lvls <- levels(lcov)
+#length(lvls)
+
+# vizualize all of these in just the specific areas where the different riverse of the study sites are
+# lcov2 <- terra::rast("E:\\MT_Spatial_Data\\MRLC_Data_LC_Only\\NLCD_2019_Land_Cover_L48_20210604_wL2onyRXwRRRtc1Y7tTR.tiff")
+# # visualize it quickly
+# plot(lcov2, main = "2019 Land Cover - New Download")
+### Same as before
+# the values in the "red" category correspond to the land cover types
+## just for funsies, lets look at the others:
+## 2016
+##lcov16 <- terra::rast("D:\\MT_Spatial_Data\\NLCD_2016_Tree_Canopy_L48_20190831_MRafobliFr55aJu210wR.tiff")
+##plot(lcov16)
+## 2001
+##lcov01 <- terra::rast("D:\\MT_Spatial_Data\\NLCD_2001_Land_Cover_L48_20210604_MRafobliFr55aJu210wR.tiff")
+##plot(lcov16)
+
+## Looks like for the land cover data we need to fix the projection system (it is slanted, so we need to reproject it into the montana state plane system)
+# we also need to assign values to the land cover data
+
+
+#Montana Land Cover Data
+#mt_lcov <- terra::rast("E:\\MT_Spatial_Data\\MT_Landcover\\MTLC_2021_V1.tif")
+#plot(mt_lcov)
+# what are the categories of these pixels?
+
+######### Matrix for Renaming Values ############
+#make a matrix of the values and the corresponding land cover
+# # find out how many elements we need
+# list <- c(0,70,209, 222, 217,235, 171, 179, 104, 28, 181, 204, 223, 220, 184, 108)
+# length(list)
+# # create an empty matrix
+# cats <- matrix(nrow=16, ncol=2)
+# colnames(cats) <- c("ID","Landcover")
+# # input the corresponding values from the dataframe
+# cats[,1] <- c(0,70,209, 222, 217,235, 171, 179, 104, 28, 181, 204, 223, 220, 184, 108)
+# #match these up with the values from the land cover
+# cats[,2] <- c("null","open_water","ice_snow","developed_open","developed_low","developed_med","developed_high","barren","deciduous_forest","evergreen_forest","mixed_forest","shrub_scrub","grasslands_herbaceous","pasture_hay","woody_wetlands","herbaceous_wetlands")
+# levels(lcov)
+# 
+# # now that the numbers in the legend have the correct levels, we just need to change them to be the land cover class
+# levels(lcov)
+# lcov[[2]]
+# # change the levels in the red column to match up with the levels in the cats matrix
+

@@ -2038,9 +2038,13 @@ crs(rd) <-  "+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +tow
 
 ### Exporting Spatial Data
 
+[Data Carpentry Resource](https://datacarpentry.org/semester-biology/materials/spatial-data-saving-R/)
+
 ```{R}
 # Export rasters with terra::writeRaster(https://tmieno2.github.io/R-as-GIS-for-Economists/read-and-write-a-raster-data-file.html)
 # terra::writeRaster(spatial_object,"Path\\FileName.tiff")
+# for saving polygons
+# write_sf(object)
 
 ```
 
