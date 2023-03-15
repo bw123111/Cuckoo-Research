@@ -1,0 +1,111 @@
+---
+title: "Project GRTS Sampling"
+author: "Anna Kurtin"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+This is a markdown document to create
+
+
+
+```{r Setup}
+# Load in packages
+packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap")
+source(".\\R_Scripts\\Install_Load_Packages.R")
+load_packages(packages)
+```
+
+
+```{r Establish Bounding Box}
+# Bounding box coordinates from MRLC download 2/15:
+ymin_proj <- 44.94910
+ymax_proj <- 49.03619
+xmin_proj <- -112.35849
+xmax_proj <- -103.97674
+
+#have to give st_bbox an object
+# load in locations data
+locs_dat <- fread(".\\Data\\Spatial_Data\\2022_ALLPoints.csv")
+locs_dat <- na.omit(locs_dat)
+locs_sf <- locs_dat %>% 
+  st_as_sf(coords=c("long", "lat")) %>% st_set_crs(32100)
+proj_bound <- st_bbox(locs_sf)
+
+# lets reset the boundaries to what we want, the order is"
+#xmin, ymin, xmax, ymax
+proj_bound[1] <- xmin_proj
+proj_bound[2] <- ymin_proj
+proj_bound[3] <- xmax_proj
+proj_bound[4] <- ymax_proj
+
+```
+
+
+```{r Read in Reprojected Land Cover Data}
+# read in the updated, reprojected raster
+lcov <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
+lcov <- as.factor(lcov)
+
+# # Working with NLCD data: https://smalltownbigdata.github.io/feb2021-landcover/feb2021-landcover.html
+# # load in the legend 
+legend <- pal_nlcd()
+#lcov_test <- merge(lcov, df, by = "ID")
+#lcov_test <- lcov
+vals <- unique(lcov[[1]])
+# # pull out the values of the legend that are in the values of my map
+df <- legend[legend$ID %in% vals$label,]
+levels(lcov) <- df[,c("ID","Class")]
+# need to relate the colors that it plots the raster to specific variables 
+colors=c("#5475A8","#FFFFFF","#E8D1D1","#E29E8C","#ff0000","#B50000","#D2CDC0","#85C77E","#38814E","#D4E7B0","#DCCA8F","#FDE9AA","#FBF65D","#CA9146","#C8E6F8","#64B3D5")
+
+
+
+# Read in hydrology layer
+hydro <- st_read("E:\\MT_Spatial_Data\\MT_Lakes_Streams\\hd43a\\hd43a.shp")
+# Combined study area
+names <- c("Missouri River","Yellowstone River","Musselshell River")
+proj_hydro <- hydro %>% filter(NAME %in% names)
+proj_hydro <- proj_hydro %>% dplyr::select(NAME, geometry)
+# Separate by river
+hydro_miso <- hydro %>% filter(NAME == "Missouri River") %>% dplyr::select(NAME, geometry)
+hydro_mush <- hydro %>% filter(NAME == "Musselshell River") %>% dplyr::select(NAME, geometry)
+hydro_yell <- hydro %>% filter(NAME == "Yellowstone River") %>% dplyr::select(NAME, geometry)
+
+# Create a buffer layer for each river
+buff_miso <- st_buffer(hydro_miso, dist = 400)
+buff_mush <- st_buffer(hydro_mush, dist = 400)
+buff_yell <- st_buffer(hydro_yell, dist = 400)
+
+# Mask land cover to only within the hydrology 
+lcov_miso <- mask(lcov,buff_miso)
+lcov_mush <- mask(lcov,buff_mush)
+lcov_yell <- mask(lcov,buff_yell)
+
+
+lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
+```
+
+GRTS Sampling
+
+```{r Setup}
+
+# First, convert to a raster
+# GRTS can't run on rasters/spatrasters - convert this to a polygon
+# convert Spatraster to a raster object
+system.time(lcovrast_mush <- raster(lcov_mush))
+# convert raster to polygons
+lcovpoly_mush <- rasterToPolygons(lcovrast_mush)
+# DONT RUN THIS AGAIN 
+# make a shapefile of the polygon
+shapefile(lcovpoly_mush, ".\\Data\\Spatial_Data\\Landcover_Polygon_Musselshell.shp")
+# ONLY USE THE SHAPEFILE
+## read in the shapefile and make sure it is in a projected (not geographic) coordinate system 
+polys_mush <- st_read(".\\Data\\Spatial_Data\\Landcover_Musselshell.shp") 
+
+```
+
+
+
+

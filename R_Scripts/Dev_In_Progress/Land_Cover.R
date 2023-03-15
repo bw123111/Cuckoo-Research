@@ -88,49 +88,7 @@ ggplot()+
   geom_spatraster(data = lcov) + scale_fill_manual(values=colors)+
   geom_sf(data=proj_hydro, aes(color=NAME)) + theme(legend.position = "none")
 
-# plot for Figure 1 of proposal 
-ggplot()+
-  geom_spatraster(data = lcov_crop) + 
-  scale_fill_manual(values=colors)+
-  geom_sf(data=buff) + 
-  theme(legend.position = "none") + 
-  labs(title = "Study Area Rivers")
 
-
-# working making this map better with an insert:
-## also try adding a scale bar and north arrow
-# plot map of entire US
-data("us_states", package = "spData")
-#montana = read_sf(system.file("shape/mt.shp", package = "sf"))
-us_states_2163 <-  st_transform(us_states, crs = 2163)
-montana <- us_states_2163 %>% filter(NAME=="Montana")
-plot(montana)
-plot(us_states_2163)
-
-ggplot() + 
-  geom_sf(data = us_states_2163, fill = "white") +
-  geom_sf(proj_bound)
-  #geom_sf(data = montana, fill = "light green") # add bounding box around project area
-
-# not working: 
-# ggplot()+
-#   geom_spatraster(data = lcov_crop) + 
-#   scale_fill_manual(values=colors)+
-#   geom_sf(data=proj_hydro) + 
-#   geom_sf_label(data = proj_hydro, aes(label = NAME))+
-#   theme(legend.position = "none") + 
-#   labs(title = "Study Area Rivers")
-
-
-# plot for Figure 2 of proposal
-ggplot()+
-  geom_spatraster(data = lcov_crop) + 
-  scale_fill_manual(values=colors)+
-  geom_sf(data=buff) + 
-  geom_sf(data = locs_sf, 
-          mapping=aes(geometry=geometry, color = organization))+
-  theme(legend.position = "none") + 
-  labs(title = "Study Area Rivers")
 
 
 #################### Landcover Data ##########################
@@ -149,11 +107,7 @@ ggplot()+
 # read in the updated, reprojected raster
 lcov <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
 lcov <- as.factor(lcov)
-# visualize it quickly
-plot(lcov)
-# The values of the land cover are wrong - developed land should be cultivated crops
-levels(lcov)
-#cats(lcov)
+
 # # Working with NLCD data: https://smalltownbigdata.github.io/feb2021-landcover/feb2021-landcover.html
 # # load in the legend 
 legend <- pal_nlcd()
@@ -296,11 +250,6 @@ plot(milk_HILL1hs_stack, add = TRUE)
 
 
 
-deer_w<-terra::rasterize(elc_habitat, mask.raster, field="DEER_W")
-
-
-
-
 
 ########### Put the river data and survey buffers onto the land cover data ######
 # Check if the rivers line up with the land cover data 
@@ -375,10 +324,10 @@ lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
 # convert Spatraster to a raster object
 lcov_raster <- raster(lcov_mask)
 # convert raster to polygons
-#lcov_polygon <- rasterToPolygons(lcov_raster)
+lcov_polygon <- rasterToPolygons(lcov_raster)
 # DONT RUN THIS AGAIN 
 # make a shapefile of the polygon
-#shapefile(lcov_polygon, ".\\Data\\Spatial_Data\\Landcover_Polygon.shp")
+shapefile(lcov_polygon, ".\\Data\\Spatial_Data\\Landcover_Polygon.shp")
 # ONLY USE THE SHAPEFILE
 ## read in the shapefile and make sure it is in a projected (not geographic) coordinate system 
 lcov_polygon <- st_read(".\\Data\\Spatial_Data\\Landcover_Polygon.shp") 

@@ -18,9 +18,9 @@ library(janitor)
 ################## Code  ################################################
 UMBEL_2022 <- read_csv("./Data/Metadata/2022_ARUDeployment_Metadata_UMBEL.csv")
 
-Skone_2022 <- read_csv("./Data/Metadata/2022_ARUDeployment_Metadata_FWPSkone.csv")
+Skone_2022 <- read_csv("./Data/Metadata/2022_ARUDeployment_Metadata_FWPR7.csv")
 
-Hussey_2022 <- read_csv("./Data/Metadata/2022_ARUDeployment_Metadata_FWPHussey.csv")
+Hussey_2022 <- read_csv("./Data/Metadata/2022_ARUDeployment_Metadata_FWPR6.csv")
 
 UMBEL_2021 <- read_csv("./Data/Metadata/2021_ARUDeployment_Metadata_UMBEL.csv")
 
@@ -28,8 +28,9 @@ UMBELFWP_2020 <- read_csv("./Data/2020_ARUDeploymentMetadata_ARUandPlaybackResul
 
 # pull out the point-id for all of them
 # Clean up the names so you can use the same code
-UMBEL_2022 <- UMBEL_2022 %>% select(point_ID) 
 UMBEL_2022 <- UMBEL_2022 %>% rename(point_id=point_ID)
+UMBEL_2022 <- UMBEL_2022 %>% clean_names() %>% select(point_id) 
+
 
 Skone_2022 <- Skone_2022 %>% clean_names() %>% select(point_id)
 

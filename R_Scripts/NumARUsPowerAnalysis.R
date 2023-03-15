@@ -63,6 +63,8 @@ source(".\\R_Scripts\\Plot_SimulateOcc_By_Hab.R")
 repeat_locs <- fread(".\\Data\\Spatial_Data\\Repeat_Monitoring_Points_2023.csv")
 # Get a number for this data - these are the ARUs that we aren't able to use for randomized habitat survey points
 num_repeat_locs <- nrow(repeat_locs)
+repeat_locs_FWP <- repeat_locs %>% filter(organization!="UMBEL/MTA")
+num_repeats_FWP <- nrow(repeat_locs_FWP)
 
 # ARUs available for 2023
 
@@ -92,6 +94,10 @@ num_FWPR6 <- nrow(repeat_locs %>% filter(organization=="FWPR6"))
 # Again a minimum estimate of the ARUs available to FWP Region 5 based on email correspondance
 num_FWPR5 <- 24
 
+FWP_arus <- num_FWPR7 + num_FWPR6 + num_FWPR5
+
+hab_ARUs_fwp <- FWP_arus- num_repeats_FWP
+  
 # Sum up the total number of ARUs available
 total_arus <- num_FWPR5 + num_FWPR6 + num_FWPR7 + num_UMBEL
 
