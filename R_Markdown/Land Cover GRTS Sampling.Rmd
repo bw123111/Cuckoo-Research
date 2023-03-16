@@ -85,25 +85,86 @@ lcov_yell <- mask(lcov,buff_yell)
 
 
 lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
+
+total_arus <- 45
+# base sample is 15 along each river
 ```
 
 GRTS Sampling
 
-```{r Setup}
+```{r Musselshell}
+# RUN ONCE
+## convert Spatraster to a raster object
+## system.time(lcovrast_mush <- raster(lcov_mush))
+## convert raster to polygons
+## system.time(lcovpoly_mush <- rasterToPolygons(lcovrast_mush))
+## DONT RUN THIS AGAIN
+## make a shapefile of the polygon
+## shapefile(lcovpoly_mush, ".\\Data\\Spatial_Data\\Landcover_Polygon_Musselshell.shp")
 
-# First, convert to a raster
-# GRTS can't run on rasters/spatrasters - convert this to a polygon
-# convert Spatraster to a raster object
-system.time(lcovrast_mush <- raster(lcov_mush))
-# convert raster to polygons
-lcovpoly_mush <- rasterToPolygons(lcovrast_mush)
-# DONT RUN THIS AGAIN 
-# make a shapefile of the polygon
-shapefile(lcovpoly_mush, ".\\Data\\Spatial_Data\\Landcover_Polygon_Musselshell.shp")
-# ONLY USE THE SHAPEFILE
-## read in the shapefile and make sure it is in a projected (not geographic) coordinate system 
-polys_mush <- st_read(".\\Data\\Spatial_Data\\Landcover_Musselshell.shp") 
+# read in the shapefile and make sure it is in a projected (not geographic) coordinate system
+polys_mush <- st_read(".\\Data\\Spatial_Data\\Landcover_Polygon_Musselshell.shp") 
 
+
+# create a list of the number of the samples you want for each strata
+## NOTE you can't specify zero for this, put in 1 for the ones you don't want
+# adjust this as needed later
+n_strata <- c("11"=1,
+              "21"=1,
+              "22"=1,
+              "23"=1,
+              "24"=1,
+              "31"=1,
+              "41"=3,
+              "42"=3,
+              "43"=3,
+              "52"=3,
+              "71"=3,
+              "81"=1,
+              "82"=1,
+              "90"=3,
+              "95"=3)
+
+## Say how many over samples you want for each strata
+## here is where you can put zero in for classes you don't want 
+n_oversamp <- c("11"=0,
+              "21"=0,
+              "22"=0,
+              "23"=0,
+              "24"=0,
+              "31"=0,
+              "41"=30,
+              "42"=30,
+              "43"=30,
+              "52"=30,
+              "71"=30,
+              "81"=0,
+              "82"=0,
+              "90"=30,
+              "95"=30)
+
+# set the seed before running your sampling protocol so that you get the same randomness every time
+## you can change this if you don't like how the distributions look 
+set.seed(13)
+unique(polys_mush$Class)
+
+# set up your GRTS function
+sampling_pts <- grts(sframe=polys_mush,
+                     n_base=n_strata,# creates a list of the strata and how many points within each strata
+                     stratum_var="Class", # what the ID/column in polygon data is that you're stratifying by 
+                     n_over=n_oversamp) # gives you your extra spatially balanced points
+
+# extract the main sampling points as a tibble
+main_sampling_points <- as_tibble(sampling_pts$sites_base)
+write.csv()
+# extract the over sampled points
+over_sampling_points <- as_tibble(sampling_pts$sites_over)
+write.csv()
+
+# filter out the strata that we don't want (the ones we had to specify to only sample one of)
+main_samples_trimmed <- main_sampling_points %>% filter(!strata %in% lancov_to_exclude)
+# add in a column for the names of each column 
+main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == )
 ```
 
 

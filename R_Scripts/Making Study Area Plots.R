@@ -82,8 +82,8 @@ ggplot()+
   scale_fill_manual(values=colors)+
   geom_sf(data=buff) + 
   theme(legend.position = "none") + 
-  labs(title = "Study Area Rivers", ylab = "latitude") +
-  theme_bw() + scale_y_continuous(breaks = seq(45.0, 48.0, by = .5))
+  labs(title = "Study Area River Valleys", ylab = "Latitude", xlab = "Longitude") +
+  theme_bw(legend.size = .5) #+ scale_y_continuous(breaks = seq(45.0, 48.0, by = .5))
 
 # use scale_y_continuous and sclae_x continuous
 

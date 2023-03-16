@@ -159,36 +159,72 @@ plot(buff, main = "400 m Buffer Around Rivers")
 # Load in the downloads from the MT LiDAR - get a sense of what we're dealing with
 # Resources
 # https://geodetics.com/dem-dsm-dtm-digital-elevation-models/
+# Eventually get the upper missouri river breaks data from here: https://maps.equatorstudios.com/modal/site-boundary-definition
+
+# read in all the LiDAR data
+
+# set the extent to be the same as the project bbox and then stack them
+elev <- crop(elev, lcov, snap = "near")
+lcov <- resample(lcov, elev, method = "near")
+
+custer_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\CUSTER_2019_CUcntyQL1\\Hillshade.tif")
+plot(cust_19, main = "Musselshell Hillshade")
+ext(custer_19)
+res(custer_19)
+
+dawson_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\Dawson_2019_DawsonQL1\\Hillshade.tif")
+test <- crop(dawson_19, custer_19, snap = "near")
+test <- resample(dawson_19, custer_19, method = "near")
+
+
+phillips_18 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\PHILLIPS_2018_PHcntyS\\Hillshade.tif")
+
+rosebud_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\ROSEBUD_2019_RScntyQL1\\Hillshade.tif")
+
+treasure_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\TREASURE_2019_TRcntyQL1\\Hillshade.tif")
+
+wheatland_17 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\WHEATLAND_2017_MshellRvrTribs\\Hillshade.tif")
+
+# stack using stacked_rast <- c(rast1,rast2, rast3)
+# terra equivalent for raster::stack() https://stackoverflow.com/questions/71213802/terra-equivalent-for-rasterstack
+# another resource on stacking rasters: https://stackoverflow.com/questions/73581740/converting-a-spatraster-to-a-rasterstack
+# also look at this? https://gis.stackexchange.com/questions/336691/create-new-raster-from-both-overlapping-and-non-overlapping-values-of-two-other
+
+
+
+
 
 ## Load in Canopy Height Model - pixels represent tree overstory over underlying ground topography
 ## Isolate this into categories of shrub height/tree height
-musselshell_CHM <- terra::rast("D:\\Musselshell_Spatial_Data\\CHM.tif")
-plot(musselshell_CHM, main = "Musselshell CHM")
-cats(musselshell_CHM) # NULL?
-
-## Read in Digital Surface Model - Captures both natural and artificial features of the environment
-## Could this potentially get at understory density?
-musselshell_DSM <- terra::rast("D:\\Musselshell_Spatial_Data\\DSM.tif")
-plot(musselshell_DSM, main = "Musselshell Digital Surface Model")
-## Find a way to zoom in on this to see more of what you're working with
-
-## Read in HF Digital Elevation Model - represents the bare-earth surface, removing all natural and built features 
-## DSM - DEM = canopy height model?
-musselshell_HFDEM <- terra::rast("D:\\Musselshell_Spatial_Data\\HFDEM.tif")
-plot(musselshell_HFDEM, main = "Musselshell HFDEM") 
+# musselshell_CHM <- terra::rast("D:\\Musselshell_Spatial_Data\\CHM.tif")
+# plot(musselshell_CHM, main = "Musselshell CHM")
+# cats(musselshell_CHM) # NULL?
+# 
+# ## Read in Digital Surface Model - Captures both natural and artificial features of the environment
+# ## Could this potentially get at understory density?
+# musselshell_DSM <- terra::rast("D:\\Musselshell_Spatial_Data\\DSM.tif")
+# plot(musselshell_DSM, main = "Musselshell Digital Surface Model")
+# ## Find a way to zoom in on this to see more of what you're working with
+# 
+# ## Read in HF Digital Elevation Model - represents the bare-earth surface, removing all natural and built features 
+# ## DSM - DEM = canopy height model?
+# musselshell_HFDEM <- terra::rast("D:\\Musselshell_Spatial_Data\\HFDEM.tif")
+# plot(musselshell_HFDEM, main = "Musselshell HFDEM") 
+## Read in intensity - the smount of light energy recorded by the sensor, showing the composition of the object reflecting the laser beam
+# musselshell_Intensity <- terra::rast("D:\\Musselshell_Spatial_Data\\Intensity.tif")
+# plot(musselshell_Intensity, main = "Musselshell Intensity")
 
 ## Read in hillshade - created from a digital elevation model as if it were illuminated with a light source shining from the northwest
 musselshell_Hillshade <- terra::rast("D:\\Musselshell_Spatial_Data\\Hillshade.tif")
 plot(musselshell_Hillshade, main = "Musselshell Hillshade")
 
-## Read in intensity - the smount of light energy recorded by the sensor, showing the composition of the object reflecting the laser beam
-musselshell_Intensity <- terra::rast("D:\\Musselshell_Spatial_Data\\Intensity.tif")
-plot(musselshell_Intensity, main = "Musselshell Intensity")
-
 ## Stack the hillshades for the LiDAR data I'll use for my project
 # Read them in 
-milk_BLAINEhs <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\BLAINE_2018_MilkRvr\\Hillshade.tif")
-plot(milk_BLAINEhs, main = "Blaine Milk River Hillshade")
+# milk_BLAINEhs <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\BLAINE_2018_MilkRvr\\Hillshade.tif")
+# plot(milk_BLAINEhs, main = "Blaine Milk River Hillshade")
+# resample and crop to be like the musselshell
+elev <- crop(elev, lcov, snap = "near")
+lcov <- resample(lcov, elev, method = "near")
 
 milk_HILL1hs <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\HILL_2018_MilkRvrHavre\\Hillshade.tif")
 plot(milk_HILL1hs, main = "Hill Milk River Hillshade")
@@ -244,9 +280,7 @@ milk_HILL1hs_stack <- crop(milk_HILL1hs_stack, mask_raster, snap= "near" )
 plot(milk_BLAINEhs_stack)
 plot(milk_HILL1hs_stack, add = TRUE)
 
-# terra equivalent for raster::stack() https://stackoverflow.com/questions/71213802/terra-equivalent-for-rasterstack
-# another resource on stacking rasters: https://stackoverflow.com/questions/73581740/converting-a-spatraster-to-a-rasterstack
-# also look at this? https://gis.stackexchange.com/questions/336691/create-new-raster-from-both-overlapping-and-non-overlapping-values-of-two-other
+
 
 
 
@@ -397,7 +431,7 @@ write.csv()
 # filter out the strata that we don't want (the ones we had to specify to only sample one of)
 main_samples_trimmed <- main_sampling_points %>% filter(!strata %in% lancov_to_exclude)
 # add in a column for the names of each column 
-main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == )
+main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == 1)
 
 
 # intersect sampling points with the LiDAR data - make a stack for this first 
