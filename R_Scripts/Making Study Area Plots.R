@@ -39,7 +39,7 @@ names <- c("Missouri River","Yellowstone River","Musselshell River")
 proj_hydro <- hydro %>% filter(NAME %in% names)
 proj_hydro <- proj_hydro %>% dplyr::select(NAME, geometry)
 # create a buffer around the hydro
-buff <- st_buffer(proj_hydro, dist = 400)
+buff <- st_buffer(proj_hydro, dist = 1500)
 
 
 # Crop the landcover layer to the buffer layer
@@ -83,7 +83,7 @@ ggplot()+
   geom_sf(data=buff) + 
   theme(legend.position = "none") + 
   labs(title = "Study Area River Valleys", ylab = "Latitude", xlab = "Longitude") +
-  theme_bw(legend.size = .5) #+ scale_y_continuous(breaks = seq(45.0, 48.0, by = .5))
+  theme_bw() #+ scale_y_continuous(breaks = seq(45.0, 48.0, by = .5))
 
 # use scale_y_continuous and sclae_x continuous
 
