@@ -1543,6 +1543,8 @@ Intro/tutorials:
 
 [Intro to Raster Data in R](https://www.neonscience.org/resources/learning-hub/tutorials/dc-plot-raster-data-r)
 
+[Functions to pull out information about rasters](https://rdrr.io/github/rspatial/terra/man/dimensions.html)
+
 [R and GIS for Economists](https://tmieno2.github.io/R-as-GIS-for-Economists/raster-data-object-classes.html)
 
 [For making a hexagonal tessellation](https://search.r-project.org/CRAN/refmans/spatstat.geom/html/hextess.html)
@@ -1745,7 +1747,7 @@ dat_bbox <- st_bbox(st_buffer(dat_sf, dist = 1000))
 ## Download elevation raster using elevatr. Note the different CRS format required here. You can play with z (zoom) to get different resolutions (which we'll do later).
 elev <- get_elev_raster(dat_sf, z = 6, prj = "EPSG:3995") 
 lcov <- terra::rast("C:\\Users\\annak\\OneDrive\\Documents\\Research\\Helpful_Coding_Things\\R_Resources\\Spatial Data Workshop\\MCD12Q1_LC1_2018_001.tif")
-# If you import a .tif file from an arcGIS file that has more .tif.aux files and things like that you only need the .tif to visualize it and work with
+# If you import a .tif file from an arcGIS file that has more .tif.aux files you need both the .tif and the .aux file
 
 # Step 3: convert your data type and layer names if needed
 ## There are two main packages for working with raster data in R: raster and terra. The raster package has been around for a while and uses
@@ -1822,6 +1824,9 @@ levels(lcov) <- reclass_code
 
 ## Check that it worked
 plot(lcov)
+
+# You may also need to reproject your raster
+basemap_proj <- basemap %>% terra::project("EPSG:32100", method = "near")
 
 ```
 

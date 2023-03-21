@@ -6,7 +6,9 @@ output: html_document
 ---
 
 
-This is a markdown document to create
+This is a markdown document to create points for a sampling framework 
+
+Currently, the sampling for GRTS is taking too long, so I'm going to try to intersect the LiDAR layer with it before running the GRTS
 
 
 
@@ -47,6 +49,8 @@ proj_bound[4] <- ymax_proj
 # read in the updated, reprojected raster
 lcov <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
 lcov <- as.factor(lcov)
+# I also made a new raster after setting as factor and changing value but I would just run this code chunk every time lcov_new <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjectedEdited.tiff")
+
 
 # # Working with NLCD data: https://smalltownbigdata.github.io/feb2021-landcover/feb2021-landcover.html
 # # load in the legend 
@@ -60,8 +64,10 @@ levels(lcov) <- df[,c("ID","Class")]
 # need to relate the colors that it plots the raster to specific variables 
 colors=c("#5475A8","#FFFFFF","#E8D1D1","#E29E8C","#ff0000","#B50000","#D2CDC0","#85C77E","#38814E","#D4E7B0","#DCCA8F","#FDE9AA","#FBF65D","#CA9146","#C8E6F8","#64B3D5")
 
+lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
+```
 
-
+```{r Create Buffer Raster from Vector Data}
 # Read in hydrology layer
 hydro <- st_read("E:\\MT_Spatial_Data\\MT_Lakes_Streams\\hd43a\\hd43a.shp")
 # Combined study area
@@ -79,15 +85,90 @@ buff_mush <- st_buffer(hydro_mush, dist = 400)
 buff_yell <- st_buffer(hydro_yell, dist = 400)
 
 # Mask land cover to only within the hydrology 
+# write these as rasters after you're done
 lcov_miso <- mask(lcov,buff_miso)
+terra::writeRaster(lcov_miso,"Data\\Spatial_Data\\NLCD_2019_MissouriLandcover.tiff")
 lcov_mush <- mask(lcov,buff_mush)
+terra::writeRaster(lcov_mush,"Data\\Spatial_Data\\NLCD_2019_MusselshellLandcover.tiff")
 lcov_yell <- mask(lcov,buff_yell)
+terra::writeRaster(lcov_yell,"Data\\Spatial_Data\\NLCD_2019_YellowstoneLandcover.tiff")
 
-
-lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
 
 total_arus <- 45
 # base sample is 15 along each river
+```
+
+```{r}
+# read in land cover data for each river 
+lcov_miso < terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MissouriLandcover.tiff")
+lcov_mush <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MusselshellLandcover.tiff")
+lcov_yell <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_YellowstoneLandcover.tiff")
+
+```
+
+```{r Mask for LiDAR Data}
+#1. initialize the raster
+mask_raster <- rast()
+#2. set extent (note that I customized this extent so it covered both elc_habitat and humanacess) (this usually requires some research to set your bounding box)
+ext(mask_raster) <- c(xmin=xmin_proj, xmax=xmax_proj, ymin=ymin_proj, ymax=ymax_proj) 	
+#3. set the resolution to 300 m - this is really large, set it to one instead
+res(mask_raster)<- 1
+#4.get the projection you're working with
+crs(mask_raster)<- "EPSG:32100"
+
+# check it
+res(mask_raster)
+ext(mask_raster)
+```
+
+```{Masking with LiDAR Data}
+# set the extent to be the same as the project bbox and then stack them
+#elev <- crop(elev, lcov, snap = "near")
+#lcov <- resample(lcov, elev, method = "near")
+# the LiDAR data is in NAD83, it needs to be in another reference system?
+# the crs of lcov and the lidar data should be the same - try to reproject LiDAR to match lcov
+# disagg? https://rspatial.github.io/terra/reference/disaggregate.html
+
+custer_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\CUSTER_2019_CUcntyQL1\\Hillshade.tif")
+plot(custer_19, main = "Musselshell Hillshade")
+crs(custer_19) <- "EPSG:32100"
+custer_19_test <- extend(custer_19, lcov_miso, snap = "near")
+plot(custer_19_test)
+# need to change the LiDAR data so that you can reproject it to the mask raster
+#custer_19 <- custer_19 %>% terra::project("32100", method = "near", gdal = FALSE)
+ext(custer_19)
+#res(custer_19)
+#test <- crop(custer_19, mask_raster, snap = "near")
+# extents do not overlap, this is because they're in different coordinate systems
+#test <- resample(custer_19, mask_raster, method = "near")
+
+
+
+dawson_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\Dawson_2019_DawsonQL1\\Hillshade.tif")
+plot(dawson_19)
+dawson_19_test <- crop(dawson_19, lcov, snap = "near")
+test <- c(dawson_19_test,custer_19_test)
+# ext(dawson_19)
+# res(dawson_19)
+# test <- crop(dawson_19, mask_raster, snap = "near")
+# test <- resample(dawson_19, mask_raster, method = "near")
+
+
+
+phillips_18 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\PHILLIPS_2018_PHcntyS\\Hillshade.tif")
+
+rosebud_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\ROSEBUD_2019_RScntyQL1\\Hillshade.tif")
+
+treasure_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\TREASURE_2019_TRcntyQL1\\Hillshade.tif")
+
+wheatland_17 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\WHEATLAND_2017_MshellRvrTribs\\Hillshade.tif")
+# extend this to the extent of the musselshell river
+wheatland_17_test <- extend(wheatland_17, buff_miso, snap = "near")
+# this caused R to crash 
+
+lidar <- c(custer_19,dawson_19,phillips_18,rosebud_19,treasure_19,wheatland_17)
+# extents don't match 
+
 ```
 
 GRTS Sampling
@@ -146,7 +227,7 @@ n_oversamp <- c("11"=0,
 # set the seed before running your sampling protocol so that you get the same randomness every time
 ## you can change this if you don't like how the distributions look 
 set.seed(13)
-unique(polys_mush$Class)
+#unique(polys_mush$Class)
 
 # set up your GRTS function
 sampling_pts <- grts(sframe=polys_mush,
