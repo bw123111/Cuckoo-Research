@@ -52,18 +52,62 @@ ymax_proj <- 49.03619
 xmin_proj <- -112.35849
 xmax_proj <- -103.97674
 
-# pull up the basemap to see if you have the right bounding box area
 #have to give st_bbox an object
 proj_bound <- st_bbox(locs_sf)
 
-# or not?
-# proj_bound <- st_bbox() no you do have to give it an object
 # lets reset the boundaries to what we want, the order is"
 #xmin, ymin, xmax, ymax
 proj_bound[1] <- xmin_proj
 proj_bound[2] <- ymin_proj
 proj_bound[3] <- xmax_proj
 proj_bound[4] <- ymax_proj
+
+
+# convert your bounding box to an sfc polygon object
+proj_box <- proj_bound %>% st_as_sfc()
+
+
+# try converting it to an sf object
+
+# make a matrix of the coordinates of the bounding box
+lon <- c(-112.35849,-112.35849,-103.97674,-103.97674,-112.35849)
+lat <- c(49.03619,44.94910,44.94910,49.03619,49.03619)
+ID <- c("A","B","C","D","E")
+coords <- cbind(lon,lat)
+coords_df <- as.data.frame(coords)
+str(coords_df)
+# convert to sf
+box_sf <- coords_df %>% 
+  st_as_sf(coords=c("lon", "lat")) %>%
+  st_set_crs(9311)
+
+
+# the box isn't visualizing right on the map, I think because it has zero fields. The issue may be that the geometry isn't converting, maybe instead of st_as_sf (which converts already existing spatial data to an as object), I should try st_sf() (which creates a spatial object from scratch): https://r-spatial.github.io/sf/reference/sf.html
+# convert to sf using st_sf()
+box_sf <- st_sf(coords_df)
+# error: no simple features geometry present
+# create 
+st_sfc(coords_df$lon,coords_df$lat)
+# box_sf <- st_sf(coords_df,geometry=st_sfc(st_point(cbind(coords_df$lon,coords_df$lat))))
+
+# try converting it into a multiline string: https://r-spatial.github.io/sf/reference/st.html
+st_multilinestring(coords)
+# resource on casting: https://rdrr.io/cran/sf/man/st_cast.html
+
+
+# connect the dots of the sf object
+# https://stackoverflow.com/questions/58150279/plotting-lines-between-two-sf-point-features-in-r
+# https://stackoverflow.com/questions/64594460/create-line-segments-from-gps-points-in-r-sf
+test <- box_sf %>% summarize(do_union = FALSE) %>% st_cast("MULTILINESTRING")
+#test <- st_cast(box_sf,to="LINESTRING")
+plot(test)
+crs(test)
+# error: this isn't visualizing on the map and I think it's because the feature has zero fields 
+
+## Trying something else:https://stackoverflow.com/questions/69638192/draw-polygons-around-coordinates-in-r
+hulls <- coords_df %>% st_as_sf(coords=c("lon","lat")) %>% summarize(geometry = st_union(geometry))
+hulls
+# also has zero fields
 
 
 
@@ -83,13 +127,19 @@ ggplot()+
   geom_sf(data=buff) + 
   theme(legend.position = "none") + 
   labs(title = "Study Area River Valleys", ylab = "Latitude", xlab = "Longitude") +
-  theme_bw() #+ scale_y_continuous(breaks = seq(45.0, 48.0, by = .5))
+  theme_bw() + scale_y_continuous(limits = c(45.0,48.0),breaks = seq(45.0, 48.0, by = .5))
 
 # use scale_y_continuous and sclae_x continuous
 
 # can also try theme_minimal() or something similar to get the gray lines away 
 
 # make a coordinate point for each river and plot it
+lon <- c(xmin_proj,xmax_proj)
+lat <- c(ymin_proj,ymax_proj)
+box_df <- data.frame(lon,lat)
+
+
+#####################
 
 
 # working making this map better with an insert:
@@ -97,18 +147,20 @@ ggplot()+
 # plot map of entire US
 data("us_states", package = "spData")
 #montana = read_sf(system.file("shape/mt.shp", package = "sf"))
-us_states_2163 <-  st_transform(us_states, crs = 2163)
-montana <- us_states_2163 %>% filter(NAME=="Montana")
-plot(montana)
-plot(us_states_2163)
+# old crs 2163
+us_states_9311 <-  st_transform(us_states, crs = 9311)
+montana <- us_states_9311 %>% filter(NAME=="Montana")
+# plot(montana)
+# plot(us_states_2163)
+# make a plot of this
+us_mt_plot <- ggplot() + 
+  geom_sf(data = us_states_9311, fill = "white") +
+  geom_sf(data = montana, fill = "light green")
 
-# for bounding box, make a polygon with the four coordinates of bounding box as the four corners and connect them
-
-ggplot() + 
-  geom_sf(data = us_states_2163, fill = "white") +
-  geom_sf(proj_bound)
-geom_sf(data = montana, fill = "light green") # add bounding box around project area
-
+# add the bounding box to the map
+us_mt_plot +geom_sf(data=test)
+# adding one point in South Dakota??
+box_sf
 # not working: 
 # ggplot()+
 #   geom_spatraster(data = lcov_crop) + 
@@ -119,7 +171,7 @@ geom_sf(data = montana, fill = "light green") # add bounding box around project 
 #   labs(title = "Study Area Rivers")
 
 
-# plot for Figure 2 of proposal
+######## plot for Figure 2 of proposal ##############
 ggplot()+
   geom_spatraster(data = lcov_crop) + 
   scale_fill_manual(values=colors)+
@@ -128,3 +180,11 @@ ggplot()+
           mapping=aes(geometry=geometry, color = organization))+
   theme(legend.position = "none") + 
   labs(title = "Study Area Rivers")
+
+
+##### code graveyard ####
+# reproject it to the same coordinate system as the us map
+# box_sf_test <- box_sf %>%
+#   st_transform("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +ellps=sphere +units=m +no_defs +type=crs") 
+# plot(box_sf)
+# crs(box_sf_test)

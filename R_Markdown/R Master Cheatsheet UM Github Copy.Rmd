@@ -1710,6 +1710,21 @@ MT_bound[1] <- MT_bound[1]-5# assign it a number
 # might require you to put names in 
 ## can go through and add buffer
 
+# can transform a bbox into an sf object
+# make a matrix of the coordinates of the bounding box
+lon <- c(-112.35849,-112.35849,-103.97674,-103.97674,-112.35849)
+lat <- c(49.03619,44.94910,44.94910,49.03619,49.03619)
+coords <- cbind(lon,lat)
+coords_df <- as.data.frame(coords)
+# convert to sf
+box_sf <- coords_df %>% 
+  st_as_sf(coords=c("lon", "lat")) %>%
+  st_set_crs(9311)
+
+# connect the dots of the sf object
+test <- box_sf %>% summarize(do_union = FALSE) %>% st_cast("MULTILINESTRING")
+
+
 #2. load in background map
 basemap <- get_stamenmap(as.numeric(MT_bound),maptype = "terrain-background", zoom=6)
 #can also set the zoom level (10 default)
