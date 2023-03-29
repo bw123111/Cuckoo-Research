@@ -100,7 +100,7 @@ total_arus <- 45
 
 ```{r}
 # read in land cover data for each river 
-lcov_miso < terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MissouriLandcover.tiff")
+lcov_miso <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MissouriLandcover.tiff")
 lcov_mush <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MusselshellLandcover.tiff")
 lcov_yell <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_YellowstoneLandcover.tiff")
 
@@ -129,9 +129,11 @@ ext(mask_raster)
 # the crs of lcov and the lidar data should be the same - try to reproject LiDAR to match lcov
 # disagg? https://rspatial.github.io/terra/reference/disaggregate.html
 
-custer_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\CUSTER_2019_CUcntyQL1\\Hillshade.tif")
+custer_19 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\CUSTER_2019_CUcntyQL1\\Hillshade.tif")
 plot(custer_19, main = "Musselshell Hillshade")
 crs(custer_19) <- "EPSG:32100"
+crs(custer_19)
+custer_19_test <- resample(custer_19, lcov_miso, method = "near")
 custer_19_test <- extend(custer_19, lcov_miso, snap = "near")
 plot(custer_19_test)
 # need to change the LiDAR data so that you can reproject it to the mask raster
@@ -246,6 +248,20 @@ write.csv()
 main_samples_trimmed <- main_sampling_points %>% filter(!strata %in% lancov_to_exclude)
 # add in a column for the names of each column 
 main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == )
+```
+
+
+```{r Musselshell}
+# select the points in the land cover we want
+
+
+# visualize them with the land cover data - assess the distribution 
+
+# intersect with LiDAR
+
+# visualize with cadastrel data
+
+# have a prety output I guess
 ```
 
 
