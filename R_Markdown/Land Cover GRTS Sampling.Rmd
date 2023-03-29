@@ -12,7 +12,7 @@ Currently, the sampling for GRTS is taking too long, so I'm going to try to inte
 
 
 
-```{r Setup}
+```{r Setup, include=FALSE}
 # Load in packages
 packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap")
 source(".\\R_Scripts\\Install_Load_Packages.R")
@@ -63,8 +63,17 @@ df <- legend[legend$ID %in% vals$label,]
 levels(lcov) <- df[,c("ID","Class")]
 # need to relate the colors that it plots the raster to specific variables 
 colors=c("#5475A8","#FFFFFF","#E8D1D1","#E29E8C","#ff0000","#B50000","#D2CDC0","#85C77E","#38814E","#D4E7B0","#DCCA8F","#FDE9AA","#FBF65D","#CA9146","#C8E6F8","#64B3D5")
+plot(lcov)
 
-lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
+
+
+# Matrix of numbers that correspond to landcover values
+cats <- matrix(nrow=16, ncol=2)
+colnames(cats) <- c("ID","Landcover")
+# input the corresponding values from the dataframe
+cats[,1] <- c(11,12, 21, 22,23, 24, 31, 41, 42, 43, 52, 71, 81, 82, 90,95)
+# #match these up with the values from the land cover
+cats[,2] <- c("open_water","ice_snow","developed_open","developed_low","developed_med","developed_high","barren","deciduous_forest","evergreen_forest","mixed_forest","shrub_scrub","grasslands_herbaceous","pasture_hay","woody_wetlands","herbaceous_wetlands")
 ```
 
 ```{r Create Buffer Raster from Vector Data}
@@ -186,8 +195,9 @@ GRTS Sampling
 ## shapefile(lcovpoly_mush, ".\\Data\\Spatial_Data\\Landcover_Polygon_Musselshell.shp")
 
 # read in the shapefile and make sure it is in a projected (not geographic) coordinate system
-polys_mush <- st_read(".\\Data\\Spatial_Data\\Landcover_Polygon_Musselshell.shp") 
-
+#polys_mush <- st_read(".\\Data\\Spatial_Data\\Landcover_Polygon_Musselshell.shp") 
+lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
+# should I be excluding cultivated crops?
 
 # create a list of the number of the samples you want for each strata
 ## NOTE you can't specify zero for this, put in 1 for the ones you don't want
@@ -253,9 +263,27 @@ main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == )
 
 ```{r Musselshell}
 # select the points in the land cover we want
+miso_main <- read_csv("D:\\MT_Spatial_Data\\Miso_Main_Sample.csv")
+miso_main_trim <- miso_main %>% filter(!stratum %in% lcov_to_exclude)
 
+# add in a column for the names of each column 
+#main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == 1)
 
 # visualize them with the land cover data - assess the distribution 
+## need to make it into an sf object first?
+miso_main_sf <- miso_main_trim %>% st_as_sf(coords=c("lon_WGS84", "lat_WGS84")) %>% ## Note that the order is longitude>latitude
+  st_set_crs(32100)
+plot(lcov_miso)
+plot(miso_main_sf$geometry,add=TRUE)
+# can't tell if this added what I wanted
+lcov_miso_raster <- raster(lcov_miso)
+miso <- list(lcov_miso_raster,miso_main_sf)
+mapview(lcov_miso_raster)
+# how to add on sf object to this?
+ggplot()+
+  geom_spatraster(data = lcov_miso) + 
+  scale_fill_manual(values=colors)+
+  geom_sf(data=miso_main_sf)
 
 # intersect with LiDAR
 

@@ -1608,7 +1608,8 @@ ggplot()+
   geom_sf(data = dat_sf, color = "red")
 
 ## Method 2: mapview
-## good for quickly visualizing things
+## good for quickly visualizing things or visualizing things in an interactive way
+## Resource: https://r-spatial.github.io/mapview/
 mapview(locs)
 
 ## Method 3: tmap
