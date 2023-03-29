@@ -63,6 +63,13 @@ rosebud_19 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\ROSEBUD_2019_RScntyQL1
 treasure_19 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\ROSEBUD_2019_RScntyQL1\\Rosebud19_HillshadeEdited.tif")
 
 #Add park 2020 ___________________________
+#look at sf package 
+# merge is from raster package
+combined_yell <- sum(dawson_19,custer_19, rosebud_19,treasure_19,na.rm=TRUE)
+
+plot(lcov_yell)
+plot(sum_test, add = TRUE)
+# this works
 
 plot(lcov_yell, main = "Standard Plot")
 plot(custer_19, add = TRUE)
@@ -110,6 +117,10 @@ phillips_18 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\PHILLIPS_2018_PHcntyS
 crs(phillips_18) <- "EPSG:32100"
 phillips_18_test <- resample(phillips_18, lcov_miso, method = "near")
 phillips_18_test <- extend(phillips_18_test, lcov_miso, snap = "near")
+
+
+# dummy raster for UMRBNM
+dummy <- terra::rast(ncol=36,nrow=18,xmin=)
 
 plot(lcov_yell, main = "Standard Plot")
 plot(custer_19_test, add = TRUE)
