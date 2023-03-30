@@ -1738,6 +1738,8 @@ Can be a different beast in R.
 
 [Reading in .tiff files with their auxillary data in R](https://gis.stackexchange.com/questions/273372/how-to-access-the-attribute-table-of-a-tif-map-in-r)
 
+[Making Dummy Raster Data in R](https://rspatial.org/spatial/8-rastermanip.html)
+
 ### A Note On Lining up Raster Data
 
 Here we will go through some typical raster operations when creating a set of spatially consistent raster layers. Our goal is to create a consistent stack of rasters - a raster stack, or brick, of the same raster extent, resolution and projection for all subsequent analyses in R. 
@@ -1751,6 +1753,11 @@ Here we will go through some typical raster operations when creating a set of sp
 
 
 ```{r Working with Raster Data}
+# Quick and dirty make a dummy raster
+dummy <- terra::rast(ncol=36,nrow=18,xmin=-109.880833,xmax=-108.288889,ymin=47.551111,ymax=47.825278)
+values(dummy) <- 1
+crs(dummy) <- "+proj=lcc +lat_0=44.25 +lon_0=-109.5 +lat_1=49 +lat_2=45 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
+
 # Step 1: Set Bounding Box
 ## First, let's create an object representing the bounding box of the movement data. We'll use this to define the area for retrieving rasters.
 ## Since "dat_sf" is an sf object, we can use the function st_bbox() to return the coordinates of the north, south, east, and west edges.

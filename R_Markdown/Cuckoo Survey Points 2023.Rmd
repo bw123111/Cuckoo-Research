@@ -1,0 +1,82 @@
+---
+title: "Cuckoo Survey Points 2023"
+author: "Anna Kurtin"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap")
+source(".\\R_Scripts\\Install_Load_Packages.R")
+load_packages(packages)
+```
+
+# Study area
+## Map of landcover data and buffer around rivers
+
+Brief explanation of the buffer process and the landcover data used to buffer 
+```{r}
+# first, show entire land cover layer for the entire study site with the buff shapefile 
+# read in the updated, reprojected raster
+lcov <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
+lcov <- as.factor(lcov)
+
+# # load in the legend 
+legend <- pal_nlcd()
+vals <- unique(lcov[[1]])
+# # pull out the values of the legend that are in the values of my map
+df <- legend[legend$ID %in% vals$label,]
+levels(lcov) <- df[,c("ID","Class")]
+# need to relate the colors that it plots the raster to specific variables 
+colors=c("#5475A8","#FFFFFF","#E8D1D1","#E29E8C","#ff0000","#B50000","#D2CDC0","#85C77E","#38814E","#D4E7B0","#DCCA8F","#FDE9AA","#FBF65D","#CA9146","#C8E6F8","#64B3D5")
+
+
+# read in the hydrology shapefile
+hydro <- st_read("E:\\MT_Spatial_Data\\MT_Lakes_Streams\\hd43a\\hd43a.shp")
+# Filter out only the rivers in our study area
+names <- c("Missouri River","Yellowstone River","Musselshell River")
+proj_hydro <- hydro %>% filter(NAME %in% names)
+proj_hydro <- proj_hydro %>% dplyr::select(NAME, geometry)
+# create a buffer around the hydro
+buff <- st_buffer(proj_hydro, dist = 400)
+
+```
+
+Fill this in with the code from Figure 1 of the proposal 
+```{r}
+# plot for Figure 1 of proposal 
+ggplot()+
+  geom_spatraster(data = lcov_crop) + 
+  scale_fill_manual(values=colors)+
+  geom_sf(data=buff) + 
+  theme(legend.position = "none") + 
+  labs(title = "Study Area River Valleys", ylab = "Latitude", xlab = "Longitude") +
+  theme_bw() + scale_y_continuous(limits = c(45.0,48.0),breaks = seq(45.0, 48.0, by = .5))
+
+
+
+```
+
+# Repeat monitoring points 
+## Map of the long-term repeat monitoring points on top of the buffer layer and the landcover data
+
+Add on the points to Figure 1
+```{r}
+
+```
+
+# New Habitat Points
+## Yellowstone GRTS plots
+
+
+
+## Missouri GRTS points
+
+
+
+## Musselshell GRTS points
+
+
+

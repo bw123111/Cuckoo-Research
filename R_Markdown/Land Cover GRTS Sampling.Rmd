@@ -10,11 +10,12 @@ This is a markdown document to create points for a sampling framework
 
 Currently, the sampling for GRTS is taking too long, so I'm going to try to intersect the LiDAR layer with it before running the GRTS
 
+Info on [EPSG 32100](https://epsg.io/32100) 
 
 
 ```{r Setup, include=FALSE}
 # Load in packages
-packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap")
+packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap","tmap")
 source(".\\R_Scripts\\Install_Load_Packages.R")
 load_packages(packages)
 ```
@@ -196,8 +197,7 @@ GRTS Sampling
 
 # read in the shapefile and make sure it is in a projected (not geographic) coordinate system
 #polys_mush <- st_read(".\\Data\\Spatial_Data\\Landcover_Polygon_Musselshell.shp") 
-lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
-# should I be excluding cultivated crops?
+
 
 # create a list of the number of the samples you want for each strata
 ## NOTE you can't specify zero for this, put in 1 for the ones you don't want
@@ -261,24 +261,67 @@ main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == )
 ```
 
 
+```{r}
+# Set up which land cover you want to exclude from the sample 
+lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
+# should I be excluding cultivated crops?
+# if not, could we include shelter belts in the crops area? Might be a question for FWP
+
+
+```
+
+
 ```{r Musselshell}
-# select the points in the land cover we want
+# select the points in the GRTS sample we want
 miso_main <- read_csv("D:\\MT_Spatial_Data\\Miso_Main_Sample.csv")
 miso_main_trim <- miso_main %>% filter(!stratum %in% lcov_to_exclude)
+# make it into an SF object
+miso_main_sf <- miso_main_trim %>% st_as_sf(coords=c("lon_WGS84", "lat_WGS84")) %>%
+  st_set_crs("EPSF:32100")
+
+miso_over <- read_csv("D:\\MT_Spatial_Data\\Miso_Over_Sample.csv")
+# no need to trim in the over sample 
+# make it into an SF object
+miso_over_sf <- miso_over %>% st_as_sf(coords=c("lon_WGS84", "lat_WGS84")) %>%
+  st_set_crs("EPSF:32100")
+
+
+polys_miso <- st_read("D:\\MT_Spatial_Data\\For_GRTS\\Landcover_Polygon_Missouri.shp") 
 
 # add in a column for the names of each column 
 #main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == 1)
 
+
+
 # visualize them with the land cover data - assess the distribution 
-## need to make it into an sf object first?
-miso_main_sf <- miso_main_trim %>% st_as_sf(coords=c("lon_WGS84", "lat_WGS84")) %>% ## Note that the order is longitude>latitude
-  st_set_crs(32100)
-plot(lcov_miso)
-plot(miso_main_sf$geometry,add=TRUE)
-# can't tell if this added what I wanted
+
+# Transform lcov into a raster
+lcov_miso_rast <- raster(lcov_miso)
+
+# plot it to check what it's doing
+mapview(miso_main_sf)
+
+# # map the land cover and the sf layer together 
+# miso_list <- list(miso_main_sf,lcov_miso_rast)
+# mapView(miso_list,color=lcov_miso_rast$Class)
+# # there are too many pixels in the land cover data - try intersecting this with the LiDAR data
+# plot(lcov_miso)
+# plot(miso_main_sf$geometry,add=TRUE)
+# # can't tell if this added what I wanted
 lcov_miso_raster <- raster(lcov_miso)
-miso <- list(lcov_miso_raster,miso_main_sf)
-mapview(lcov_miso_raster)
+# miso <- list(lcov_miso_raster,miso_main_sf)
+# mapview(lcov_miso_raster)
+
+
+# try plotting using tmap
+tmap_mode("view") # set to "plot" for static plotting, set to "view" for interactive plots
+tm_shape(polys_miso) + tm_sf() # this didn't work with the spatraster object
+
+
+tm_shape(lcov_miso_raster) + tm_sf()
+# this takes a while to plot - try this later
+
+# figure out plotting with this 
 # how to add on sf object to this?
 ggplot()+
   geom_spatraster(data = lcov_miso) + 

@@ -25,12 +25,12 @@ buff_yell <- st_buffer(hydro_yell, dist = 400)
 
 
 # read in land cover data for each river 
-lcov_miso <- terra::rast("E:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MissouriLandcover.tiff")
-lcov_mush <- terra::rast("E:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MusselshellLandcover.tiff")
+lcov_miso <- terra::rast("D:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MissouriLandcover.tiff")
+lcov_mush <- terra::rast("D:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MusselshellLandcover.tiff")
 lcov_yell <- terra::rast("D:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_YellowstoneLandcover.tiff")
 
 
-# yellowstone LiDAR layers
+# yellowstone LiDAR layers #############################
 # dawson_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\Dawson_2019_DawsonQL1\\Hillshade.tif")
 # crs(dawson_19) <- "EPSG:32100"
 # dawson_19_test <- resample(dawson_19, lcov_yell, method = "near")
@@ -62,79 +62,114 @@ rosebud_19 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\ROSEBUD_2019_RScntyQL1
 # writeRaster(treasure_19_test, "E:\\MT_Spatial_Data\\MT_LiDAr\\TREASURE_2019_TRcntyQL1\\Treasure19_HillshadeEdited.tif") 
 treasure_19 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\ROSEBUD_2019_RScntyQL1\\Rosebud19_HillshadeEdited.tif")
 
-#Add park 2020 ___________________________
-#look at sf package 
-# merge is from raster package
-combined_yell <- sum(dawson_19,custer_19, rosebud_19,treasure_19,na.rm=TRUE)
+# park_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\PARK_2020_PACntyQL2\\Hillshade.tif")
+# crs(park_19) <- "EPSG:32100"
+# park_19_test <- resample(park_19, lcov_yell, method = "near")
+# park_19_test <- extend(park_19_test, lcov_yell, snap = "near")
+# writeRaster(park_19_test, "E:\\MT_Spatial_Data\\MT_LiDAr\\PARK_2020_PACntyQL2\\Park19_HillshadeEdited.tif") 
+park_19 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\PARK_2020_PACntyQL2\\Park19_HillshadeEdited.tif")
+
+
+# combine LiDAR layers
+lidar_yell <- sum(dawson_19,custer_19, rosebud_19,treasure_19,park_19,na.rm=TRUE)
 
 plot(lcov_yell)
-plot(sum_test, add = TRUE)
+plot(lidar_yell, add = TRUE)
 # this works
 
-plot(lcov_yell, main = "Standard Plot")
-plot(custer_19, add = TRUE)
-plot(dawson_19, add=TRUE)
-plot(rosebud_19, add=TRUE)
-plot(treasure_19, add=TRUE)
-
-merge_test <- merge(dawson_19,custer_19)
-merge2 <- merge(merge_test,rosebud_19)
-merge3 <- merge(merge_test,treasure_19)
-
-plot(lcov_yell)
-plot(merge3, add = TRUE)
-# this works!
-# you can only merge two at a time?
+# old plotting code to validate the combination against
+# plot(lcov_yell, main = "Standard Plot")
+# plot(custer_19, add = TRUE)
+# plot(dawson_19, add=TRUE)
+# plot(rosebud_19, add=TRUE)
+# plot(treasure_19, add=TRUE)
 
 
-# try a spatraster collection?
-rlist <- list(dawson_19,custer_19,rosebud_19,treasure_19)
-collect_rasts <- sprc(rlist)
-merge_test2 <- merge(collect_rasts)
-
-plot(lcov_yell)
-plot(merge_test2,add=TRUE)
-# can't get these to combine??
-
-lidar_yell <- c(dawson_19_test,custer_19_test,rosebud_19_test,treasure_19_test)
-# export this as a shapefile
-ext(lidar_yell)
-ext(lcov_yell)
-plot(lidar_yell)
-plot(lcov_yell, main = "Combo Plot")
-plot(lidar_yell, add = TRUE)
-# why isn't this combining like I want it to? maybe its a relic of plotting it?
-# this isn't plotting right?
+writeRaster(lidar_yell, "E:\\MT_Spatial_Data\\MT_LiDAr\\Yellowstone_LiDARDataExtent.tif")
 
 
-# Missouri River LiDAR
+# Missouri River LiDAR ##################################
 valley_18 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\MT_Valley_2018_MilkRvrHinsdale\\Hillshade.tif")
 crs(valley_18) <- "EPSG:32100"
 valley_18_test <- resample(valley_18, lcov_miso, method = "near")
 valley_18_test <- extend(valley_18_test, lcov_miso, snap = "near")
+# DO THIS LATER
+writeRaster(valley_18_test, "E:\\MT_Spatial_Data\\MT_LiDAr\\MT_Valley_2018_MilkRvrHinsdale\\Valley19_HillshadeEdited.tif") 
+#valley_18 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\MT_Valley_2018_MilkRvrHinsdale\\Valley19_HillshadeEdited.tif")
 
 phillips_18 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\PHILLIPS_2018_PHcntyS\\Hillshade.tif")
 crs(phillips_18) <- "EPSG:32100"
 phillips_18_test <- resample(phillips_18, lcov_miso, method = "near")
 phillips_18_test <- extend(phillips_18_test, lcov_miso, snap = "near")
+writeRaster(phillips_18_test, "E:\\MT_Spatial_Data\\MT_LiDAr\\PHILLIPS_2018_PHcntyS\\Phillips19_HillshadeEdited.tif") 
+#phillips_18 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\PHILLIPS_2018_PHcntyS\\Phillips19_HillshadeEdited.tif")
 
 
-# dummy raster for UMRBNM
-dummy <- terra::rast(ncol=36,nrow=18,xmin=)
+# dummy raster for Upper Missouri River Breaks National Monument LiDAR data that I can't access right now
+monument_refuge <- terra::rast(ncol=36,nrow=18,xmin=-109.880833,xmax=-108.288889,ymin=47.551111,ymax=47.825278)
+values(monument_refuge) <- 1
+crs(monument_refuge) <- "+proj=lcc +lat_0=44.25 +lon_0=-109.5 +lat_1=49 +lat_2=45 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
+plot(monument_refuge)
+crs(monument_refuge) <- "EPSG:32100"
+# make the extent of the dummy raster match the other parts 
+monument_refuge_test <- extend(monument_refuge, lcov_miso, snap = "near")
 
-plot(lcov_yell, main = "Standard Plot")
-plot(custer_19_test, add = TRUE)
+plot(lcov_miso, main = "Standard Plot")
+plot(monument_refuge, add = TRUE)
+# not visualizing in the right area? change the extent 
 plot(dawson_19_test, add=TRUE)
 
 # combine the rasters
-lidar_miso <- c(valley_18_test,phillips_18_test)
+lidar_miso <- c(valley_18_test,phillips_18_test, monument_refuge)
+
+# export the raster
+writeRaster(lidar_miso, "E:\\MT_Spatial_Data\\MT_LiDAr\\Missouri_LiDARDataExtent.tif")
+
+
+# Musselshell River LiDAR #######################################
+
+# wheatland_17 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\WHEATLAND_2017_MshellRvrTribs\\Hillshade.tif")
+# crs(wheatland_17) <- "EPSG:32100"
+# wheatland_17_test <- resample(wheatland_17, lcov_miso, method = "near")
+# wheatland_17_test <- extend(wheatland_17_test, lcov_miso, snap = "near")
+# writeRaster(wheatland_17_test, "D:\\MT_Spatial_Data\\MT_LiDAr\\WHEATLAND_2017_MshellRvrTribs\\Wheatland19_HillshadeEdited.tif") 
+wheatland_17 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\WHEATLAND_2017_MshellRvrTribs\\Wheatland19_HillshadeEdited.tif")
+# Good to go
+``
 
 
 
-# Musselshell River LiDAR
 
-wheatland_17 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\WHEATLAND_2017_MshellRvrTribs\\Hillshade.tif")
-crs(wheatland_17) <- "EPSG:32100"
-wheatland_17_test <- resample(wheatland_17, lcov_miso, method = "near")
-wheatland_17_test <- extend(wheatland_17_test, lcov_miso, snap = "near")
+
+
+# Code Graveyard ###################
+# merge_test <- merge(dawson_19,custer_19)
+# merge2 <- merge(merge_test,rosebud_19)
+# merge3 <- merge(merge_test,treasure_19)
+# 
+# plot(lcov_yell)
+# plot(merge3, add = TRUE)
+# # this works!
+# # you can only merge two at a time?
+# 
+# 
+# # try a spatraster collection?
+# rlist <- list(dawson_19,custer_19,rosebud_19,treasure_19)
+# collect_rasts <- sprc(rlist)
+# merge_test2 <- merge(collect_rasts)
+# 
+# plot(lcov_yell)
+# plot(merge_test2,add=TRUE)
+# # can't get these to combine??
+# 
+# lidar_yell <- c(dawson_19_test,custer_19_test,rosebud_19_test,treasure_19_test)
+# # export this as a shapefile
+# ext(lidar_yell)
+# ext(lcov_yell)
+# plot(lidar_yell)
+# plot(lcov_yell, main = "Combo Plot")
+# plot(lidar_yell, add = TRUE)
+# # why isn't this combining like I want it to? maybe its a relic of plotting it?
+# # this isn't plotting right?
+
 

@@ -118,7 +118,7 @@ ggplot()+
   geom_spatraster(data = lcov) + scale_fill_manual(values=colors)+
   geom_sf(data=proj_hydro, aes(color=NAME)) + theme(legend.position = "none")
 
-
+# https://datacarpentry.org/r-raster-vector-geospatial/02-raster-plot/
 
 # plot for Figure 1 of proposal 
 ggplot()+
