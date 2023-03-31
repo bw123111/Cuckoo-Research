@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap")
+packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap","tmap")
 source(".\\R_Scripts\\Install_Load_Packages.R")
 load_packages(packages)
 ```
@@ -70,7 +70,27 @@ Add on the points to Figure 1
 # New Habitat Points
 ## Yellowstone GRTS plots
 
+```{r}
+lcov <- terra::rast("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjectedEdited.tiff")
 
+lcov_mush <- terra::rast("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Spatial_Data\\NLCD_2019_MusselshellLandcover.tiff")
+#plot(lcov)
+# from Mark's script
+# I'm trying to make a map like this but in the viewer mode
+# try in plot first
+tmap_mode("view")
+# put landcover into for the habitat_stack - do lcov$Class
+map2 <- tm_shape(lcov_mush, raster.warp=FALSE) +  tm_raster()
+#Error: Unable to transform stars
+
+# plot for full land cover
+map <- tm_shape(lcov, raster.warp=FALSE) +  tm_raster()
+map + tm_shape(locs_sf_file) + tm_dots(col = "organization", palette = "Dark2", n = 6)
+
+
+# try just plotting the river area of the rasters
+
+```
 
 ## Missouri GRTS points
 

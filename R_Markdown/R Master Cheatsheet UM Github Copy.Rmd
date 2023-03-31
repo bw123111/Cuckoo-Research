@@ -2063,6 +2063,9 @@ crs(rd) <-  "+proj=utm +zone=11 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +tow
 
 ```
 
+### Making Maps
+
+https://upgo.lab.mcgill.ca/2019/12/13/making-beautiful-maps/
 
 ### Exporting Spatial Data
 

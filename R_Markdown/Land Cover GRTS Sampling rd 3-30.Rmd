@@ -16,7 +16,7 @@ Info on [EPSG 32100](https://epsg.io/32100)
 ```{r Setup, include=FALSE}
 # Load in packages
 packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap","tmap")
-source(".\\R_Scripts\\Install_Load_Packages.R")
+source("C:\\Users\\micha\\Documents\\Anna_R_Stuff\\Land_Cover_GRTS\\Scripts\\Install_Load_Packages.R")
 load_packages(packages)
 ```
 
@@ -110,9 +110,9 @@ total_arus <- 45
 
 ```{r}
 # read in land cover data for each river 
-lcov_miso <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MissouriLandcover.tiff")
-lcov_mush <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MusselshellLandcover.tiff")
-lcov_yell <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_YellowstoneLandcover.tiff")
+lcov_miso <- terra::rast("E:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MissouriLandcover.tiff")
+lcov_mush <- terra::rast("E:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MusselshellLandcover.tiff")
+lcov_yell <- terra::rast("E:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_YellowstoneLandcover.tiff")
 
 ```
 
@@ -131,73 +131,99 @@ res(mask_raster)
 ext(mask_raster)
 ```
 
-```{Masking with LiDAR Data}
-# set the extent to be the same as the project bbox and then stack them
-#elev <- crop(elev, lcov, snap = "near")
-#lcov <- resample(lcov, elev, method = "near")
-# the LiDAR data is in NAD83, it needs to be in another reference system?
-# the crs of lcov and the lidar data should be the same - try to reproject LiDAR to match lcov
-# disagg? https://rspatial.github.io/terra/reference/disaggregate.html
 
-custer_19 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\CUSTER_2019_CUcntyQL1\\Hillshade.tif")
-plot(custer_19, main = "Musselshell Hillshade")
-crs(custer_19) <- "EPSG:32100"
-crs(custer_19)
-custer_19_test <- resample(custer_19, lcov_miso, method = "near")
-custer_19_test <- extend(custer_19, lcov_miso, snap = "near")
-plot(custer_19_test)
-# need to change the LiDAR data so that you can reproject it to the mask raster
-#custer_19 <- custer_19 %>% terra::project("32100", method = "near", gdal = FALSE)
-ext(custer_19)
-#res(custer_19)
-#test <- crop(custer_19, mask_raster, snap = "near")
-# extents do not overlap, this is because they're in different coordinate systems
-#test <- resample(custer_19, mask_raster, method = "near")
-
-
-
-dawson_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\Dawson_2019_DawsonQL1\\Hillshade.tif")
-plot(dawson_19)
-dawson_19_test <- crop(dawson_19, lcov, snap = "near")
-test <- c(dawson_19_test,custer_19_test)
-# ext(dawson_19)
-# res(dawson_19)
-# test <- crop(dawson_19, mask_raster, snap = "near")
-# test <- resample(dawson_19, mask_raster, method = "near")
-
-
-
-phillips_18 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\PHILLIPS_2018_PHcntyS\\Hillshade.tif")
-
-rosebud_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\ROSEBUD_2019_RScntyQL1\\Hillshade.tif")
-
-treasure_19 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\TREASURE_2019_TRcntyQL1\\Hillshade.tif")
-
-wheatland_17 <- terra::rast("E:\\MT_Spatial_Data\\MT_LiDAr\\WHEATLAND_2017_MshellRvrTribs\\Hillshade.tif")
-# extend this to the extent of the musselshell river
-wheatland_17_test <- extend(wheatland_17, buff_miso, snap = "near")
-# this caused R to crash 
-
-lidar <- c(custer_19,dawson_19,phillips_18,rosebud_19,treasure_19,wheatland_17)
-# extents don't match 
-
-```
 
 GRTS Sampling
 
 ```{r Musselshell}
 # RUN ONCE
 ## convert Spatraster to a raster object
-## system.time(lcovrast_mush <- raster(lcov_mush))
+lcov_mush <- terra::rast("E:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MusselshellLandcover_MaskedToLidar.tiff")
+system.time(lcovrast_mush <- raster(lcov_mush))
 ## convert raster to polygons
-## system.time(lcovpoly_mush <- rasterToPolygons(lcovrast_mush))
+system.time(lcovpoly_mush <- rasterToPolygons(lcovrast_mush))
 ## DONT RUN THIS AGAIN
 ## make a shapefile of the polygon
-## shapefile(lcovpoly_mush, ".\\Data\\Spatial_Data\\Landcover_Polygon_Musselshell.shp")
+shapefile(lcovpoly_mush, "E:\\MT_Spatial_Data\\For_GRTS\\Landcover_Polygon_Musselshell_MaskedToRaster.shp")
 
 # read in the shapefile and make sure it is in a projected (not geographic) coordinate system
 #polys_mush <- st_read(".\\Data\\Spatial_Data\\Landcover_Polygon_Musselshell.shp") 
 
+polys_mush <- st_read("E:\\MT_Spatial_Data\\For_GRTS\\Landcover_Polygon_Musselshell_MaskedToRaster.shp") 
+
+lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
+# create a list of the number of the samples you want for each strata
+## NOTE you can't specify zero for this, put in 1 for the ones you don't want
+# adjust this as needed later
+n_strata <- c("11"=1,
+              "21"=1,
+              "22"=1,
+              "23"=1,
+              "41"=3,
+              "42"=3,
+              "43"=3,
+              "52"=3,
+              "71"=3,
+              "81"=1,
+              "82"=1,
+              "90"=3,
+              "95"=3)
+
+## Say how many over samples you want for each strata
+## here is where you can put zero in for classes you don't want 
+n_oversamp <- c("11"=0,
+              "21"=0,
+              "22"=0,
+              "23"=0,
+              "41"=30,
+              "42"=30,
+              "43"=30,
+              "52"=30,
+              "71"=30,
+              "81"=0,
+              "82"=0,
+              "90"=30,
+              "95"=30)
+
+# set the seed before running your sampling protocol so that you get the same randomness every time
+## you can change this if you don't like how the distributions look 
+set.seed(13)
+#unique(polys_mush$Class)
+
+# set up your GRTS function
+sampling_pts <- grts(sframe=polys_mush,
+                     n_base=n_strata,# creates a list of the strata and how many points within each strata
+                     stratum_var="Class", # what the ID/column in polygon data is that you're stratifying by 
+                     n_over=n_oversamp) # gives you your extra spatially balanced points
+
+# extract the main sampling points as a tibble
+main_sampling_points <- as_tibble(sampling_pts$sites_base)
+write.csv(main_sampling_points,"E:\\MT_Spatial_Data\\Mush_Main_Sample_MaskedToLiDAR.csv")
+# extract the over sampled points
+over_sampling_points <- as_tibble(sampling_pts$sites_over)
+write.csv(over_sampling_points,"E:\\MT_Spatial_Data\\Mush_Over_Sample_MaskedToLiDAR.csv")
+
+# filter out the strata that we don't want (the ones we had to specify to only sample one of)
+#main_samples_trimmed <- main_sampling_points %>% filter(!strata %in% lancov_to_exclude)
+# add in a column for the names of each column 
+#main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == )
+```
+
+```{r Yellowstone}
+# RUN ONCE
+lcov_yell_small <- terra::rast("E:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_YellowstoneLandcover_MaskedToLidar_NoPark.tiff")
+# ## convert Spatraster to a raster object
+lcov_yell_small_rast <- raster(lcov_yell_small)
+# ## convert raster to polygons
+system.time(lcovpoly_yell <- rasterToPolygons(lcov_yell_small_rast))
+# ## DONT RUN THIS AGAIN
+# ## make a shapefile of the polygon
+shapefile(lcovpoly_yell, "E:\\MT_Spatial_Data\\For_GRTS\\Landcover_Polygon_Yellowstone_MaskedToLidar_NoPark.shp")
+
+# read in the shapefile and make sure it is in a projected (not geographic) coordinate system
+polys_yell <- st_read("E:\\MT_Spatial_Data\\For_GRTS\\Landcover_Polygon_Yellowstone_MaskedToLidar_NoPark.shp") 
+
+lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
 
 # create a list of the number of the samples you want for each strata
 ## NOTE you can't specify zero for this, put in 1 for the ones you don't want
@@ -239,29 +265,29 @@ n_oversamp <- c("11"=0,
 # set the seed before running your sampling protocol so that you get the same randomness every time
 ## you can change this if you don't like how the distributions look 
 set.seed(13)
-#unique(polys_mush$Class)
+#unique(polys_yell$Class)
 
 # set up your GRTS function
-sampling_pts <- grts(sframe=polys_mush,
+sampling_pts <- grts(sframe=polys_yell,
                      n_base=n_strata,# creates a list of the strata and how many points within each strata
                      stratum_var="Class", # what the ID/column in polygon data is that you're stratifying by 
                      n_over=n_oversamp) # gives you your extra spatially balanced points
 
 # extract the main sampling points as a tibble
 main_sampling_points <- as_tibble(sampling_pts$sites_base)
-write.csv()
+write.csv(main_sampling_points, "E:\\MT_Spatial_Data\\Yell_Main_Sample_MakedToLidar.csv")
 # extract the over sampled points
 over_sampling_points <- as_tibble(sampling_pts$sites_over)
-write.csv()
+write.csv(over_sampling_points, "E:\\MT_Spatial_Data\\Yell_Over_Sample_MakedToLidar.csv")
 
-# filter out the strata that we don't want (the ones we had to specify to only sample one of)
-main_samples_trimmed <- main_sampling_points %>% filter(!strata %in% lancov_to_exclude)
-# add in a column for the names of each column 
-main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == )
+# # filter out the strata that we don't want (the ones we had to specify to only sample one of)
+# main_samples_trimmed <- main_sampling_points %>% filter(!strata %in% lancov_to_exclude)
+# # add in a column for the names of each column 
+# main_samples_trimmed <- main_samples_trimmed %>% mutate(lancover == )
 ```
 
 
-```{r}
+```{r Landcov To Exclude from GRTS}
 # Set up which land cover you want to exclude from the sample 
 lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
 # should I be excluding cultivated crops?
@@ -271,7 +297,7 @@ lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
 ```
 
 
-```{r Musselshell}
+```{r Missouri GRTS Plotting}
 # select the points in the GRTS sample we want
 miso_main <- read_csv("D:\\MT_Spatial_Data\\Miso_Main_Sample.csv")
 miso_main_trim <- miso_main %>% filter(!stratum %in% lcov_to_exclude)
