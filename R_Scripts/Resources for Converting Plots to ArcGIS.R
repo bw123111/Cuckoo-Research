@@ -24,15 +24,15 @@
 # Removing duplicate labels https://pro.arcgis.com/en/pro-app/latest/help/mapping/text/work-with-duplicate-labels.htm
 
 # arcade expression:
-var color = "";
-if ($feature.FID == 0) {
-  color = "#FFD700"; // set color to gold
-}
-else if ($feature.FID == 1) {
-  color = "#1E90FF"; // set color to dodger blue
-}
-else if ($feature.FID == 2) {
-  color = "#228B22"; // set color to forest green
+# var color = "";
+# if ($feature.FID == 0) {
+#   color = "#FFD700"; // set color to gold
+# }
+# else if ($feature.FID == 1) {
+#   color = "#1E90FF"; // set color to dodger blue
+# }
+# else if ($feature.FID == 2) {
+#   color = "#228B22"; // set color to forest green
   
 # SPlitting features
 # https://pro.arcgis.com/en/pro-app/latest/help/editing/split-a-feature.htm
@@ -42,5 +42,11 @@ else if ($feature.FID == 2) {
   
   
 # Editing a layout https://pro.arcgis.com/en/pro-app/latest/get-started/add-maps-to-a-layout.htm
+  
+# Hex codes
+  # nice yellow: FDF4C9
+
+
+# Changing the legend: https://pro.arcgis.com/en/pro-app/latest/help/layouts/work-with-a-legend.htm
 
   

@@ -36,6 +36,12 @@ colors=c("#5475A8","#FFFFFF","#E8D1D1","#E29E8C","#ff0000","#B50000","#D2CDC0","
 hydro <- st_read(".\\Data\\Spatial_Data\\MT_Rivers\\hd43a.shp")
 # Filter out only the rivers in our study area
 names <- c("Missouri River","Yellowstone River","Musselshell River")
+hydro_mush <- hydro %>% filter(NAME =="Musselshell River")
+st_write(hydro_mush,".\\Data\\Spatial_Data\\MT_Rivers\\Musselshell_River.shp")
+hydro_miso <- hydro %>% filter(NAME == "Missouri River")
+st_write(hydro_miso,".\\Data\\Spatial_Data\\MT_Rivers\\Missouri_River.shp")
+hydro_yell <- hydro %>% filter(NAME == "Yellowstone River")
+st_write(hydro_yell,".\\Data\\Spatial_Data\\MT_Rivers\\Yellowstone_River.shp")
 proj_hydro <- hydro %>% filter(NAME %in% names)
 proj_hydro <- proj_hydro %>% dplyr::select(NAME, geometry)
 # write the shapefile with only project rivers for later use
