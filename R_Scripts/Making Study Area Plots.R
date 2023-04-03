@@ -37,15 +37,15 @@ hydro <- st_read(".\\Data\\Spatial_Data\\MT_Rivers\\hd43a.shp")
 # Filter out only the rivers in our study area
 names <- c("Missouri River","Yellowstone River","Musselshell River")
 hydro_mush <- hydro %>% filter(NAME =="Musselshell River")
-st_write(hydro_mush,".\\Data\\Spatial_Data\\MT_Rivers\\Musselshell_River.shp")
+#st_write(hydro_mush,".\\Data\\Spatial_Data\\MT_Rivers\\Musselshell_River.shp")
 hydro_miso <- hydro %>% filter(NAME == "Missouri River")
-st_write(hydro_miso,".\\Data\\Spatial_Data\\MT_Rivers\\Missouri_River.shp")
+#st_write(hydro_miso,".\\Data\\Spatial_Data\\MT_Rivers\\Missouri_River.shp")
 hydro_yell <- hydro %>% filter(NAME == "Yellowstone River")
-st_write(hydro_yell,".\\Data\\Spatial_Data\\MT_Rivers\\Yellowstone_River.shp")
+#st_write(hydro_yell,".\\Data\\Spatial_Data\\MT_Rivers\\Yellowstone_River.shp")
 proj_hydro <- hydro %>% filter(NAME %in% names)
 proj_hydro <- proj_hydro %>% dplyr::select(NAME, geometry)
 # write the shapefile with only project rivers for later use
-st_write(proj_hydro,".\\Data\\Spatial_Data\\MT_Rivers\\Project_Rivers_Unmerged.shp")
+#st_write(proj_hydro,".\\Data\\Spatial_Data\\MT_Rivers\\Project_Rivers_Unmerged.shp")
 
 # Read in the point file to label the rivers
 river_names <- fread(".\\Data\\Spatial_Data\\River_Label_Points.csv")

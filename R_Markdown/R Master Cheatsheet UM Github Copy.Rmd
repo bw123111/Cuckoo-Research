@@ -1985,6 +1985,8 @@ legend(555000,5742500,unique(wolfyht$Pack),col=c("blue","red"),pch=1)
 # Example of plotting using the tmap function
 ## Specify to use elc_habitat as the dataframe (put this into tm_shape)and Moose_W as the data column to use - this has a ranking 0-7 of a habitat suitability index
 tm_shape(elc_habitat) + tm_sf("MOOSE_W", border.alpha = 0)
+#tmap resources: https://rpubs.com/quarcs-lab/tutorial-maps-in-r
+# more tmap resources: https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html#multiple-shapes-and-layers
 
 # Can also make maps with geom_sf within ggplot2- making the same plot as above but with ggplot
 ggplot() + 

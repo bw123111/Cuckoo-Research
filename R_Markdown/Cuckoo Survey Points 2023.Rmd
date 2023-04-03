@@ -8,13 +8,34 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap","tmap")
+packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","rgeos","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap","tmap","tmaptools","leaflet")
 source(".\\R_Scripts\\Install_Load_Packages.R")
 load_packages(packages)
 ```
 
 # Study area
 ## Map of landcover data and buffer around rivers
+
+```{r}
+# Cadastrel data download http://ftpgeoinfo.msl.mt.gov/Data/Spatial/MSDI/Cadastral/Parcels/Wheatland/
+
+# Testing out tmap with locs 
+locs_dat <- fread(".\\Data\\Spatial_Data\\2022_ALLPoints.csv")
+locs_dat <- na.omit(locs_dat)
+#convert this into a spatial object
+locs_sf <- locs_dat %>% 
+  st_as_sf(coords=c("long", "lat")) %>% st_set_crs(32100)
+
+hydro <- st_read(".\\Data\\Spatial_Data\\MT_Rivers\\hd43a.shp")
+# Filter out only the rivers in our study area
+names <- c("Missouri River","Yellowstone River","Musselshell River")
+proj_hydro <- hydro %>% filter(NAME %in% names)
+proj_hydro <- proj_hydro %>% dplyr::select(NAME, geometry)
+
+#C:\Users\annak\OneDrive\Documents\UM\Research\Coding_Workspace\Cuckoo-Research\Data\Spatial_Data
+
+
+```
 
 Brief explanation of the buffer process and the landcover data used to buffer 
 ```{r}
@@ -67,28 +88,81 @@ Add on the points to Figure 1
 
 ```
 
-# New Habitat Points
-## Yellowstone GRTS plots
+
 
 ```{r}
 lcov <- terra::rast("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjectedEdited.tiff")
 
 lcov_mush <- terra::rast("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Spatial_Data\\NLCD_2019_MusselshellLandcover.tiff")
+
+lcov_mush_masked <- terra::rast("D:\\MT_Spatial_Data\\For_GRTS\\\\NLCD_2019_MusselshellLandcover_MaskedToLidar.tiff")
 #plot(lcov)
-# from Mark's script
-# I'm trying to make a map like this but in the viewer mode
+
 # try in plot first
 tmap_mode("view")
 # put landcover into for the habitat_stack - do lcov$Class
-map2 <- tm_shape(lcov_mush, raster.warp=FALSE) +  tm_raster()
+#tm_shape(lcov_mush_masked, raster.warp=FALSE) +  tm_raster()
 #Error: Unable to transform stars
 
 # plot for full land cover
-map <- tm_shape(lcov, raster.warp=FALSE) +  tm_raster()
-map + tm_shape(locs_sf_file) + tm_dots(col = "organization", palette = "Dark2", n = 6)
+#map <- tm_shape(lcov, raster.warp=FALSE) +  tm_raster()
 
+# quick map
+lcov_miso <- st_read("D:\\MT_Spatial_Data\\For_GRTS\\Landcover_Polygon_Musselshell_MaskedToRaster.shp")
+qtm(lcov_miso, fill="Class") # how to have categorical fill?
+
+# same thing:
+tm_shape(lcov_miso)+#nothing on the map?
+  tm_fill("Class")
+
+tm_shape(locs_sf)+
+  tm_dots(col = "organization", palette = "Dark2", n = 6)
+
+
+# Use tmap options to set the basemap and overlay map permanently during the R session:
+opts <- tmap_options(basemaps = c(Canvas = "Esri.WorldGrayCanvas", Imagery = "Esri.WorldImagery"),
+    overlays = c(Labels = paste0("http://services.arcgisonline.com/arcgis/rest/services/Canvas/",
+                                 "World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}")))
+tmap_options(opts)
+tmap_mode("view")
+
+# plot for survey locations
+tm_basemap(leaflet::providers$Stamen.Watercolor)+
+  tm_shape(locs_sf) + 
+  tm_dots(col = "organization", palette = "Dark2", n = 6)+
+  tm_tiles(server = 'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain-background/{z}/{x}/{y}{r}.{ext}', group = NA, alpha = 1)
+# this has a background but it is blank white
+
+# try another one 
+tm_basemap(server = 'http://maps.stamen.com/terrain/#8/47.001/-109.645', group = NA, alpha = 1)+
+tm_shape(locs_sf) + 
+  tm_dots(col = "organization", palette = "Dark2", n = 6)
+# This works and will plot but doesn't have a basemap
+# tm_shape(locs_sf) + 
+#   tm_dots(col = "organization", palette = "Dark2", n = 6)
+
+# Try another thing: https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html#basemaps-and-overlay-tile-maps
+tm_basemap("Stamen.Watercolor")+
+  tm_shape(locs_sf) + 
+  tm_dots(col = "organization", palette = "Dark2", n = 6)
+# Also only visualizing a blank background 
 
 # try just plotting the river area of the rasters
+
+```
+# New Habitat Points
+## Yellowstone GRTS plots
+
+```{r Yellowstone Plot}
+# read in lcov
+lcov_yell_masked <- terra::rast("D:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_YellowstoneLandcover_MaskedToLidar.tiff")
+# read in grts
+yell_main <- fread("D:\\MT_Spatial_Data\\Yell_Main_Sample_MaskedToLidar.csv")
+#convert this into a spatial object
+yell_main_sf <- yell_main %>% 
+  st_as_sf(coords=c("long", "lat")) %>% st_set_crs(32100)
+# combine them in tmap
+
 
 ```
 

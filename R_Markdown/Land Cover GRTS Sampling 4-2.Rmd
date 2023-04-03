@@ -16,7 +16,7 @@ Info on [EPSG 32100](https://epsg.io/32100)
 ```{r Setup, include=FALSE}
 # Load in packages
 packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap","tmap")
-source("C:\\Users\\micha\\Documents\\Anna_R_Stuff\\Land_Cover_GRTS\\Scripts\\Install_Load_Packages.R")
+source(".\\R_Scripts\\Install_Load_Packages.R")
 load_packages(packages)
 ```
 
@@ -69,17 +69,21 @@ plot(lcov)
 
 
 # Matrix of numbers that correspond to landcover values
-cats <- matrix(nrow=16, ncol=2)
+cats <- matrix(nrow=20, ncol=2)
 colnames(cats) <- c("ID","Landcover")
 # input the corresponding values from the dataframe
-cats[,1] <- c(11,12, 21, 22,23, 24, 31, 41, 42, 43, 52, 71, 81, 82, 90,95)
-# #match these up with the values from the land cover
-cats[,2] <- c("open_water","ice_snow","developed_open","developed_low","developed_med","developed_high","barren","deciduous_forest","evergreen_forest","mixed_forest","shrub_scrub","grasslands_herbaceous","pasture_hay","woody_wetlands","herbaceous_wetlands")
+cats[,1] <- legend$ID
+cats[,2] <- legend$Class
+length(legend$ID)
+#need to remove dwarf scrub, sedge/herbaceous, lichens, moss
+# cats[,1] <- c(11,12, 21, 22,23, 24, 31, 41, 42, 43, 52, 71, 81, 82, 90,95)
+# # #match these up with the values from the land cover
+# cats[,2] <- c("open_water","ice_snow","developed_open","developed_low","developed_med","developed_high","barren","deciduous_forest","evergreen_forest","mixed_forest","shrub_scrub","grasslands_herbaceous","pasture_hay","woody_wetlands","herbaceous_wetlands")
 ```
 
 ```{r Create Buffer Raster from Vector Data}
 # Read in hydrology layer
-hydro <- st_read("E:\\MT_Spatial_Data\\MT_Lakes_Streams\\hd43a\\hd43a.shp")
+hydro <- st_read("D:\\MT_Spatial_Data\\MT_Lakes_Streams\\hd43a\\hd43a.shp")
 # Combined study area
 names <- c("Missouri River","Yellowstone River","Musselshell River")
 proj_hydro <- hydro %>% filter(NAME %in% names)
@@ -96,12 +100,12 @@ buff_yell <- st_buffer(hydro_yell, dist = 400)
 
 # Mask land cover to only within the hydrology 
 # write these as rasters after you're done
-lcov_miso <- mask(lcov,buff_miso)
-terra::writeRaster(lcov_miso,"Data\\Spatial_Data\\NLCD_2019_MissouriLandcover.tiff")
-lcov_mush <- mask(lcov,buff_mush)
-terra::writeRaster(lcov_mush,"Data\\Spatial_Data\\NLCD_2019_MusselshellLandcover.tiff")
-lcov_yell <- mask(lcov,buff_yell)
-terra::writeRaster(lcov_yell,"Data\\Spatial_Data\\NLCD_2019_YellowstoneLandcover.tiff")
+#lcov_miso <- mask(lcov,buff_miso)
+#terra::writeRaster(lcov_miso,"Data\\Spatial_Data\\NLCD_2019_MissouriLandcover.tiff")
+#lcov_mush <- mask(lcov,buff_mush)
+#terra::writeRaster(lcov_mush,"Data\\Spatial_Data\\NLCD_2019_MusselshellLandcover.tiff")
+#lcov_yell <- mask(lcov,buff_yell)
+#terra::writeRaster(lcov_yell,"Data\\Spatial_Data\\NLCD_2019_YellowstoneLandcover.tiff")
 
 
 total_arus <- 45
@@ -110,9 +114,9 @@ total_arus <- 45
 
 ```{r}
 # read in land cover data for each river 
-lcov_miso <- terra::rast("E:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MissouriLandcover.tiff")
-lcov_mush <- terra::rast("E:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MusselshellLandcover.tiff")
-lcov_yell <- terra::rast("E:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_YellowstoneLandcover.tiff")
+lcov_miso <- terra::rast("D:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MissouriLandcover.tiff")
+lcov_mush <- terra::rast("D:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_MusselshellLandcover.tiff")
+lcov_yell <- terra::rast("D:\\MT_Spatial_Data\\For_GRTS\\NLCD_2019_YellowstoneLandcover.tiff")
 
 ```
 
@@ -152,6 +156,7 @@ shapefile(lcovpoly_mush, "E:\\MT_Spatial_Data\\For_GRTS\\Landcover_Polygon_Musse
 polys_mush <- st_read("E:\\MT_Spatial_Data\\For_GRTS\\Landcover_Polygon_Musselshell_MaskedToRaster.shp") 
 
 lcov_to_exclude <- c(11,12,21,22,23,24,31,81,82)
+
 # create a list of the number of the samples you want for each strata
 ## NOTE you can't specify zero for this, put in 1 for the ones you don't want
 # adjust this as needed later

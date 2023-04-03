@@ -115,7 +115,7 @@ valley_18 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\VALLEY_2018_VAcnty\\Val
 # writeRaster(phillips_18_test, "E:\\MT_Spatial_Data\\MT_LiDAr\\PHILLIPS_2018_PHcntyS\\Phillips19_HillshadeEdited.tif") 
 phillips_18 <- terra::rast("D:\\MT_Spatial_Data\\MT_LiDAr\\PHILLIPS_2018_PHcntyS\\Phillips19_HillshadeEdited.tif")
 
-
+###############
 # dummy raster for Upper Missouri River Breaks National Monument LiDAR data that I can't access right now
 #Making a Dummy Raster https://rspatial.org/spatial/8-rastermanip.html
 monument_refuge <- terra::rast(ncol=36,nrow=18,xmin=-109.880833,xmax=-108.288889,ymin=47.551111,ymax=47.825278)
@@ -140,26 +140,40 @@ monument_refuge_test <- extend(monument_refuge_test, lcov_miso, snap = "near")
 #this one isn't plotting
 plot(monument_refuge_test,main="Post Resamp and Extend")
 plot(monument_refuge_test)
-#writeRaster(monument_refuge_test, "E:\\MT_Spatial_Data\\MT_LiDAr\\Placeholder_Monument_Refuge_LiDAR_Area.tif") 
+#writeRaster(monument_refuge_test, "E:\\MT_Spatial_Data\\MT_LiDAr\\Placeholder_Monument_Refuge_LiDAR_Area.tif")
+##########
 
-# still isn't showing up on the lcov layer???? something weird going on here
-plot(lcov_miso, main = "Standard Plot")
-#plot(monument_refuge, add = TRUE)
-# not visualizing in the right area? change the extent 
-plot(valley_18, add=TRUE)
-plot(phillips_18, add=TRUE)
-plot(monument_refuge_test,add=TRUE)
+# Try 2: import from arcgis
+misoriv_brks <- st_read("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Spatial_Data\\MisiRvrBreaks_LiDARBounds.shp")
+plot(misoriv_brks$geometry)
+miso_brks <- misoriv_brks %>% st_transform("EPSG:32100")
 
-# combine the rasters
-lidar_miso <- sum(valley_18,phillips_18,monument_refuge_test,na.rm = TRUE)
+# Test it plotting
+plot(lcov_miso)
+plot(miso_brks$geometry,add=TRUE)
+
+# now mask the lcov layer to the extent of lidar
+lcov_miso_reduced <- mask(lcov_miso,miso_brks)
+plot(lcov_miso_reduced)
+
+
+# combine the rasters for actual lidar data
+lidar_miso <- sum(valley_18,phillips_18,na.rm = TRUE)
 plot(lcov_miso)
 plot(lidar_miso,add=TRUE)
+# mask the landcover to this separately 
+lcov_miso_reduced2 <- mask(lcov_miso,lidar_miso)
+plot(lcov_miso_reduced2, main = "Phillips and Valley Mask")
+
+# add the landcovers back together
+miso_lidarextent <- sum(lcov_miso_reduced,lcov_miso_reduced2, na.rm = TRUE)
+plot(miso_lidarextent,main = "Combined Again Mask")
 
 # export the raster
-writeRaster(lidar_miso, "E:\\MT_Spatial_Data\\MT_LiDAr\\Missouri_LiDARDataExtent.tif")
+writeRaster(miso_lidarextent, "D:\\MT_Spatial_Data\\MT_LiDAr\\NLCD_2019_MissouriLandcover_MaskedToLidar.tif")
+# run GRTS sampling on this
 
-lcov_miso_reduced <- mask(lcov_miso,lidar_miso)
-plot(lcov_miso_reduced)
+
 # writeRaster(lcov_miso_reduced,"E:\\MT_Spatial_Data\\For_GRTS\\\\NLCD_2019_MissouriLandcover_MaskedToLidarNoDummy.tiff")
 
 
