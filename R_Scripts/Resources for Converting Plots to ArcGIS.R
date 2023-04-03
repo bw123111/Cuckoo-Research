@@ -49,4 +49,9 @@
 
 # Changing the legend: https://pro.arcgis.com/en/pro-app/latest/help/layouts/work-with-a-legend.htm
 
+
+# Exporting to web map
+# Error 00230: value has different projection than values projection: https://pro.arcgis.com/en/pro-app/latest/help/sharing/analyzer-error-messages/00230-service-layer-has-a-different-projection-than-the-projection.htm
+
+#https://pro.arcgis.com/en/pro-app/latest/help/sharing/overview/save-a-web-map.htm
   

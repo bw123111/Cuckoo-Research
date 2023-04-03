@@ -1532,6 +1532,7 @@ write_xlsx(Dominance_data,"C:\\Users\\annak\\OneDrive\\Documents\\Classes\\Junio
 #write_csv(DataFrame,"Path\\FileName.csv",append = FALSE)
 ## append = FALSE means you're not appending it to an existing file, youre creating a new file
 ## you can also add col_names = !append if you don't want it to write the column names at the top of the file
+## You can add row.names=FALSE if you don't want the first column of row names written
 
 ```
 
