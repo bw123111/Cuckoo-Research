@@ -11,6 +11,8 @@
 
 # Last update: 4/3/2023
 
+# ESRI:102300
+# could also try 102700
 
 ########## Load Packages ################
 packages <- c("data.table","sf","ggmap","terra","raster","mapview","tidyverse","rgdal","XML","methods","FedData","rasterVis","tidyterra","spsurvey", "spData", "usmap","ggspatial","cowplot")
@@ -20,14 +22,16 @@ load_packages(packages)
 
 ############## Setting up Data ######################
 # Read in points
-locs_dat <- fread(".\\Spatial_Data\\2022_ALLPoints.csv")
+locs_dat <- fread(".\\Data\\Spatial_Data\\2022_ALLPoints.csv")
 locs_dat <- na.omit(locs_dat)
 #convert this into a spatial object
 locs_sf <- locs_dat %>% 
-  st_as_sf(coords=c("long", "lat")) %>% st_set_crs(32100)
+  st_as_sf(coords=c("long", "lat")) %>% st_set_crs("EPSG:4326")
 
 # read in the updated, reprojected raster
-lcov <- terra::rast(".\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
+lcov <- terra::rast(".\\Data\\Spatial_Data\\NLCD_2019_MTLandcoverProjected.tiff")
+# project
+lcov <- terra::project(lcov,"EPSG:4326",method="near")
 # convert to a factor so it visualizes correctly
 lcov <- as.factor(lcov)
 # # load in the legend 
@@ -40,7 +44,7 @@ colors=c("#5475A8","#FFFFFF","#E8D1D1","#E29E8C","#ff0000","#B50000","#D2CDC0","
 
 
 # read in the hydrology shapefile
-hydro <- st_read(".\\Spatial_Data\\MT_Rivers\\hd43a.shp")
+hydro <- st_read(".\\Data\\Spatial_Data\\MT_Rivers\\hd43a.shp")
 # Filter out only the rivers in our study area
 names <- c("Missouri River","Yellowstone River","Musselshell River")
 hydro_mush <- hydro %>% filter(NAME =="Musselshell River")
@@ -51,14 +55,15 @@ hydro_yell <- hydro %>% filter(NAME == "Yellowstone River")
 #st_write(hydro_yell,".\\Data\\Spatial_Data\\MT_Rivers\\Yellowstone_River.shp")
 proj_hydro <- hydro %>% filter(NAME %in% names)
 proj_hydro <- proj_hydro %>% dplyr::select(NAME, geometry)
+proj_hydro <- proj_hydro%>%  st_transform("EPSG:4326")
 # write the shapefile with only project rivers for later use
 #st_write(proj_hydro,".\\Data\\Spatial_Data\\MT_Rivers\\Project_Rivers_Unmerged.shp")
 
 # Read in the point file to label the rivers
-river_names <- fread(".\\Spatial_Data\\River_Label_Points.csv")
+river_names <- fread(".\\Data\\Spatial_Data\\River_Label_Points.csv")
 # transform to an sf object
 river_names_sf <- river_names %>% 
-  st_as_sf(coords=c("lon", "lat")) %>% st_set_crs(32100)
+  st_as_sf(coords=c("lon", "lat")) %>% st_set_crs("EPSG:4326")
 #river_names_pt <- river_names %>% st_sf(st_point(c(river_names$lon,river_names$lat)),crs=32100)
 # Error in getClassDim(x, length(x), dim, "POINT") : 
 #6 is an illegal number of columns for a POINT
@@ -140,6 +145,7 @@ Fig1_base
 ############# Basemap ##################
 # let's now grab a terrain basemap from stamenmap 
 basemap_orig <- get_stamenmap(as.numeric(proj_bound),maptype = "terrain-background", zoom=8)
+basemap_orig <- basemap_orig %>% st_transform(4326)
 # https://github.com/dkahle/ggmap/issues/160#issuecomment-397055208
 # Trying out a different way of pulling it
 #basemap_test <- ggmap::get_map(location = unname(st_bbox(locs_sf)),source="stamen")
@@ -149,13 +155,14 @@ plot(basemap_orig)
 
 # the basemap is a ggmap object, so lets try plotting it and adding our points on top
 ggmap(basemap_orig) + 
-  coord_sf(crs = st_crs(32100)) + # force the ggplot2 map to be in 32100
+  coord_sf(crs = st_crs("EPSG:4326")) + # force the ggplot2 map to be in 32100
   geom_sf(data = locs_sf, inherit.aes = FALSE) # add on survey points
 
 # This is plotting both sets of data, but the x and y axis have changed 
 
 # We see the same issue when we add it to our code from Figure 1
 Fig1_base2 <- ggmap(basemap_orig)+
+  coord_sf(crs = st_crs(4326)) +
   # add on your buff object
   geom_sf(data=buff, mapping=aes(geometry=geometry), inherit.aes = FALSE) +
   coord_sf(expand=FALSE)+
@@ -170,9 +177,9 @@ Fig1_base2
 
 # Try transforming it into a raster object and redefining the projection
 basemap_rast <- terra::rast(basemap_orig)
-crs(basemap_rast) <- "+proj=lcc +lat_0=44.25 +lon_0=-109.5 +lat_1=49 +lat_2=45 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
-crs(basemap_rast) <- "EPSG:32100"
-
+#crs(basemap_rast) <- "+proj=lcc +lat_0=44.25 +lon_0=-109.5 +lat_1=49 +lat_2=45 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
+crs(basemap_rast) <- "EPSG:4326"
+#crs(basemap_rast)
 # test out the basemap raster
 plot(basemap_rast)
 plot(locs_sf$geometry, add = TRUE)
@@ -217,7 +224,8 @@ ggmap_bbox <- function(map) {
 
 # Use the function:
 test_map <- ggmap_bbox(basemap_orig)
-
+ggmap(test_map)
+# now the map looks entirely flat 
 ###################
 
 
