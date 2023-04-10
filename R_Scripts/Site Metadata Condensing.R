@@ -42,8 +42,9 @@ library(here)
 # Load in datasheets
 #Metadata from 2020
 # Filter just the UMBEL data from here
-mUMBELFWP_20 <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\UM Masters Thesis R Work\\Data\\2020_ARUDeploymentMetadata_ARUandPlaybackResults_UMBEL_FWP.csv")
+mUMBELFWP_20 <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\2020_ARUDeploymentMetadata_ARUandPlaybackResults_UMBEL_FWP.csv")
 mUMBELFWP_20 <- mUMBELFWP_20 %>% clean_names()
+length(unique(mUMBELFWP_20$site))
 # sites along Missouri
 Missouri_20 <- mUMBELFWP_20 %>% filter(river_system=="Missouri")
 length(Missouri_20$x2020point_id)
@@ -95,7 +96,7 @@ m_20_new <- m_20_new %>% mutate(aru_data_detected = replace(aru_data_detected,is
 
 
 ######################### 2021 Data############################ fix this code
-UMBEL_21 <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\UM Masters Thesis R Work\\Data\\Metadata\\2021_ARUDeployment_Metadata_UMBEL.csv")
+UMBEL_21 <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Metadata\\2021_ARUDeployment_Metadata_UMBEL.csv")
 UMBEL_21 <- UMBEL_21  %>% clean_names()
 UMBEL_21 <- UMBEL_21 %>% separate(point_id, into = c("site","point"),sep="-")
 length(unique(UMBEL_21$site))
@@ -155,6 +156,12 @@ FWPR7_22 <- FWPR7_22 %>% separate(date_deployed, into = c("month","day","year"),
 FWPR7_22 <- FWPR7_22 %>% filter(year=="2022") 
 # Add on organization name
 FWPR7_22 <- FWPR7_22 %>% mutate(organization = "FWP_R7")
+
+# how many sites 2022?
+length(unique(FWPR5_22$site_name)) # 4 sites
+length(unique(FWPR6_22$site)) # 3 sites
+length(unique(FWPR7_22$site)) # 18 sites
+length(unique(UMBEL_22$site)) # 17
 
 #R6 and UMBEL are along Missouri 
 
