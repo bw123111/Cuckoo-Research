@@ -154,6 +154,9 @@ install.packages("pwr")
 library(pwr)
 # more information here https://www.statmethods.net/stats/power.html 
 
+install.packages("beepr")
+library(beepr)
+
 
 # For spatial data
 install.packages("sf")
@@ -2080,6 +2083,11 @@ https://upgo.lab.mcgill.ca/2019/12/13/making-beautiful-maps/
 # for saving polygons
 # write_sf(object)
 
+```
+
+
+```{r}
+# working with NLCD Data from Lab 10 Habitat Modeling
 ```
 
 # Sampling Design
