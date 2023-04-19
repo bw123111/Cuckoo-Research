@@ -74,12 +74,15 @@ ggplot(df, aes(x = x2, y = y2)) +
 x3 <- runif(100, min = 10, max = 50000)
 y3 <- rnorm(100, mean = 0.5, sd = 0.2)
 
+# set y values to zero for x values below 4,555
+y3[x3 < 4555] <- 0
+
 # plot the data using ggplot2
 ggplot(data.frame(x3, y3), aes(x = x3, y = y3)) +
   geom_point(size = 3, color = "dark green") +
   labs(title = "Simulated Data",
        x = "Patch Size (squre meters)", y = "Probability of Occupancy") +
-  theme_bw()
+  theme_bw() + geom_vline(xintercept=4555, color = "dark gray")
 
 # Try 2
 # x3 <- runif(1000, 10, 10000)

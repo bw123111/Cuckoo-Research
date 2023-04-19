@@ -1855,6 +1855,9 @@ plot(lcov)
 # You may also need to reproject your raster
 basemap_proj <- basemap %>% terra::project("EPSG:32100", method = "near")
 
+
+
+
 ```
 
 Plotting spatial data
@@ -2052,6 +2055,10 @@ moose_w<-terra::rasterize(elc_habitat, mask.raster, field="MOOSE_W")
 #reading in elevation raster with terra
 elevation2<-rast(here::here("Data","Elevation2.tif"))
 elevation2<-resample(elevation2, mask.raster, method="bilinear")
+
+
+# how to pull one layer out of a raster stack 
+elevation <- landcover_stack[[3]]
 ```
 
 ```{r Spatial Points from Data Sheets}
