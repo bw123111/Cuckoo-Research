@@ -864,7 +864,11 @@ DailyHours %>% mutate(NewDate=as.Date(Date,format="%Y%M%D"))
 ## To change dates formatted as 8/26/2021
 chir_dat %>% mutate(date=as.Date(date, format="%m/%d/%Y"))
 #capitals vs lowercases mean something different in %y%m%d
+# look for this in the help file
 
+
+wolf_summer5 <- wolf_summer4 %>% mutate(datetime_new=as.POSIXct(datetime,format="%m/%d/%y %H:%M"))
+# format that you specify for what it's coming in as
 
 ```
 
