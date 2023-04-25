@@ -34,6 +34,7 @@ nrow(aru_UMBEL)+nrow(aru_FWPR5)+nrow(aru_FWPR6)+nrow(aru_FWPR7) # correct number
 # write.csv(aru_FWPR5,".\\Data\\ARU_Info\\2023_ARUInventory_FWPR5.csv",row.names=FALSE)
 
 
+# START HERE 4/25 : FILTER OUT THE B TEAM AS WELL
 # Split out the ones that are good to go and the ones that aren't
 aru_good <- aru_all %>% filter(use_2023 =="yes")
 aru_bad <- aru_all %>% filter(use_2023 =="no")
@@ -44,7 +45,8 @@ aru_miss <- aru_all %>% filter(is.na(use_2023) ==TRUE) # this accounts for the t
 
 # make this into a function
 count_arus <- function(data){
-  ARUs_touse <- data %>% filter(use_2023 == "yes")
+  ARUs_touse <- data %>% filter(use_2023 == "yes") 
+  ARUS_touse <- ARUs_touse %>% filter(use_as_b_team!="yes")
   ARUmodel_table <- ARUs_touse %>% group_by(aru_model) %>% summarize(n=n())
   return(ARUmodel_table)
 }
