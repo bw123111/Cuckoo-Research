@@ -1535,7 +1535,7 @@ write_xlsx(Dominance_data,"C:\\Users\\annak\\OneDrive\\Documents\\Classes\\Junio
 
 # add on row.names=FALSE to avoid exporting the weird first column
 
-# writing a CSV file
+# writing a CSV file (write_csv or write.csv)
 #write_csv(DataFrame,"Path\\FileName.csv",append = FALSE)
 ## append = FALSE means you're not appending it to an existing file, youre creating a new file
 ## you can also add col_names = !append if you don't want it to write the column names at the top of the file
@@ -3975,6 +3975,8 @@ cal_NA <- function(x, na.rm=TRUE){
 # Occupancy models
 
 [Occupancy models in R with code examples](https://jamesepaterson.github.io/jamespatersonblog/2021-01-01_dynamicoccupancy.html)
+
+[Package unmarked for occupancy analysis](https://cran.r-project.org/web/packages/unmarked/vignettes/unmarked.html)
 
 ```{r Occupancy Models}
 # Fill this in later
