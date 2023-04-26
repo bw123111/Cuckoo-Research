@@ -1,0 +1,85 @@
+######### Clean New GRTS Data Pre Deployment #################
+
+# This is a script for reading in the new, edited GRTS points and creating separate datasheets of the base points and the final points
+
+# Created: 4/25/2023
+# Last updated: 4/25/2023
+
+
+######## install and load pacakges #########
+packages <- c("data.table","tidyverse","janitor")
+source(".\\R_Scripts\\Install_Load_Packages.R")
+load_packages(packages)
+
+
+########## Code ##############
+
+# Load in repeat locs
+repeats <- read_csv(".\\Data\\Spatial_Data\\Repeat_Monitoring_Points_2023.csv") %>% clean_names()
+
+# MUSSELSHELL
+# Load in other points
+mush_grts <- read_csv(".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Musselshell_SurveyPoints_v2_2023 for ArcPro.csv") %>% clean_names()
+# take out repeat locs in this dataset
+mush_grts <- mush_grts %>% slice(4:234)
+# filter out the base points
+mush_base <- mush_grts %>% filter(sitesuse_new=="Base")
+mush_over <- mush_grts %>% filter(is.na(sitesuse_new))
+#nrow(mush_grts)
+# filter the musselshell points from the repeat data
+mush_repeats <- repeats %>% filter(organization =="FWPR5")
+
+# Export all this data
+# write.csv(mush_base,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_FWPR5_BaseGRTS.csv",row.names=FALSE)
+# write.csv(mush_over,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_FWPR5_OverSampleGRTS.csv",row.names=FALSE)
+# write.csv(mush_repeats,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_FWPR5_Repeats.csv",row.names=FALSE)
+
+
+# MISSOURI - UMBEL
+# Load in other points
+misou_grts <- read_csv(".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Missouri_SurveyPointsUMBEL_v2_2023.csv") %>% clean_names()
+
+# do we have enough?
+misou_repeats <- repeats %>% filter(organization=="UMBEL/MTA")
+nrow(misou_repeats) # 33
+nrow(misou_grts %>% filter(siteuse_new=="Base")) # 40
+# Good to go
+
+# filter out the base points
+misou_base <- misou_grts %>% filter(siteuse_new=="Base") %>% select(1:10)
+misou_over <- misou_grts %>% filter(is.na(siteuse_new)) %>% select(1:10)
+#nrow(mush_grts)
+
+# write these to csv files 
+# write.csv(misou_base,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_UMBEL_BaseGRTS.csv",row.names=FALSE)
+# write.csv(misou_over,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_UMBEL_OverSampleGRTS.csv",row.names=FALSE)
+# write.csv(misou_repeats,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_UMBEL_Repeats.csv",row.names=FALSE)
+
+
+# MISSOURI - R6
+# Load in other points
+miso6_grts <- read_csv(".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Missouri_SurveyPointsR6_v2_2023.csv") %>% clean_names()
+
+# do we have enough?
+miso6_repeats <- repeats %>% filter(organization=="FWPR6")
+nrow(miso6_repeats) # 9
+nrow(miso6_grts %>% filter(siteuse_new=="Base")) # 4
+# Good to go
+
+# filter out the base points
+miso6_base <- miso6_grts %>% filter(siteuse_new=="Base") #%>% select(1:10)
+miso6_over <- miso6_grts %>% filter(is.na(siteuse_new)) %>% slice(10:78)
+miso6_repeats <- repeats %>% filter(organization=="FWPR6")
+nrow(misou_repeats) # 33
+#nrow(mush_grts)
+
+# write these to csv files 
+write.csv(miso6_base,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_R6_BaseGRTS.csv",row.names=FALSE)
+write.csv(miso6_over,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_R6_OverSampleGRTS.csv",row.names=FALSE)
+write.csv(miso6_repeats,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_R6_Repeats.csv",row.names=FALSE)
+
+
+# then FWP7 and 6
+# update GIS map and update to ArcGIS online
+
+

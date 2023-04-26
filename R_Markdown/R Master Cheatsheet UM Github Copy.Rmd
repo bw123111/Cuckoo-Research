@@ -1116,6 +1116,13 @@ filter(flights, month == 11 | month == 12)
 # x %>% in y
 ## you can rewrite the following formula 
 nov_dec <- filter(flights, month %in% c(11,12))
+# can also use ! to filter things not in a value
+count_arus <- function(data){
+  ARUs_touse <- data %>% filter(use_2023 == "yes") 
+  ARUS_touse <- ARUs_touse %>% filter(!use_as_b_team %in% "yes") # here is the example
+  ARUmodel_table <- ARUs_touse %>% group_by(aru_model) %>% summarize(n=n())
+  return(ARUmodel_table)
+}
 
 #to determine if a value is missing
 is.na(x)
