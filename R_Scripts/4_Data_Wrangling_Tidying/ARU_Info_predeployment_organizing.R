@@ -82,6 +82,7 @@ test <- sample(UMBEL_list,replace=FALSE)
 length(test=="AM1.0.0")
 # Giving 73??
 
+
 ########### Snippings ############
 
 # # Split out the number of useable ARUs and their model for each organization

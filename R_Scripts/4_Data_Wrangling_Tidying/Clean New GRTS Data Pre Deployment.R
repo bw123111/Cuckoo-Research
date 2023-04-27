@@ -73,13 +73,26 @@ miso6_repeats <- repeats %>% filter(organization=="FWPR6")
 nrow(misou_repeats) # 33
 #nrow(mush_grts)
 
+# # write these to csv files 
+# write.csv(miso6_base,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_R6_BaseGRTS.csv",row.names=FALSE)
+# write.csv(miso6_over,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_R6_OverSampleGRTS.csv",row.names=FALSE)
+# write.csv(miso6_repeats,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_R6_Repeats.csv",row.names=FALSE)
+
+
+######## START WITH FWP R7 #################
+yell_grts <- read_csv(".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Yellowstone_SurveyPoints_v2_2023.csv") %>% clean_names()
+yell_repeats <- repeats %>% filter(organization=="FWPR7")
+nrow(yell_repeats) # 15
+nrow(yell_grts %>% filter(siteuse_new=="Base")) # 34
+# Total is 49, good to go
+# filter out the base points
+yell_base <- yell_grts %>% filter(siteuse_new=="Base") 
+yell_over <- yell_grts %>% filter(is.na(siteuse_new))
+
 # write these to csv files 
-write.csv(miso6_base,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_R6_BaseGRTS.csv",row.names=FALSE)
-write.csv(miso6_over,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_R6_OverSampleGRTS.csv",row.names=FALSE)
-write.csv(miso6_repeats,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\2023_R6_Repeats.csv",row.names=FALSE)
-
-
-# then FWP7 and 6
+write.csv(yell_base,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Yellowstone\\2023_R7_BaseGRTS.csv",row.names=FALSE)
+write.csv(yell_over,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Yellowstone\\2023_R7_OverSampleGRTS.csv",row.names=FALSE)
+write.csv(yell_repeats,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Yellowstone\\2023_R7_Repeats.csv",row.names=FALSE)
 # update GIS map and update to ArcGIS online
 
 
