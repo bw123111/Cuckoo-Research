@@ -90,9 +90,9 @@ yell_base <- yell_grts %>% filter(siteuse_new=="Base")
 yell_over <- yell_grts %>% filter(is.na(siteuse_new))
 
 # write these to csv files 
-write.csv(yell_base,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Yellowstone\\2023_R7_BaseGRTS.csv",row.names=FALSE)
-write.csv(yell_over,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Yellowstone\\2023_R7_OverSampleGRTS.csv",row.names=FALSE)
-write.csv(yell_repeats,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Yellowstone\\2023_R7_Repeats.csv",row.names=FALSE)
+# write.csv(yell_base,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Yellowstone\\2023_R7_BaseGRTS.csv",row.names=FALSE)
+# write.csv(yell_over,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Yellowstone\\2023_R7_OverSampleGRTS.csv",row.names=FALSE)
+# write.csv(yell_repeats,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Yellowstone\\2023_R7_Repeats.csv",row.names=FALSE)
 # update GIS map and update to ArcGIS online
 
 

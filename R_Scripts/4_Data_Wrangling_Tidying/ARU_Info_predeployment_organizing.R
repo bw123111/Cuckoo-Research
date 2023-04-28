@@ -3,7 +3,7 @@
 # This is a script for reading in the ARU testing file, creating inventories for each organization, and counting how many ARUs are useable for the field season
 
 # Created: 4/24/2023
-# Last updated: 4/24/2023
+# Last updated: 4/28/2023
 
 
 ######## install and load pacakges #########
@@ -34,7 +34,6 @@ aru_FWPR5 <- aru_all %>% filter(aru_owner == "FWPR5")
 # write.csv(aru_FWPR5,".\\Data\\ARU_Info\\2023_ARUInventory_FWPR5.csv",row.names=FALSE)
 
 
-# START HERE 4/25 : FILTER OUT THE B TEAM AS WELL
 # Split out the ones that are good to go and the ones that aren't
 aru_good <- aru_all %>% filter(use_2023 =="yes")
 aru_bad <- aru_all %>% filter(use_2023 =="no")
