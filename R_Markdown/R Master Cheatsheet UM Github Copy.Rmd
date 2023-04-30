@@ -1495,6 +1495,14 @@ size%>%left_join(location) #uh oh: error, no common variable names!
 size%>%left_join(location, by=c("college1"="college2"))
 ## this is also just good practice
 
+# You can also join two columns and remove the NAs in them with coalesce()
+FWP_points <- bind_rows(R5_points,R6_points,R7_points)
+str(FWP_points)
+# siteuse_new got split into two columns
+FWP_points$test <- coalesce(FWP_points$sitesuse_new,FWP_points$siteuse_new) 
+FWP_points <- FWP_points %>% select(-siteuse_new)
+FWP_points <- FWP_points %>% select(-sitesuse_new)
+
 #What if two columns in each dataset have the same name, but you only want to join based on one of them?
 #instead, specify the ID column to be college. Both location columns will be retained (and suffixed so you can tell them apart)
 
@@ -1533,6 +1541,26 @@ anti_join(college_size, college_location)
 
 [Subsetting and filtering data frame rows in R](https://www.datanovia.com/en/lessons/subset-data-frame-rows-in-r/)
 
+
+# Editing Data
+
+
+```{r}
+# Resampling from another column of data
+# create a data frame with a column to resample
+df1 <- data.frame(col1 = c(1, 2, 3, 4, 5))
+
+# create a data frame to add data to
+df2 <- data.frame(col2 = c("A", "B", "C"))
+
+
+# resample col1 from df1 and add it to df2
+df2$new_col <- sample(df1$col1, size = nrow(df2), replace = FALSE)
+
+# view the resulting data frame
+df2
+
+```
 
 # Exporting Data
 ```{r Exporting}
