@@ -157,6 +157,8 @@ library(pwr)
 install.packages("beepr")
 library(beepr)
 
+# R phylogpic
+
 
 # For spatial data
 install.packages("sf")
@@ -1560,6 +1562,12 @@ df2$new_col <- sample(df1$col1, size = nrow(df2), replace = FALSE)
 # view the resulting data frame
 df2
 
+# Scaling data
+# scale the variables that need scaling
+bbcu_wide <- bbcu_wide %>%
+  mutate(julian_date=c(scale(julian_date)),time=c(scale(time)))
+# why does this put a [,1] if you don't have the c()? becuase scale() function returns a matrix
+# class(bbcu_wide$julian_date) numeric
 ```
 
 # Exporting Data

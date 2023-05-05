@@ -96,3 +96,25 @@ yell_over <- yell_grts %>% filter(is.na(siteuse_new))
 # update GIS map and update to ArcGIS online
 
 
+##### Clean data for Grant #######33
+
+# filter UMBEL locations that have a longitude greater than -108.8571723
+to_clean <- read_csv(".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Missouri River\\2023_UMBEL_BaseGRTSandRepeats.csv")
+
+for_grant <- to_clean %>% filter(lon_wgs84 > -108.6863026)
+for_grant <- for_grant %>% filter(aru=="Yes")
+
+# export this to a csv
+write_csv(for_grant,".\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Missouri River\\2023_UMBELPoints_ForGrant.csv")
+
+
+########## Changing site names ###########
+r6_miso <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Spatial_Data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Missouri River\\2023_R6_BaseGRTSandRepeats.csv")
+
+r6_miso <- r6_miso %>% separate(site_id,into=c("site","point_num"),sep = "-" )
+
+# mutate the site column if it is "Site"
+r6_miso %>% ifelse(site == "Site", mutate(site = "MISO"),site)
+
+census_data <- census_data %>% mutate(MonthNum = case_when(
+  Month == "January" ~ 1
