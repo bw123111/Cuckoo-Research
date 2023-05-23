@@ -1,0 +1,15 @@
+---
+title: "Modeling Handbook"
+author: "Anna Kurtin"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview of Modeling in Ecology/Wildlife and Applications in R
+
+to do:
+- set up framework for this document
