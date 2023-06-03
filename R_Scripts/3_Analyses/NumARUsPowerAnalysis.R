@@ -37,9 +37,9 @@ library(janitor)
 ##### External Packages #######
 
 # Load in the function to simulate data
-source(".\\R_Scripts\\SimulateOcc_By_HabQuality.R")
+source(".\\R_Scripts\\3_Analyses\\SimulateOcc_By_HabQuality.R")
 # Load in the function to simulate data with stratified habitat quality
-source(".\\R_Scripts\\SimulateOcc_By_StratifiedHabQual.R")
+source(".\\R_Scripts\\3_Analyses\\SimulateOcc_By_StratifiedHabQual.R")
 # Load in the function to plot the simulated data
 source(".\\R_Scripts\\Plot_SimulateOcc_By_Hab.R")
 
