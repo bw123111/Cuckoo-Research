@@ -1,0 +1,134 @@
+---
+title: "Post-ARU Deployment Summary"
+author: "Anna Kurtin"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+When you get the rest of the data from the Musselshell, finalize this datasheet and send it out - I'll add them to the OneDrive and the Dropbox
+```{r Setup}
+# Load in packages
+packages <- c("mapview","tidyverse","janitor")
+source(".\\R_Scripts\\Install_Load_Packages.R")
+load_packages(packages)
+
+```
+
+```{r Read Data}
+# read in the original metadata
+metadat <- read_csv(".\\Data\\Metadata\\2023_ARUDeployment_Metadata_Orig123.csv") %>% clean_names
+
+```
+
+## Data cleaning:
+
+- Check the unique values of each column
+
+- Change lowercase miso/Miso/MISS to MISO, mush/Mush to MUSH, yell/Yell/YEll to YELL
+
+Diagnostics on the data
+
+
+```{r Data Cleaning}
+
+# drop the first six columns
+metadat <- metadat %>% select(-(1:6))
+
+# replace the underscore with a dash in the point id 
+metadat <- metadat %>% mutate(point_id = str_replace(point_id, "_","-"))
+
+# separate point ID into point and ID
+metadat <- metadat %>% separate(point_id, into = c("point","ID"), sep = "-")
+# check the unique values of the point
+unique(metadat$point)
+# mutate to be correct values
+metadat <- metadat %>% mutate(point = case_when(
+  point == "Yell"~"YELL",
+  point == "YEll"~"YELL",
+  point == "YELl"~"YELL",
+  point == "YELL"~"YELL",
+  point == "MISS"~"MISO",
+  point == "Miss"~"MISO",
+  point == "MISO"~"MISO",
+  point == "PRD"~"PRD",
+  point == "ELI"~"ELI",
+  point == "XSS"~"XSS",
+  point == "AME"~"AME",
+  point == "ISA"~"ISA",
+  point == "MUSH"~"MUSH",
+  point == "JDO"~"JDO",
+  point == "YWM"~"YWM",
+  point == "GMW"~"GMW",
+  point == "CUL"~"CUL",
+  point == "ROB"~"ROB",
+  point == "SNO"~"SNO",
+  point == "84"~"84",
+  point == "82"~"82",
+  point == "105"~"105",
+  point == "104"~"104",
+  point == "101"~"101",
+  point == "103"~"103",
+  point == "102"~"102",
+  point == "97"~"97",
+  point == "83"~"83",
+  point == "203"~"203",
+  point == "JUD"~"JUD"))
+
+# combine again
+metadat <- metadat %>% unite(point_id,point, ID, sep="-")
+
+# Write this to a csv
+write.csv(metadat,".\\Data\\Metadata\\2023_ARUDeployment_Metadata_6-8.csv")
+```
+
+# Summary of ARU Deployments
+```{r Summary}
+#Questions to answer:
+#How many total ARUs deployed? 154
+
+#How many ARUs in each river system?
+arus_perriver <- metadat %>% group_by(river) %>% summarize(number_deployed = n())
+# 97 along the Missouri, 17 out at the Musselshell, and 40 along the Yellowstone
+
+#How many SMM vs AM?
+arumodels_persurvey <- metadat %>% group_by(aru_model) %>% summarize(number_deployed = n())
+# 105 AudioMoth
+# 49 SongMeter Micro
+
+#How many repeat monitoring points?
+#How many habitat points?
+#How many new points?
+arus_persurvey <- metadat %>% group_by(site_use) %>% summarize(number_deployed = n())
+# 88 habitat points
+# 6 new points
+# 60 repeat survey points
+
+# How many strata for the habitat points?
+metadat %>% filter(site_use == "Habitat Point") %>% group_by(landcover_strata) %>% summarize(number_deployed = n())
+# wetland points: 34
+# forest points: 25
+# shrub/grassland points: 29
+
+
+# figure out which were the upper missouri 
+UMBEL <- metadat %>% filter(river == "Missouri River" & x <  -106.883799)
+
+
+
+```
+
+
+
+## Things that need editing
+
+No navigation notes for some of them - need to make sure that if Daniel is not the one going back out for the points that others can find them. 
+
+
+### Next steps
+
+Vegetation surveys starting June 15th or as soon as the plants in your area are fully leafed out. 
+Playback surveys starting June 15th and going until August 15th. 

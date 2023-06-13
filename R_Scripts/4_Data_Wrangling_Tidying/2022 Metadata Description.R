@@ -24,7 +24,7 @@ Hussey_2022 <- read_csv("./Data/Metadata/2022_ARUDeployment_Metadata_FWPR6.csv")
 
 UMBEL_2021 <- read_csv("./Data/Metadata/2021_ARUDeployment_Metadata_UMBEL.csv")
 
-UMBELFWP_2020 <- read_csv("./Data/2020_ARUDeploymentMetadata_ARUandPlaybackResults_UMBEL_FWP.csv")
+UMBELFWP_2020 <- read_csv("./Data/ARU_Deployments_Playbacks_in_One_Sheet/2020_ARUDeploymentMetadata_ARUandPlaybackResults_UMBEL_FWP.csv")
 
 # pull out the point-id for all of them
 # Clean up the names so you can use the same code
