@@ -1412,6 +1412,9 @@ left_join(x, y) keeps the dataset on the left (x) as-is, and adds in data that m
 
 In SQL: `SELECT * FROM x LEFT OUTER JOIN y USING (z)`
 
+To update join: https://stackoverflow.com/questions/51572462/update-replace-values-in-dataframe-with-tidyverse-join 
+* Update join is specifically included in data table
+
 ## right_join
 
 `right_join(df1, df2, by="ID")` right_join(x, y) keeps the dataset of the right (y) as-is, and adds in data that matches from the other dataset (x)
@@ -1501,9 +1504,12 @@ size%>%left_join(location, by=c("college1"="college2"))
 FWP_points <- bind_rows(R5_points,R6_points,R7_points)
 str(FWP_points)
 # siteuse_new got split into two columns
-FWP_points$test <- coalesce(FWP_points$sitesuse_new,FWP_points$siteuse_new) 
+FWP_points$test <- coalesce(FWP_points$sitesuse_new,FWP_points$siteuse_new)
 FWP_points <- FWP_points %>% select(-siteuse_new)
 FWP_points <- FWP_points %>% select(-sitesuse_new)
+
+# other option
+test <- umbel_playb_points %>% rows_update(umbel_tocombine,by="point_id") # Note: all of the rows in umbel_tocombine must exist in the larger data set you're trying to put them into (umbel_playb_points)
 
 #What if two columns in each dataset have the same name, but you only want to join based on one of them?
 #instead, specify the ID column to be college. Both location columns will be retained (and suffixed so you can tell them apart)

@@ -18,10 +18,11 @@ load_packages(packages)
 
 ```
 
+# Reading in and cleaning the original metadata
+
 ```{r Read Data}
 # read in the original metadata
 metadat <- read_csv(".\\Data\\Metadata\\2023_ARUDeployment_Metadata_Orig123.csv") %>% clean_names
-
 ```
 
 ## Data cleaning:
@@ -77,12 +78,13 @@ metadat <- metadat %>% mutate(point = case_when(
   point == "83"~"83",
   point == "203"~"203",
   point == "JUD"~"JUD"))
+# use the package to convert them to uppercase next time
 
 # combine again
 metadat <- metadat %>% unite(point_id,point, ID, sep="-")
 
 # Write this to a csv
-write.csv(metadat,".\\Data\\Metadata\\2023_ARUDeployment_Metadata_6-8.csv")
+#write.csv(metadat,".\\Data\\Metadata\\2023_ARUDeployment_Metadata_6-8.csv")
 ```
 
 # Summary of ARU Deployments
@@ -113,11 +115,47 @@ metadat %>% filter(site_use == "Habitat Point") %>% group_by(landcover_strata) %
 # forest points: 25
 # shrub/grassland points: 29
 
+```
 
+
+# Processing Clean Data
+```{r Reading Processing Clean Data}
+# Read in the file for playback survey points
+umbel_playb_points <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Monitoring_Points\\2023_Playback_Survey_Points_UMBEL_orig.csv")
+
+# read in repeat survey data 
+umbel_repeats <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Monitoring_Points\\Repeat_Monitoring_Points_2023.csv") %>% rename(x=longitude, y=latitude,point_id=point_ID) %>% select(point_id,x,y) %>% filter(is.na(point_id)==FALSE) %>% as_tibble() 
+#class(umbel_repeats)
+
+# read in locations of numbered points
+umbel_letteredpts <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Monitoring_Points\\UMBEL_LetterNamedPoints2022.csv") %>% rename(x=LAT, y=LONG,point_id="GPS-ID") %>% select(point_id,x,y) %>% filter(is.na(point_id)==FALSE) %>% as_tibble() 
+
+# read in deployment metadata
+metadat_clean <- read_csv(".\\Data\\Metadata\\2023_ARUDeployment_Metadata_6-8.csv")
 # figure out which were the upper missouri 
-UMBEL <- metadat %>% filter(river == "Missouri River" & x <  -106.883799)
+umbel_metadat <- metadat_clean %>% filter(river == "Missouri River" & x <  -106.883799)
+umbel_points <- umbel_metadat$point_id
+# create a separate datasheet for just the point information and nav notes for conducting extra veg surveys
+umbel_nav_info <- umbel_metadat %>% select(point_id,site_use,point_landcover_description,x,y,notes)
+write.csv(umbel_nav_info,".\\Data\\Metadata\\2023_PointNavigationInfo_UMBEL.csv",row.names=FALSE)
 
+fwp_metadat <- metadat_clean %>% filter(!point_id %in% umbel_points)
+fwp_playbacks <- fwp_metadat %>% filter(site_use != "Habitat Point")
+# export this to a csv
+write.csv(fwp_playbacks,"C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Monitoring_Points\\2023_PlaybackPoints_FWP.csv" ,row.names=FALSE)
 
+# add the coordinates from the UMBEL lettered points datasheet (also has the other repeat points in it)
+umbel_playbacks_wcoords <- umbel_playb_points %>% rows_update(umbel_letteredpts,by="point_id", unmatched="ignore")
+
+# Lastly, we're going to update the coordinates with the locations from the actual deployments 
+## DOUBLE CHECK AND MAKE SURE THIS IS ACTUALLY DOING WHAT YOU WANT IT TO
+
+# add the long and lat to the rows for points that are in the playback data 
+umbel_tocombine <- umbel_metadat %>% filter(point_id %in% umbel_playb_points$point_id) %>% select(point_id, x, y) %>% rename(x=y,y=x)
+
+umbel_playbacks_wcoords <- umbel_playbacks_wcoords %>% rows_update(umbel_tocombine,by="point_id") 
+# export this to csv
+write.csv(umbel_playbacks_wcoords,"C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Monitoring_Points\\2023_Playback_Survey_Points_UMBEL_6-14.csv")
 
 ```
 
@@ -132,3 +170,16 @@ No navigation notes for some of them - need to make sure that if Daniel is not t
 
 Vegetation surveys starting June 15th or as soon as the plants in your area are fully leafed out. 
 Playback surveys starting June 15th and going until August 15th. 
+
+
+```{r Code Graveyard}
+#umbel_playbacks_wcoords <- left_join(umbel_playb_points, umbel_tocombine, by="point_id")
+# making more columns than wanted
+#str(umbel_tocombine)
+#umbel_playb_points <- as_tibble(umbel_playb_points)
+#str(umbel_playb_points)
+
+# First, we're going to add the coordinates from the repeat monitoring points 
+# umbel_playb_points <- umbel_playb_points %>% rows_update(umbel_repeats,by="point_id", unmatched="ignore")
+
+```
