@@ -29,7 +29,7 @@ def download_bird_calls(query):
         # wrap the loop with tqdm for progress bar
         for i, recording in tqdm(enumerate(data['recordings'], 1), total=len(data['recordings']), desc='Downloading', unit='file'):
             file_url = recording['file']
-            file_name = os.path.join('bird_calls', os.path.basename(file_url))  # specify the directory
+            file_name = os.path.join('bird_calls', recording['id'] + '.mp3')  # specify the directory and add .mp3 extension
             urllib.request.urlretrieve(file_url, file_name)
 
         print(f"\nDownloaded {i} files.")  # print newline for better formatting
@@ -37,7 +37,6 @@ def download_bird_calls(query):
         print("No recordings found.")
 
 if __name__ == "__main__":
-    query = input("Enter bird name: ") #Enter bird name here
+    query = input("Enter bird name: ")  # Enter bird name here in prompt
     download_bird_calls(query)
-
 
