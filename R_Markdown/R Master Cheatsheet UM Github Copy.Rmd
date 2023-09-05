@@ -1111,7 +1111,7 @@ txhousing <- as.data.frame(txhousing)
 
 # Pulling out certain rows in R
 ## To pull out data in a way that forms another dataframe, index it in brackets
-site_table <- site_table[!(site_table$species_code %in% c("NOBI","UNBI","UNDU"),]
+site_table <- site_table[!(site_table$species_code %in% c("NOBI","UNBI","UNDU")),]
 
 # filter()
 ## returns the values that you specify, gets rid of all the rest
@@ -2282,7 +2282,7 @@ Average silhouette width
 1. Discuss goodness-of-fit (check silhouette width to assess strength of structure)
 
 
-## PCA
+## PCA: Explanation
 
 Involves dimensionality reduction, which is the combination of columns.
 
@@ -2296,9 +2296,12 @@ Involves dimensionality reduction, which is the combination of columns.
   
   - then I think you do clustering after this to pick out groups 
   
+[Good explanation of the basics](https://www.youtube.com/watch?v=FgakZw6K1QQ)
+  
 - **In Sum** it's a mathmatical procedure that converts *a lot* of correlated variables into *a few* uncorrelated variables called principal components (PCs) that still contain most of the info.
 
 
+## PCA Ex 1
 **Steps to doing PCA:**
 
 1. Prepare the data
@@ -2356,6 +2359,87 @@ ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name="k",breaks=1
 poke1 <-  read_csv("http://www.nathanielwoodward.com/pokemon.csv")
 
 ```
+
+
+## PCA Ex 2
+[From StatQuest Video](https://www.youtube.com/watch?v=0Jp4gsfOLMs)
+[Code from GitHub](https://github.com/StatQuest/pca_demo/blob/master/pca_demo.R)
+
+
+```{r PCA Example 2}
+# Create a dataset
+data_matrix <- matrix(nrow = 100, ncol = 10) # create a dataset of 100 genes of 10 individuals
+colnames(data_matrix) <- c(
+  paste("wt", 1:5, sep = ""), # the first 5 samples are wild type
+  paste("ko", 1:5, sep = "")) # the last 5 are kockout
+
+rownames(data_matrix) <- paste("gene", 1:100, sep="") # name the genes
+for (i in 1:100) {
+  wt.values <- rpois(5, lambda=sample(x=10:1000, size=1))
+  ko.values <- rpois(5, lambda=sample(x=10:1000, size=1))
+ 
+  data_matrix[i,] <- c(wt.values, ko.values)
+} # give the fake genes fake read counts using the poisson distribution
+
+# take a look at the first couple rows
+head(data_matrix)
+dim(data.matrix)
+
+# Now call the function prcomp() to do a PCA on our data
+## Goal is to draw a graph to show how variables are related to one another
+pca <- prcomp(t(data_matrix), scale=TRUE) # prcomp() expects samples to be rows and genes to be columns, so we transpose it using t() here
+
+# prcomp returns three things: 
+#1. x - contains the principal components (PCs) for drawing a graph
+## plot pc1 and pc2 using the first two columns in x (first two PCs)
+plot(pca$x[,1], pca$x[,2])
+## Notice here that 5 samples are on one side, five on the other side. Let's see how much variation in the original data the first PC accounts for
+
+#2. sdev - standard deviation, which we will take the square of here to see how much variation in the original data each principal component accounts for
+pca_var <- pca$sdev^2
+## also calculate the percentage that it accounts for
+pca_var_per <- round(pca_var/sum(pca_var)*100, 1)
+## Which we can use to make a scree plot
+barplot(pca_var_per, main="Scree Plot", xlab="Principal Component", ylab="Percent Variation")
+## Here we can see that PC1 accounts for nearly all of the variation in the data, meaning that there is a big difference between the clusters to the left and right of our original graph
+
+
+# Make a fancy GG plot
+## now make a fancy looking plot that shows the PCs and the variation:
+library(ggplot2)
+ 
+pca_data <- data.frame(Sample=rownames(pca$x),
+  X=pca$x[,1],
+  Y=pca$x[,2])
+pca_data
+ 
+ggplot(data=pca_data, aes(x=X, y=Y, label=Sample)) +
+  geom_text() +
+  xlab(paste("PC1 - ", pca_var_per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca_var_per[2], "%", sep="")) +
+  theme_bw() +
+  ggtitle("My PCA Graph")
+
+  
+#3. rotation
+## prcomp() function calls the loading scores rotation
+## lets pull it up to see which genes have the largest effect on the plot
+## Look at the loading score for PC1, since it accounts for the most amount of variation
+loading_scores <- pca$rotation[,1]
+## use the absolute value function to only look at magnitude of loading score and sort them
+gene_scores <- abs(loading_scores) 
+gene_score_ranked <- sort(gene_scores, decreasing=TRUE) # sort them
+top_10_genes <- names(gene_score_ranked[1:10]) # pull out the name of the genes
+
+top_10_genes ## show the names of the top 10 genes
+ 
+pca$rotation[top_10_genes,1] ## show the scores (and +/- sign)
+
+```
+
+
+
+
 
 
 # Visualizing Data
