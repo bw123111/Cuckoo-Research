@@ -68,9 +68,9 @@ write.csv(miso_UMBEL,".\\Data\\Spatial_Data\\GRTS_Points_2023\\Missouri_SurveyPo
 
 
 # copy paste
-The first iteration of survey points for summer 2023 black-billed cuckoo habitat surveys. Includes the GRTS main sample and over sample for habitat surveys, repeat monitoring points from previous years for habitat and playback surveys, land cover values from 2019 data, and cadastrel (land ownership) data. 
-
-The new GRTS points are for habitat surveys, which will be conducted with only ARUs, no playbacks.
-Habitat surveys will include ARU deployment and vegetation surveys before June 1st and ARU retrieval after August 15th.
-
-The repeat monitoring points will include the same surveys as the habitat points but will also include 2-4 playback surveys.
+# The first iteration of survey points for summer 2023 black-billed cuckoo habitat surveys. Includes the GRTS main sample and over sample for habitat surveys, repeat monitoring points from previous years for habitat and playback surveys, land cover values from 2019 data, and cadastrel (land ownership) data. 
+# 
+# The new GRTS points are for habitat surveys, which will be conducted with only ARUs, no playbacks.
+# Habitat surveys will include ARU deployment and vegetation surveys before June 1st and ARU retrieval after August 15th.
+# 
+# The repeat monitoring points will include the same surveys as the habitat points but will also include 2-4 playback surveys.

@@ -1,6 +1,6 @@
 ######### Split and Wrangle ARU Testing Data #################
 
-# This is a script for reading in the ARU testing file, creating inventories for each organization, and counting how many ARUs are useable for the field season
+# This is a script for reading in the ARU testing file, creating inventories for each organization, counting how many ARUs are useable for the field season, and randomly assigning ARUs to different points
 
 # Created: 4/24/2023
 # Last updated: 4/28/2023
@@ -135,7 +135,7 @@ nrow(umbel_grts %>% filter(aru_model =="AM1.2.0"))
 umbel_new <- rbind(umbel_grts,umbel_rp)
 
 # write this to csv
-write.csv(umbel_new,".\\Data\\Spatial_data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Missouri River\\2023_UMBEL_BaseGRTSandRepeats.csv",row.names=FALSE)
+#write.csv(umbel_new,".\\Data\\Spatial_data\\GRTS_Points_2023\\GRTS_Points_Edited_Version2\\Missouri River\\2023_UMBEL_BaseGRTSandRepeats.csv",row.names=FALSE)
 
 
 # UMBEL_toedit <- UMBEL_toedit %>% mutate(ARU_model=sample(UMBEL_list,replace=FALSE))

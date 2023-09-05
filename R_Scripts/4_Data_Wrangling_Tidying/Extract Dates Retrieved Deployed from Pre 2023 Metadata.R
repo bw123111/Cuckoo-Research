@@ -1,4 +1,7 @@
-# deployment dates
+#### deployment dates#######
+
+# Purpose: to extract the first day deployed and the first day retrieved from the metadata pre 2023
+
 
 #################### Setup ##########################
 

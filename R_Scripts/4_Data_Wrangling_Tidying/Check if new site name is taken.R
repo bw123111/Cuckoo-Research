@@ -12,7 +12,7 @@ load_packages(packages)
 ########### Code ##############
 
 # read in the UMBEL playback sites
-umbel <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Monitoring_Points\\2023_Playback_Survey_Points_UMBEL_6-14.csv")
+umbel <- read_csv("C:\\Users\\annak\\OneDrive\\Documents\\UM\\Research\\Coding_Workspace\\Cuckoo-Research\\Data\\Monitoring_Points\\2023_Playback_Survey_Points_UMBEL.csv")
 
 
 # read in the FWP playback sites
@@ -40,3 +40,7 @@ check_new_name <- function(name){
 
 check_new_name("FWP")
 check_new_name("PRD")
+
+# check the name you want to add: 
+check_new_name("LGC")
+check_new_name("BSB")

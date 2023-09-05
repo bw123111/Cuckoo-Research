@@ -87,6 +87,9 @@ metadat <- metadat %>% unite(point_id,point, ID, sep="-")
 #write.csv(metadat,".\\Data\\Metadata\\2023_ARUDeployment_Metadata_6-8.csv")
 ```
 
+
+
+
 # Summary of ARU Deployments
 ```{r Summary}
 #Questions to answer:
@@ -170,6 +173,27 @@ No navigation notes for some of them - need to make sure that if Daniel is not t
 
 Vegetation surveys starting June 15th or as soon as the plants in your area are fully leafed out. 
 Playback surveys starting June 15th and going until August 15th. 
+
+
+# Update July 2023
+
+Prepping for field work with FWP
+
+## Read in updated, clean metadata
+```{r}
+metadat_clean <- read_csv(".\\Data\\Metadata\\2023_ARUDeployment_Metadata_6-8.csv")
+
+```
+
+
+### 7/8: Pulling out just Region 6 points
+```{r}
+r6_metadat <- metadat_clean %>% filter(river == "Missouri River" & x >  -106.883799)
+
+# write this to csv for use in Arc
+
+write.csv(r6_metadat, ".\\Data\\Metadata\\2023_ARUDeployment_Metadata_R6.csv",row.names = FALSE)
+```
 
 
 ```{r Code Graveyard}

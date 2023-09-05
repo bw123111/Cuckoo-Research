@@ -11,6 +11,10 @@ output: html_document
 #editor_options: 
 #  chunk_output_type: console
 
+# Just good to know
+## Collapse all code chunks with
+## Expand all code chunks with alt+shift+O
+
 ```
 
 ```{r setup, include=FALSE}
@@ -219,7 +223,7 @@ package.check <- lapply(
 [R for Data Science](https://r4ds.had.co.nz/) 
 
 [Introduction to Statistical Learning with Applications in R](https://faculty.marshall.usc.edu/gareth-james/ISL/ISLR%20Seventh%20Printing.pdf)
-# BROKEN
+### BROKEN Link
 
 [Python Data Science Handbook](https://jakevdp.github.io/PythonDataScienceHandbook/)
 
@@ -758,7 +762,7 @@ The first step is to figure out what the variables and observations are.
 
 **Missing data**
 
-Can be explicit NA or implicit (not there).
+Can be explicit NA or implicit (not there)
 
 
 ```{R Pivoting Data}
@@ -785,7 +789,7 @@ dataframe %>%
   unite(col_to_unite, new_col1, new_col2)
 # the default will place an underscore between the values from different columns. If you don't want a separator, use this:
 dataframe %>% 
-  unite(col_to_unite, new_col1, new_col2,sep="")
+  unite(col = newcolumn, c("old_col1","old_col2"), sep="")
 
 # filling in missing values that should be the values before it, use
 dataframe %>% fill(columname)
@@ -1105,6 +1109,9 @@ txhousing <- as.data.frame(txhousing)
 
 
 
+# Pulling out certain rows in R
+## To pull out data in a way that forms another dataframe, index it in brackets
+site_table <- site_table[!(site_table$species_code %in% c("NOBI","UNBI","UNDU"),]
 
 # filter()
 ## returns the values that you specify, gets rid of all the rest
@@ -1113,6 +1120,8 @@ jan1 <- filter(flights, month == 1, day == 1)
 
 ## pull out the flights that departed in November or December
 filter(flights, month == 11 | month == 12)
+# can also do this with character strings
+rh_dat <- playback_dat %>% filter(grepl("84|83|203|82", site_id))
 
 # can use the following formula
 # x %>% in y
@@ -1169,6 +1178,9 @@ txhousing %>%
 txhousing %>% slice(1,n()) #n() is shorthand for the last row number
 
 txhousing %>% slice(1:3)
+
+# Can use base R to drop one row that has a specific value in one column
+site_table <- site_table[!(site_table$species_code %in% "NOBI"),]
 
 # Can also do a similar thing with head(): https://statisticsglobe.com/extract-first-n-rows-of-data-frame-in-r
 # To grab the top 6 rows, use head(data)
@@ -1580,12 +1592,12 @@ bbcu_wide <- bbcu_wide %>%
 ```{r Exporting}
 
 # Writing a dataframe into excel
-write_xlsx(Dominance_data,"C:\\Users\\annak\\OneDrive\\Documents\\Classes\\Junior Year\\Animal Behavior\\Final Project MDominance\\Cleaned_Data.xlsx")
+#write_xlsx(Dominance_data,"C:\\Users\\annak\\OneDrive\\Documents\\Classes\\Junior Year\\Animal Behavior\\Final Project MDominance\\Cleaned_Data.xlsx")
 
 # add on row.names=FALSE to avoid exporting the weird first column
 
 # writing a CSV file (write_csv or write.csv)
-#write_csv(DataFrame,"Path\\FileName.csv",append = FALSE)
+#write.csv(DataFrame,"Path\\FileName.csv",append = FALSE, row.names = FALSE)
 ## append = FALSE means you're not appending it to an existing file, youre creating a new file
 ## you can also add col_names = !append if you don't want it to write the column names at the top of the file
 ## You can add row.names=FALSE if you don't want the first column of row names written

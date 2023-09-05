@@ -1,11 +1,11 @@
-##########################Splitting up Metadata Files into Metadata and Playback Files ###################
-
-
-###############Header########################
+##############Splitting up Metadata Files into Metadata and Playback Files ##############
 
 # Created 10/7/2022
 ## Purpose: to take in files that have deployment metadata and playback data and pull out playback data
 
+
+
+#### Install and load pacakges #####
 
 # Libraries used
 library(tidyverse)
