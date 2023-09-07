@@ -41,6 +41,10 @@ deploy <- deploy %>% mutate(point_id = str_replace(point_id, "_", "-"))
 deploy_sep <- deploy %>% separate(point_id, into = c("site","point"), sep = "-")
 ## Pull out the unique values of site
 sites <- unique(deploy_sep$site)
+# Remove the space in the SD card IDs
+deploy_sep <- deploy_sep %>% mutate(sd_card_id = str_replace(sd_card_id, " ", ""))
+# Remove the space in the ARU ID
+deploy_sep <- deploy_sep %>% mutate(aru_id = str_replace(aru_id, " ", ""))
 ## Replace any unusual values from sites
 deploy_sep <- deploy_sep %>% mutate(site = str_replace(site, "MISS", "MISO"))
 deploy_sep <- deploy_sep %>% mutate(site = str_replace(site, "MISI", "MISO"))
@@ -55,17 +59,17 @@ deploy_sep[68,6] <- "069"
 deploy <- deploy_sep %>% 
   unite(col = point_id, c("site","point"), sep="-")
 
-
-
 # Write the new, cleaned data to ouputs
-write.csv(deploy,"./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-5.csv", row.names = FALSE)
+write.csv(deploy,"./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-7.csv", row.names = FALSE)
+
+
 
 
 
 # Clean retrieval data
 
 # Read in raw data 
-retrieve <- read.csv("./Data/Metadata/Raw_Data/2023_ARURetrieval_Metadata_9-5.csv") %>% clean_names()
+retrieve <- read.csv("./Data/Metadata/Raw_Data/2023_ARURetrieval_Metadata_9-7.csv") %>% clean_names()
 
 # Remove the first six columns that have metadata from Survey123 that we don't need
 retrieve <- retrieve %>% select(-(1:6))
@@ -76,6 +80,11 @@ retrieve$point_id <- toupper(retrieve$point_id)
 retrieve_sep <- retrieve %>% separate(point_id, into = c("site","point"), sep = "-")
 # Replace any misspellings
 retrieve_sep <- retrieve_sep %>% mutate(site = str_replace(site, "MISI", "MISO"))
+retrieve_sep <- retrieve_sep %>% mutate(site = str_replace(site, "YEL-", "YELL-"))
+# Remove the space in the SD card IDs
+retrieve_sep <- retrieve_sep %>% mutate(sd_card_id = str_replace(sd_card_id, " ", ""))
+# Remove the space in the ARU ID
+retrieve_sep <- retrieve_sep %>% mutate(aru_id = str_replace(aru_id, " ", ""))
 # Edit one point to be the correct format
 retrieve_sep[42,5] <- "069"
 # Edit the monitor at CUL-3
@@ -88,4 +97,4 @@ retrieve <- retrieve_sep %>%
   unite(col = point_id, c("site","point"), sep="-")
 
 # Write the new, cleaned data to ouputs
-write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-5.csv", row.names = FALSE)
+write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-7.csv", row.names = FALSE)

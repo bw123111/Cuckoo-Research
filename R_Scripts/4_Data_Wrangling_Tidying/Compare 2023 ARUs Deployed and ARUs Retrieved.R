@@ -14,15 +14,44 @@ load_packages(packages)
 #### Code #####
 
 # Read in current dataset for monitors deployed and monitors retrieved (downloaded from Survey123)
-deployed <- read.csv("./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-5.csv") %>% clean_names()
+deployed <- read.csv("./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-7.csv") %>% clean_names()
+
+# Check for duplicates
+# points_deployed <- unique(deployed$point_id)
+deployed_nodup <- deployed[duplicated(deployed$point_id)==FALSE,] # 154 points
   
-retrieved <- read.csv("./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-5.csv") %>% clean_names()
+retrieved <- read.csv("./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-7.csv") %>% clean_names()
 
-# Pull out the site_id columns
-pts_deployed <- deploy$point_id
+# Check for duplicates
+points_retrieved <- retrieved$point_id
+# dup_points <- retrieved[duplicated(retrieved$point_id)==TRUE,]
+# no duplicated values 
 
-pts_retrieved <- retrieve$point_id
+# filter out the points that are still out
+ARUS_still_out <- deployed_nodup %>% filter(!(point_id %in% points_retrieved))
 
 
-ARUS_still_out <- deploy %>% filter(!(point_id %in% pts_retrieved))
-# Why are there 15 of these, but there were 160 deployed and 140 retrieved????????
+# Clean up this data frame
+ARUS_still_out <- ARUS_still_out %>% select(river, point_id, aru_id, x, y)
+
+# Write this to a csv to send to collaborators
+write.csv(ARUS_still_out,"./Data/Metadata/Outputs/2023_ARUsStillOut_9-7.csv", row.names = FALSE)
+
+
+
+
+
+
+
+
+
+
+##### Code Graveyard ####
+# OLD: Pull out the site_id columns
+#pts_deployed <- deployed$point_id
+#pts_retrieved <- retrieved$point_id
+
+#ARUS_still_out %>% filter(river == "Yellowstone")
+# Just a mismatch of one, had to take into account that some monitors deployed twice for repairs
+
+
