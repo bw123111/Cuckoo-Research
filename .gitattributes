@@ -1,0 +1,6 @@
+*.ipynb filter=lfs diff=lfs merge=lfs -text
+Python_Scripts/BBCU_YBCU_Call_Training/.ipynb_checkpoints/BBCU/ filter=lfs diff=lfs merge=lfs -text
+and/ filter=lfs diff=lfs merge=lfs -text
+YBCU/ filter=lfs diff=lfs merge=lfs -text
+Vocalization/ filter=lfs diff=lfs merge=lfs -text
+Training-checkpoint.ipynb filter=lfs diff=lfs merge=lfs -text
