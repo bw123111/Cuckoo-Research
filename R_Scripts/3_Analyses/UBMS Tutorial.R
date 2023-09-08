@@ -97,3 +97,20 @@ sum_tab <- summary(fit_stan, "state")
 sum_tab$mean[1] # this will give us the occupancy estimate
 
 #### Left off section 2.2.5 in tutorial ####
+
+
+#### Notes from meeting ####
+
+# Grid cells corresponds to the "pixel" that you're sampling at
+# have to average values accross it 
+
+# Don't interpret the model unlesd
+# Brooks gillman ruben statistic (R hat) less than 1.1
+# MCMC chains have to converge (look at trace plots)
+# want to look at if the chains start at different places, come to the same place, and then make a "grassy" plot
+# important to say initial values that should be in distribution 
+# trace plots also give you insight into burnin period 
+# if these two factors are met, your output of your model might be easier to interpret (will have a normal looking distribution)
+
+
+# some models can have NAs, others can't
