@@ -15,8 +15,8 @@ library(janitor)
 #### Code #####
 
 # Read in sheet for UMBEL data and FWP data
-umbel <- read.csv("./Data/Raw_Data/Raw_Audio_Processed_9-6_UMBEL.csv") %>% clean_names()
-fwp <- read.csv("./Data/Raw_Data/Raw_Audio_Processed_9-6_FWPR6_7.csv") %>% clean_names()
+umbel <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_UMBEL_9-13.csv") %>% clean_names()
+fwp <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_FWPR6_7_9-13.csv") %>% clean_names()
 
 # make these into one datasheet by selecting the same columns and rbinding them 
 umbel_tojoin <- umbel %>% select(filename,
@@ -54,17 +54,20 @@ dat_cuckoo <- dat_complete %>% filter(bbcu_verified == 1 | ybcu_verified== 1)
 # Also filter out the ones that you still need to double check
 dat_tocheck <- alldat %>% filter(bbcu_verified == "u" | ybcu_verified== "u")
 
-write.csv(dat_cuckoo, "./Data/Outputs/Cuckoo_Positive_9-6.csv")
+write.csv(dat_cuckoo, "./Data/Training_Data/Outputs/Cuckoo_Positive_9-6.csv")
 
 
 
 # Checking how much data we have
 sum(dat_cuckoo$num_bbcu_5_sec_clips, na.rm = TRUE)
-# 201 5 second clips of data
+# 273 5 second clips of data
 
 
 sum(dat_cuckoo$num_ybcu_5_sec_clips, na.rm = TRUE)
 # 31
+
+
+# For meeting with Tessa: Get stats of how many clear audio files you have, how many from BirdNet, etc
 
 
 #### Old Code #####
