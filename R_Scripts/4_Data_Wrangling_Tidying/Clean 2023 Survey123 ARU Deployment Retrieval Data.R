@@ -4,7 +4,7 @@
 
 # Created 9/5/2023
 
-# Last updated 9/5/2023
+# Last updated 9/12/2023
 
 #### Install and load pacakges #####
 packages <- c("tidyverse","janitor")
@@ -17,7 +17,7 @@ load_packages(packages)
 # Cleaning Data (Last Updated 9-5)
 
 # Clean Deployment data
-# read in the data
+# read in the data from the Raw Data folder
 deploy <- read.csv("./Data/Metadata/Raw_Data/2023_ARUDeployment_Metadata_9-5.csv") %>% clean_names()
 
 # Remove the first six columns that have metadata from Survey123 that we don't need
@@ -53,12 +53,14 @@ unique(deploy_sep$site)
 ## Need to change MISO 069
 ## Change row 68, column 6
 deploy_sep[68,6] <- "069"
+# Change the row with UM022 that should be UM028
+deploy_sep[125,17] <- "UM028"
 # Unite the columns for site and point
 deploy <- deploy_sep %>% 
   unite(col = point_id, c("site","point"), sep="-")
 
 # Write the new, cleaned data to ouputs
-write.csv(deploy,"./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-7.csv", row.names = FALSE)
+write.csv(deploy,"./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-12.csv", row.names = FALSE)
 
 
 
@@ -66,7 +68,7 @@ write.csv(deploy,"./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-7
 
 # Clean retrieval data
 
-# Read in raw data 
+# Read in data from Raw Data folder
 retrieve <- read.csv("./Data/Metadata/Raw_Data/2023_ARURetrieval_Metadata_9-7.csv") %>% clean_names()
 
 # Remove the first six columns that have metadata from Survey123 that we don't need
@@ -89,10 +91,11 @@ retrieve_sep[42,5] <- "069"
 retrieve_sep[24,6] <- "006"
 # Edit the ID that should be ROB-2 but was input as ROB-1
 retrieve_sep[26,5] <- "2"
-
+# Change the row with UM022 that should be UM028
+retrieve_sep[77,7] <- "UM028"
 # Unite the columns
 retrieve <- retrieve_sep %>% 
   unite(col = point_id, c("site","point"), sep="-")
 
 # Write the new, cleaned data to ouputs
-write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-7.csv", row.names = FALSE)
+write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-12.csv", row.names = FALSE)
