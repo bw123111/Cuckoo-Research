@@ -4,7 +4,7 @@
 
 # Created 9/5/2023
 
-# Last updated 9/12/2023
+# Last updated 9/15/2023
 
 #### Install and load pacakges #####
 packages <- c("tidyverse","janitor")
@@ -93,9 +93,11 @@ retrieve_sep[24,6] <- "006"
 retrieve_sep[26,5] <- "2"
 # Change the row with UM022 that should be UM028
 retrieve_sep[77,7] <- "UM028"
+# Add that monitor 1424 had SD card UM026
+retrieve_sep[76,7] <- "UM026"
 # Unite the columns
 retrieve <- retrieve_sep %>% 
   unite(col = point_id, c("site","point"), sep="-")
 
 # Write the new, cleaned data to ouputs
-write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-12.csv", row.names = FALSE)
+write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-15.csv", row.names = FALSE)
