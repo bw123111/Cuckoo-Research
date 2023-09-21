@@ -5,7 +5,7 @@
 
 # Created 9/6/2023
 
-# Last edited 9/13/2023
+# Last edited 9/20/2023
 
 #### Setup ####
 library(tidyverse)
@@ -15,8 +15,8 @@ library(janitor)
 #### Code #####
 
 # Read in sheet for UMBEL data and FWP data
-umbel <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_UMBEL_9-13.csv") %>% clean_names()
-fwp <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_FWPR6_7_9-13.csv") %>% clean_names()
+umbel <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_UMBEL_9-19.csv") %>% clean_names()
+fwp <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_FWPR6_7_9-19.csv") %>% clean_names()
 
 # make these into one datasheet by selecting the same columns and rbinding them 
 umbel_tojoin <- umbel %>% select(filename,
@@ -27,8 +27,10 @@ umbel_tojoin <- umbel %>% select(filename,
                                  num_bbcu_5_sec_clips,
                                  num_ybcu_5_sec_clips,
                                  good_for_confusion_spp,
-                                 poor_quality_audio,
+                                 num_clips_poor_quality_audio,
+                                 num_rattle_clips,
                                  raven_annotation,
+                                 cleaned_for_pitt,
                                  notes)
 fwp_tojoin <- fwp %>% select(filename,
                              bbcu_bird_net,
@@ -38,11 +40,15 @@ fwp_tojoin <- fwp %>% select(filename,
                              num_bbcu_5_sec_clips,
                              num_ybcu_5_sec_clips,
                              good_for_confusion_spp,
-                             poor_quality_audio,
+                             num_clips_poor_quality_audio,
+                             num_rattle_clips,
                              raven_annotation,
+                             cleaned_for_pitt,
                              notes)
 
 alldat <- rbind(umbel_tojoin,fwp_tojoin)
+# need to convert the poor quality audio column to numeric
+# alldat$num_clips_poor_quality_audio <- as.numeric(alldat$num_clips_poor_quality_audio) this is making them all NAs
 ## Why does this data go blank after the first couple hundred rows?
 
 # Pull out rows labeled as completed
@@ -59,8 +65,9 @@ dat_tocheck <- alldat %>% filter(bbcu_verified == "u" | ybcu_verified== "u")
 
 
 # Checking how much data we have
-sum(dat_cuckoo$num_bbcu_5_sec_clips, na.rm = TRUE)
+bbcu_clipcount <- sum(dat_cuckoo$num_bbcu_5_sec_clips, na.rm = TRUE)
 # 273 5 second clips of data
+bbcu_clipcount - sum(dat_cuckoo$num_clips_poor_quality_audio, na.rm = TRUE)
 
 
 sum(dat_cuckoo$num_ybcu_5_sec_clips, na.rm = TRUE)
@@ -82,6 +89,17 @@ sum(playback_files$num_bbcu_5_sec_clips) # 140 clips from playback data
 # 106 files from data with known playbacks
 
 # For meeting with Tessa: Get stats of how many clear audio files you have, how many from BirdNet, etc
+
+
+
+#### Pull Negative Data ######
+
+datneg_confus <- dat_complete %>% filter(good_for_confusion_spp == "1")
+
+
+
+
+
 
 
 #### Old Code #####
