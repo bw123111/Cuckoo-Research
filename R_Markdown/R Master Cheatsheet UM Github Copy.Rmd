@@ -161,6 +161,9 @@ library(pwr)
 install.packages("beepr")
 library(beepr)
 
+# For working with LiDAR data: lidR
+# https://cran.r-project.org/web/packages/lidR/index.html
+
 # R phylogpic
 
 
