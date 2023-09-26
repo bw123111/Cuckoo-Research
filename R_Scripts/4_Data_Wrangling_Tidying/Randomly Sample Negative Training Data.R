@@ -29,9 +29,76 @@ load_packages(packages)
 
 # Metadata
 metadat <- read.csv("./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-12.csv")
+metadat <- metadat %>% separate(point_id, into = c("site","point"), sep = "-")
+miso_hab <- metadat %>% filter(site == "MISO")
 
+
+# randomly sample from each habitat type 
 # How many categories of landcover are there
 unique(metadat$landcover_strata)  # 7
+# Can do this all in one step
+# rand_select <- miso_hab %>% group_by(landcover_strata) %>% sample_n(1)
+
+# separate out by landcover strata then rbind them all together 
+## Select three from the sites we're just pulling one from to have backups
+# Mixed forest
+## m_for <- miso_hab %>% filter(landcover_strata == "Mixed Forest") %>% sample_n(3)
+metadat %>% filter(landcover_strata == "Mixed Forest")
+## Only mixed forest is along Yellowstone and Musselshell
+
+# Woody Wetlands
+wood_wet <- miso_hab %>% filter(landcover_strata == "Woody Wetlands") %>% sample_n(3)
+
+# Emergent Herbaceous Wetlands
+herb_wet <- miso_hab %>% filter(landcover_strata == "Emergent Herbaceous Wetlands") %>% sample_n(3)
+
+# Deciduous Forest
+d_for <- miso_hab %>% filter(landcover_strata == "Deciduous Forest") %>% sample_n(3)
+
+
+## Select six from shrub scrub, grassland/herbaceous evergreen forest to have backups
+# Evergreen forest
+e_for <- miso_hab %>% filter(landcover_strata == "Evergreen Forest") %>% sample_n(6)
+# Sampled 6 out of 9 total
+
+# Shrub/Scrub
+shrub <- miso_hab %>% filter(landcover_strata == "Shrub/Scrub") %>% sample_n(6)
+# sampled 6 out of 12 total
+
+# Grassland/Herbaceous
+grass <- miso_hab %>% filter(landcover_strata == "Grassland/Herbaceous") %>% sample_n(6)
+# sampled 6 out of 8 total 
+
+# Bind these together to get the dataframe to pull your training data from
+sampled_dat <- rbind(wood_wet, herb_wet, d_for, e_for, shrub, grass)
+
+# write this to a .csv
+write.csv(sampled_dat, "./Data/Wrangling_CNN_Training_Data/Outputs/Habitat_Points_For_Negative_Data.csv")
+
+
+
+##### On Desktop ####################
+
+# Look at the audio files for each point you've sampled 
+
+# Read in the directory of the folder you're looking into
+directory <- "D:/2022_FWPR5_Audio/SMM05157"
+
+# Pull out the file names for the current file
+audio_files <- list.files(directory)
+
+# Separate the file names into year month day start_time 
+
+# add a new column for am or pm files
+audio_files %>% mutate(period = ifelse(time %in% c(23, 1), "am","pm"))
+
+# group the files by month, day and diurnal period
+training_files <- audio_files %>% group_by(month, day, period) %>% sample_n(1)
+
+# write this to .csv
+# write.csv(training_files, "./Data/Training_Data/Negative_To_Vet.csv)
+
+
 
 
 

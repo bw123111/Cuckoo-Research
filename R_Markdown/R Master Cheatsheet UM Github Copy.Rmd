@@ -1193,6 +1193,10 @@ site_table <- site_table[!(site_table$species_code %in% "NOBI"),]
 filter(!is.na())
 
 
+# to get/sample random rows from the dataframe: sample_n
+m_for <- miso_hab %>% filter(landcover_strata == "Mixed Forest") %>% sample_n(3)
+
+
 # arrange()
 ## similar to filter() but instead of selecting rows, it changes their order
 arrange(flights, year, day, month)
