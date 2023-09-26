@@ -1,4 +1,4 @@
-#### Randomly Sample Negative Training Data ###################
+#### Randomly Sample Negative Training Data Sites ###################
 
 ## Purpose: to randomly sample acoustic files to use as negative training data
 # Need 73 30 min files 
@@ -16,7 +16,7 @@ load_packages(packages)
 
 ##################### Code #############################
 
-# Habitat Data 
+# Sample Habitat Points ####### 
 # Read in deployment metadata from 2023  
 # Separate out only files that start with MISO
 # Randomly draw sites from each habitat type 
@@ -77,26 +77,6 @@ write.csv(sampled_dat, "./Data/Wrangling_CNN_Training_Data/Outputs/Habitat_Point
 
 
 
-##### On Desktop ####################
-
-# Look at the audio files for each point you've sampled 
-
-# Read in the directory of the folder you're looking into
-directory <- "D:/2022_FWPR5_Audio/SMM05157"
-
-# Pull out the file names for the current file
-audio_files <- list.files(directory)
-
-# Separate the file names into year month day start_time 
-
-# add a new column for am or pm files
-audio_files %>% mutate(period = ifelse(time %in% c(23, 1), "am","pm"))
-
-# group the files by month, day and diurnal period
-training_files <- audio_files %>% group_by(month, day, period) %>% sample_n(1)
-
-# write this to .csv
-# write.csv(training_files, "./Data/Training_Data/Negative_To_Vet.csv)
 
 
 
