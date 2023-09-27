@@ -4,7 +4,7 @@
 
 # Created 9/5/2023
 
-# Last updated 9/15/2023
+# Last updated 9/26/2023
 
 #### Install and load pacakges #####
 packages <- c("tidyverse","janitor")
@@ -55,6 +55,8 @@ unique(deploy_sep$site)
 deploy_sep[68,6] <- "069"
 # Change the row with UM022 that should be UM028
 deploy_sep[125,17] <- "UM028"
+# Change data entry error CU006 to correct ID CO006
+deploy_sep[149,17] <- "CO006"
 # Unite the columns for site and point
 deploy <- deploy_sep %>% 
   unite(col = point_id, c("site","point"), sep="-")
