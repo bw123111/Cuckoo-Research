@@ -12,12 +12,14 @@ library(tidyverse)
 library(janitor)
 
 
-#### Code #####
+#### Read in Current Datasheets #####
 
 # Read in sheet for UMBEL data and FWP data
-umbel <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_UMBEL_9-19.csv") %>% clean_names()
-fwp <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_FWPR6_7_9-19.csv") %>% clean_names()
+umbel <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_UMBEL_9-27.csv") %>% clean_names()
+fwp <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_FWPR6_7_9-27.csv") %>% clean_names()
 
+
+###### Process Data ####
 # make these into one datasheet by selecting the same columns and rbinding them 
 umbel_tojoin <- umbel %>% select(filename,
                                  bbcu_bird_net,
@@ -60,14 +62,63 @@ dat_cuckoo <- dat_complete %>% filter(bbcu_verified == 1 | ybcu_verified== 1)
 # Also filter out the ones that you still need to double check
 dat_tocheck <- alldat %>% filter(bbcu_verified == "u" | ybcu_verified== "u")
 
+dat_tocheck <- alldat %>% filter(cleaned_for_pitt == "pending")
+
 #write.csv(dat_cuckoo, "./Data/Training_Data/Outputs/Cuckoo_Positive_9-6.csv")
 
 
 
+##### Pulling Confusion Species #####
+# pull data with confusion species from these sheets
+confspp_files <- alldat %>% 
+  # filter out confusion species files
+  filter(good_for_confusion_spp == 1)
+
+
+confspp_files <- confspp_files %>%
+  separate(filename, 
+           into = c("point_id", "file_name"), 
+           sep = "_", 
+           remove = FALSE, 
+           extra = "merge", 
+           fill = "right", 
+           convert = TRUE)
+
+
+# create new columns to match other negative training data
+confspp_files <- confspp_files %>%  
+  # specify that these are confusion species 
+  mutate(location = "confusion_spp") %>% 
+  separate(file_name,into = c("date", "time"),sep = "_",remove = FALSE) %>%
+  # Create a month column
+  mutate(month = substr(file_name, 5, 6)) %>% 
+  # Create a period column
+  mutate(period = ifelse(grepl("23|1", time), "nocturnal","diurnal")) %>%
+  # Create a new column for aru_model
+  ## PRD and AME is Songmeter
+  mutate(aru_model = ifelse(grepl("PRD|AME", confspp_files$point_id)==TRUE,"SongMeter Micro","AudioMoth"))
+
+# select the columns to match the other training data'
+confspp_files_final <- confspp_files %>% select(point_id,file_name,month,period, location, aru_model)
+
+# read in the other negative training data
+other_neg <- read.csv("./Data/Training_Data/Outputs/Cuckoo_Negative_Training_Data_nopath_nosample.csv")
+
+total_neg <- rbind(other_neg,confspp_files_final)
+# Write this data
+write.csv(total_neg,"./Data/Training_Data/Outputs/Cuckoo_Negative_Training_Data_Hab_ConfusionSpp.csv", row.names = FALSE)
+
+
+
+
+
+##### Check quantity of data #####
+
 # Checking how much data we have
 bbcu_clipcount <- sum(dat_cuckoo$num_bbcu_5_sec_clips, na.rm = TRUE)
-# 273 5 second clips of data
+# 430 5 second clips of data
 bbcu_clipcount - sum(dat_cuckoo$num_clips_poor_quality_audio, na.rm = TRUE)
+# 264 high quality clips
 
 
 sum(dat_cuckoo$num_ybcu_5_sec_clips, na.rm = TRUE)
@@ -117,4 +168,7 @@ datneg_confus <- dat_complete %>% filter(good_for_confusion_spp == "1")
 # 
 # fwp_tocheck <- fwp_complete %>% filter(bbcu_verified == "u" | ybcu_verified== "u")
 
+#%>%
+# separate the filename column into point id and file name
+# separate(filename, into = c("point_id","file_name"),sep = "_")
 

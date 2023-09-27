@@ -90,5 +90,21 @@ write.csv(sampled_dat, "./Data/Wrangling_CNN_Training_Data/Outputs/Habitat_Point
 # region 7 data - get three sites from the far E sites (18 files taking two files each month)
 # get one site from the far east sites (CUL, ROB, or SNO) (6 files)
 
+# 4 sites
+# MUS along the musselshell?
+# One of the south west sites : JDO/KIF/WJH
+sw_sites <- list("JDO-1","JDO-2","JDO-3","KIF-1","KIF-2","KIF-3","WJH-1","WJH-2","WJH-3")
+selection_sw <- sample(sw_sites, size = 3)
+#test <- sample(sw_sites, size = 3) this is working correctly
+# One of the north east sites : SNO
+ne_sites <- list("SNO-1","SNO-2","SNO-3")
+selection_ne <- sample(ne_sites, size = 3)
+# One of the south east sites : STI/HOL/ELI/XSS/XFI/SID
+se_sites <- list("STI-1","STI-2","STI-3","HOL-1","HOL-2","HOL-3","ELI-1","ELI-2","ELI-3","XSS-1","XSS-2","XSS-3","XFI-1","XFI-2","XFI-3","SID-1","SID-2","SID-3")
+selection_se <- sample(se_sites, size = 3)
+# One of the north west sites : 82/203/83/84
+nw_sites <- list("82-1","82-3","82-4","203-1","203-2","203-2","83-1","83-2","83-3","84-1","84-2","84-3")
+selection_nw <- sample(nw_sites, size = 3)
+
 
 # Total files: 78
