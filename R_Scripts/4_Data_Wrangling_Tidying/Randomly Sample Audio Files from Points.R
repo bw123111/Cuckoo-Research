@@ -21,16 +21,14 @@ load_packages(packages)
 source("./R_Scripts/6_Function_Scripts/Edit_Names_In_Audio_Files_List.R")
 
 
-
-
 ##### Input Which Site and Working Directory ####################
 
 # Create a vector for your current point
 # Format for habitat points: MISO-###
-current_point <- "MISO-123"
+current_point <- "84-2"
 
 # Read in the directory of the folder you're looking into
-directory <- "F:/Cuckoo_Acoustic_Data/2023/2023_UMBEL_Data/2023_UMBEL_Audio_Unnamed/CO006"
+directory <- "F:/Cuckoo_Acoustic_Data/2022/2022_UMBEL_Data/2022_UMBEL_Audio/84-2"
 
 # Region 6: F:/Cuckoo_Acoustic_Data/2023/2023_FWPR6_Data/2023_FWPR6_Audio_Unnamed/
 # UMBEL: F:/Cuckoo_Acoustic_Data/2023/2023_UMBEL_Data/2023_UMBEL_Audio_Unnamed/

@@ -5,18 +5,18 @@
 edit_names <- function(list_of_files){
   
   # First, test if there is the ARU ID in the file name
-  if(grepl("(.*)([[:digit:]]{8})_([[:digit:]]{6}).wav",audio_files[1]) == TRUE){
-    print("SongMeter Data")
+  if(grepl("([^_]*)_([[:digit:]]{8})_([[:digit:]]{6})\\.(wav|WAV)$",audio_files[1,]) == TRUE){
+    print("Data with prefix and extension")
     # separate into name and file extension
     data_new <- list_of_files %>% separate(file_names, into = c("name","file_type"), sep = "\\.(?=[^.]*$)")
     # remove the summary data
-    data_new <- data_new[!grepl("Summary", data_new$name), ]
+    data_new <- data_new[!grepl("Summary|CONFIG", data_new$name), ]
     # split the file name into SD ID, date and time 
     data_new <- data_new %>% separate(name, into = c("sd_id","date","time"), sep = "_")
     print("Removed file extension")
     
     # Next, test if there is a .wav or .WAV added onto the end of the files
-  } else if (grepl("\\.WAV|\\.wav$",audio_files[1]) == TRUE){
+  } else if (grepl("\\.WAV|\\.wav$",audio_files[1,]) == TRUE){
     # separate into name and file extension
     data_new <- list_of_files %>% separate(file_names, into = c("name","file_type"), sep = "\\.(?=[^.]*$)")
     # split the file name into date and time 

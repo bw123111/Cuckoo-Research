@@ -958,6 +958,13 @@ calldata %>% count(sex=="unknown")
 # To see what values are in a column
 unique(calldata$sex)
 
+# Change a list within a dataframe to a column
+neg_dat <- neg_dat %>%
+  mutate(
+    sample_start = as.numeric(unlist(sample_start)),
+    sample_end = as.numeric(unlist(sample_end))
+  )
+
 # finding percentiles
 # ntile(variable, <# GROUPS>)
 # ntile(sales, 100) gives you percentage
@@ -1125,6 +1132,9 @@ jan1 <- filter(flights, month == 1, day == 1)
 filter(flights, month == 11 | month == 12)
 # can also do this with character strings
 rh_dat <- playback_dat %>% filter(grepl("84|83|203|82", site_id))
+
+# Can filter out rows containing an unwanted value
+data_new <- data_new[!grepl("Summary|CONFIG", data_new$name), ]
 
 # can use the following formula
 # x %>% in y
