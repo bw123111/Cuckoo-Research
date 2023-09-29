@@ -8,7 +8,7 @@
 
 #### Install and load pacakges #####
 packages <- c("tidyverse","janitor")
-source(".\\R_Scripts\\Install_Load_Packages.R")
+source("./R_Scripts/6_Function_Scripts/Install_Load_Packages.R")
 load_packages(packages)
 
 #### Code #####
@@ -97,9 +97,11 @@ retrieve_sep[26,5] <- "2"
 retrieve_sep[77,7] <- "UM028"
 # Add that monitor 1424 had SD card UM026
 retrieve_sep[76,7] <- "UM026"
+# Add in 
+retrieve_sep[82,7] <- "APR033"
 # Unite the columns
 retrieve <- retrieve_sep %>% 
   unite(col = point_id, c("site","point"), sep="-")
 
 # Write the new, cleaned data to ouputs
-write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-15.csv", row.names = FALSE)
+write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-28.csv", row.names = FALSE)
