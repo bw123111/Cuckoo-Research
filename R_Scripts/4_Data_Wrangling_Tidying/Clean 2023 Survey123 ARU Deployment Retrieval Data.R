@@ -57,12 +57,25 @@ deploy_sep[68,6] <- "069"
 deploy_sep[125,17] <- "UM028"
 # Change data entry error CU006 to correct ID CO006
 deploy_sep[149,17] <- "CO006"
+# Change data entry error APR-127 to APR127
+deploy_sep[78,17] <- "APR127"
+# Change data entry error APR08 to APR008
+deploy_sep[57,17] <- "APR008"
+# Change data entry error SOO76 to S0076
+deploy_sep[146,17] <- "S0076"
+# Change data entry error UM007 to UM001
+deploy_sep[62,17] <- "UM001"
+# Change data entry error UM062 to UM016
+deploy_sep[126,17] <- "UM016"
+
+# need to convert time to MST from UTC
+
 # Unite the columns for site and point
 deploy <- deploy_sep %>% 
   unite(col = point_id, c("site","point"), sep="-")
 
 # Write the new, cleaned data to ouputs
-write.csv(deploy,"./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-12.csv", row.names = FALSE)
+write.csv(deploy,"./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-29.csv", row.names = FALSE)
 
 
 
@@ -99,6 +112,12 @@ retrieve_sep[77,7] <- "UM028"
 retrieve_sep[76,7] <- "UM026"
 # Add in 
 retrieve_sep[82,7] <- "APR033"
+# Change data entry error UM007 to UM001
+retrieve_sep[13,7] <- "UM001"
+
+# need to convert time to MST from UTC
+## Change the date if the time zone bumps it back (goes over midnight)
+
 # Unite the columns
 retrieve <- retrieve_sep %>% 
   unite(col = point_id, c("site","point"), sep="-")
