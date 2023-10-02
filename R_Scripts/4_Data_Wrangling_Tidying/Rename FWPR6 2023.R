@@ -25,14 +25,14 @@ trim_name <- function(file_name){
 }
 
 
-#### Read in Current Datasheets #####
-
-
-r6_input_path <- "F:/Cuckoo_Acoustic_Data/2023/2023_FWPR6_Data/2023_FWPR6_Audio_Unnamed/"
+#### Establish path to folders of files you want to rename #####
+input_path <- "F:/Cuckoo_Acoustic_Data/2023/2023_UMBEL_Data/2023_UMBEL_Audio_Unnamed/"
 #r6_output_path <- "F:/Cuckoo_Acoustic_Data/2023/R6_Test/Test_R6_Renamed/"
 
+
+#### Rename the files #########################
 # Establish the base directory
-base_dir <- r6_input_path
+base_dir <- input_path
 
 # Pull out the directories within this one
 all_dirs <- list.dirs(base_dir, full.names = TRUE)
