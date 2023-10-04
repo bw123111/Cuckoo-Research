@@ -1192,6 +1192,9 @@ txhousing %>% filter(str_detect(city, "County") | sales < 100)
 # if you want to filter based on whether a certain string is inside a column, look at this website: https://stackoverflow.com/questions/22850026/filter-rows-which-contain-a-certain-string 
 
 # str_replace(variable, pattern, replacement)
+# Ex: to remove spaces
+r7_22_sum$aru_id <- str_replace(r7_22_sum$aru_id," ", "")
+# Ex: with tidyverse
 txhousing %>% 
   filter(city == "Fort Worth") %>%
   mutate(city = str_replace(city, "Fort", "Ft"))
