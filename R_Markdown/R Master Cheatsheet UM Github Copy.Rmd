@@ -795,6 +795,9 @@ separate(COLNAME, into = c("newcolumn1", "newcolumn2"))
 separate(COLNAME, into = c("newcolumn1", "newcolumn2"), sep = "/")
 # if you're separating numeric values from a character cell, separate will keep it as a character value unless you tell it to convert to better types
 separate(COLNAME, into = c("newcolumn1", "newcolumn2"),convert = TRUE)
+# add on merge if you want to bypass warnings about finding more or less than the items specified
+# add on remove = FALSE if you want to keep the orignal column
+r7PB_22 <- r7PB_22 %>% separate(point_id, into = c("site_id", "point"), sep = "-" , remove = FALSE, extra = "merge")
 
 # unite
 dataframe %>% 

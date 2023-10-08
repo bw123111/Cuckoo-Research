@@ -4,19 +4,21 @@
 
 # Created 9/5/2023
 
-# Last updated 9/26/2023
+# Last updated 10/5/2023
 
 #### Install and load pacakges #####
-packages <- c("tidyverse","janitor")
+packages <- c("tidyverse","janitor", "lubridate")
 source("./R_Scripts/6_Function_Scripts/Install_Load_Packages.R")
 load_packages(packages)
+install.packages("chron")
+library(chron)
 
 #### Code #####
 
 
-# Cleaning Data (Last Updated 9-5)
+# Cleaning Data
 
-# Clean Deployment data
+# Clean Deployment data #############################
 # read in the data from the Raw Data folder
 deploy <- read.csv("./Data/Metadata/Raw_Data/2023_ARUDeployment_Metadata_9-5.csv") %>% clean_names()
 
@@ -49,6 +51,10 @@ deploy_sep <- deploy_sep %>% mutate(site = str_replace(site, "MISI", "MISO"))
 # Check that MISS is gone
 unique(deploy_sep$site)
 ## Looks good
+
+# Fix the observer column with case_when
+
+
 # Manually look through the point column to make sure that habitat sites have three numbers
 ## Need to change MISO 069
 ## Change row 68, column 6
@@ -67,21 +73,43 @@ deploy_sep[146,17] <- "S0076"
 deploy_sep[62,17] <- "UM001"
 # Change data entry error UM062 to UM016
 deploy_sep[126,17] <- "UM016"
+# Change lack of data entry to UM025
+deploy_sep[106,17] <- "UM025"
+# Change lack of data entry to UM008
+deploy_sep[105,17] <- "UM008"
+# Change lack of data entry to APR064
+deploy_sep[104,17] <- "APR064"
 
-# need to convert time to MST from UTC
+
+# Turn the date and time column into a datetime column
+deploy_sep$datetime <- as.POSIXct(deploy_sep$date_and_time, format = "%m/%d/%Y %I:%M:%S %p")
+# Subtract 6 hours from the "datetime" column to convert back to MST
+deploy_sep$datetime <- deploy_sep$datetime - as.difftime(6, units = "hours")
+# Separate date 
+deploy_sep$date <- as.Date(deploy_sep$datetime)
+
+
 
 # Unite the columns for site and point
 deploy <- deploy_sep %>% 
-  unite(col = point_id, c("site","point"), sep="-")
+  unite(col = point_id, c("site","point"), sep="-") %>% rename(date_deployed = date, observer_deployment = observer)
+
+# Create a new column for secondary ARU deployments (or just split out the data?) - add a new column for ARU_replaced and fill it with Y if the value for Point ID is not unique in the dataset
+deploy <- deploy %>% mutate(aru_replaced = ifelse(duplicated(point_id) == FALSE, "N", "Y")) #need to workshop this code a bit
+duplicated(deploy$point_id)
+# This isn't flagging the original ones as ones that were replaced 
 
 # Write the new, cleaned data to ouputs
-write.csv(deploy,"./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-29.csv", row.names = FALSE)
+write.csv(deploy,"./Data/Metadata/Outputs/2023_ARUDeployment_MetadataFull_Cleaned10-5.csv", row.names = FALSE)
 
 
+# Grab just the necessary columns for passing onto FWP
+deploy_reduced <- deploy %>% select(point_id, x, y, aru_id, sd_card_id, site_use, river, date_deployed)
+# Write the new, cleaned data to ouputs
+write.csv(deploy_reduced,"./Data/Metadata/Outputs/2023_ARUDeployment_MetadataTrimmed_Cleaned10-5.csv", row.names = FALSE)
 
 
-
-# Clean retrieval data
+# Clean retrieval data ###############
 
 # Read in data from Raw Data folder
 retrieve <- read.csv("./Data/Metadata/Raw_Data/2023_ARURetrieval_Metadata_9-7.csv") %>% clean_names()
@@ -117,10 +145,72 @@ retrieve_sep[13,7] <- "UM001"
 
 # need to convert time to MST from UTC
 ## Change the date if the time zone bumps it back (goes over midnight)
+# Turn the date and time column into a datetime column
+retrieve_sep$datetime <- as.POSIXct(retrieve_sep$date_and_time, format = "%m/%d/%Y %H:%M")
+# Subtract 6 hours from the "datetime" column to convert back to MST
+retrieve_sep$datetime <- retrieve_sep$datetime - as.difftime(6, units = "hours")
+# Separate date 
+retrieve_sep$date <- as.Date(retrieve_sep$datetime)
+
 
 # Unite the columns
 retrieve <- retrieve_sep %>% 
-  unite(col = point_id, c("site","point"), sep="-")
+  unite(col = point_id, c("site","point"), sep="-") %>% rename(date_retrieved = date, 
+                                                               observer_deployment = observer_initials, 
+                                                               container_condition = what_is_the_condition_of_the_aru_container, 
+                                                               container_notes = other_what_is_the_condition_of_the_aru_container,
+                                                               aru_condition = what_is_the_condition_of_the_aru_itself,
+                                                               aru_notes = other_what_is_the_condition_of_the_aru_itself,
+                                                               led_status = what_is_the_status_of_the_aru)                            
 
 # Write the new, cleaned data to ouputs
-write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-28.csv", row.names = FALSE)
+write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_MetadataFull_Cleaned10-5.csv", row.names = FALSE)
+
+
+# Grab just the necessary columns for passing onto FWP
+retrieve_reduced <- retrieve %>% select(point_id, 
+                                        x, 
+                                        y, 
+                                        aru_id, 
+                                        sd_card_id, 
+                                        aru_orientation, 
+                                        aru_height, 
+                                        date_retrieved, 
+                                        container_condition,
+                                        container_notes,
+                                        aru_condition,
+                                        aru_notes,
+                                        led_status)
+# Write the new, cleaned data to ouputs
+write.csv(retrieve_reduced,"./Data/Metadata/Outputs/2023_ARURetrieval_MetadataTrimmed_Cleaned10-5.csv", row.names = FALSE)
+
+
+#### Combine Deployment and Retrieval Metadata for FWP ######
+
+
+
+
+#### CODE GRAVEYARD #####
+# # pull out time
+# deploy_sep$time <- sub(".{0,8}(.{8})", "\\1", deploy_sep$datetime)
+# deploy_sep$time <- substr(deploy_sep$datetime, nchar(deploy_sep$datetime)-7,nchar(deploy_sep$datetime))
+# deploy_sep$time_new <- strptime(deploy_sep$time, format = "%H:%M:%S")
+# 
+# #deploy_sep$time <- times(format(deploy_sep$datetime, format = "%H:%M:%S"))
+# #str_extract(deploy_sep$datetime, [-1,-8])
+# str_extract(test3,"([[:digit:]]{8})_([[:digit:]]{6}).WAV")
+# # need to convert time to MST from UTC
+# # Could also just remove the time column?
+# deploy_sep_test <- deploy_sep %>% separate(date_and_time, into = c("date","time","period"), sep = " ", extra = "merge")
+# deploy_sep_test$date <- as.Date(deploy_sep_test$date)
+# deploy_sep_test$time_new <- strptime(deploy_sep_test$time, format = "%H:%M:%S")
+
+
+
+# Convert "time" to POSIXct (date-time)
+# deploy_sep$time <- as.POSIXct(deploy_sep$time, format = "%I:%M:%S %p")
+# deploy_sep$time_new <- deploy_sep$time - as.difftime(6, units = "hours")
+
+
+# # Convert "date" to Date
+# deploy_sep$date <- as.Date(deploy_sep$date, format = "%m/%d/%Y")
