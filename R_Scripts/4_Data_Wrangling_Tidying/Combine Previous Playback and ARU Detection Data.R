@@ -29,7 +29,7 @@ r5_22_sum <- r5_22 %>%
 # Region 6 2022 playback Data ###################
 
 # Read in playback data
-r6_22 <- read.csv("./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_FWPR6_Cleaned10-6.csv") %>% clean_names() 
+r6_22 <- read.csv("./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_FWPR6_Cleaned10-9.csv") %>% clean_names() 
 
 # Summarize
 r6_22_sum <- r6_22 %>% 
@@ -50,18 +50,14 @@ r7_22_sum <- r7_22 %>%
   select(point_id, bbcu_detected, lat,long)
 
 
-
-
-
-
-# join the datasets
-r7_playback <- left_join(r7_22_sum,r7_metadat, by = "aru_id")
-# Need to check into the missing rows ?????????????????????
+# # join the datasets
+# r7_playback <- left_join(r7_22_sum,r7_metadat, by = "aru_id")
+# # Need to check into the missing rows ?????????????????????
 
 
 # UMBEL 2022 playback data ######################
 # Read in playack data
-umbel_22 <- read.csv("./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_UMBEL_Cleaned10-6.csv") %>% clean_names() 
+umbel_22 <- read.csv("./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_UMBEL_Cleaned10-9.csv") %>% clean_names() 
 
 # create a new column with ones and twos for bbcu
 umbel_22_sum <- umbel_22 %>% 
@@ -75,20 +71,20 @@ umbel_22_sum <- umbel_22 %>%
 all_playbacks <- rbind(r5_22_sum,r6_22_sum,r7_22_sum, umbel_22_sum)
 
 # Export the data to use in ArcGIS
-#write.csv(all_playbacks,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_SummedAllOrgs.csv", row.names = FALSE)
+write.csv(all_playbacks,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_SummedAllOrgs10-9.csv", row.names = FALSE)
 
 ########## ARU CODE #############
 
 # read in data
 aru_r5 <- read.csv("./Data/Cuckoo_Presence_Absence_ARU/Model_1.0/2022_MetadataARUPresence_FWPR5.csv") %>%
   clean_names() %>%
-  select(point_id, latitude, longitude, bbcu_presence)
+  select(point_id, latitude, longitude, bbcu_presence)  %>%
+  rename(lat = latitude) %>%
+  rename(long = longitude)
 
 aru_r6 <- read.csv("./Data/Cuckoo_Presence_Absence_ARU/Model_1.0/2022_MetadataARUPresence_FWPR6.csv") %>%
   clean_names() %>%
-  select(point_id, lat, long, bbcu_presence) %>% 
-  rename(latitude = lat) %>%
-  rename(longitude = long)
+  select(point_id, lat, long, bbcu_presence) 
 
 aru_r7 <- read_csv("./Data/Cuckoo_Presence_Absence_ARU/Model_1.0/2022_MetadataARUPresence_FWPR7_new.csv") %>%
   clean_names() %>%
@@ -99,8 +95,18 @@ aru_r7 <- read_csv("./Data/Cuckoo_Presence_Absence_ARU/Model_1.0/2022_MetadataAR
 
 
 aru_umbel <- read.csv("./Data/Cuckoo_Presence_Absence_ARU/Model_1.0/2022_MetadataARUPresence_UMBEL.csv") %>%
-  clean_names() %>%
-  rename(lat = latitude) %>%
-  rename(long =longitude) %>%
-  select(point_id, latitude, longitude, bbcu_presence)
-# need to combine this with the umbel points datasheet once you have the updated data
+  clean_names() 
+
+
+# read in metadata
+aru_meta <- read.csv("./Data/Metadata/Outputs/2022_ARUDeployment_Metadata_UMBEL_Cleaned10-9.csv") %>% clean_names() %>% select(point_id,lat, long)
+
+# combine aru detections with metadata to get the right lat long
+aru_umbel <- left_join(aru_umbel,aru_meta, by = "point_id") %>%
+  select(point_id, lat, long, bbcu_presence)
+
+# combine all the data
+allaru <- rbind(aru_umbel,aru_r5,aru_r6,aru_r7)
+
+# export for use in arcgis
+write.csv(allaru,"./Data/Cuckoo_Presence_Absence_ARU/Model_1.0/2022_ARUDetections_Combined_Cleaned10-9.csv", row.names = FALSE)

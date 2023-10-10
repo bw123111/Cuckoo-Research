@@ -79,6 +79,13 @@ clean_arus <- function(dataframe){
   return(dataframe)
 }
 
+# Edit the time column to remove the colon
+## Also potentially in the future change it to 24 hour time?
+clean_time <- function(dataframe){
+  dataframe$time <- str_replace(dataframe$time, ":", "")
+  return(dataframe)
+}
+
 # convert the date column into a date format
 make_date_format <- function(dataframe){
   dataframe$date <- as.Date(dataframe$date, format = "%m/%d/%Y")
@@ -155,7 +162,6 @@ reorder_final_cols <- function(dataframe){
 
 # Region 7 #################
 
-
 # Need to create a new script for removing the U and space from the Region 7 playback data and joining it to the right name from the metadata, then writing it to outputs 
 
 ## NEED TO FIGURE OUT A WAY TO REFORMAT TIME ?????????????????????????????
@@ -212,8 +218,7 @@ test <- clean_arus(r5_22)
 
 
 
-
-# clean ARU ID R6 2022
+# clean R6 2022
 r6PB_22 <- read.csv("./Data/Playback_Results/2022/Raw_Data/2022_BBCUPlaybackSessionResults_FWPR6.csv") %>% clean_names() 
 
 # create a column for the cuckoo detections
@@ -230,6 +235,8 @@ r6_metadat <- read_csv("./Data/Metadata/Raw_Data/2022_ARUDeployment_Metadata_FWP
 # rename columns and select only the necessary
 r6_metadat <- rename_cols_and_select(r6_metadat)
 
+
+
 # join the playback and the metadata
 r6_22 <- join_playback_metadata(r6PB_22,r6_metadat)
 
@@ -240,12 +247,14 @@ r6_22 <- separate_site_make_survey_id(r6_22)
 r6_22 <- r6_22 %>% rename(obs = observer)
 r6_22 <- r6_22 %>% rename(time = start)
 r6_22 <- make_unentered_columns(r6_22,"how")
+# Clean the time column 
+test <- clean_time(r6_22)
 
 #choose the final columns to include in playback data
 r6_22_final <- reorder_final_cols(r6_22)
 
 # WRITE REGION 6 DATA
-write.csv(r6_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_FWPR6_Cleaned10-6.csv", row.names = FALSE)
+write.csv(r6_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_FWPR6_Cleaned10-9.csv", row.names = FALSE)
 
 
 
@@ -268,13 +277,16 @@ umbel_metadat <- read_csv("./Data/Metadata/Raw_Data/2022_ARUDeployment_Metadata_
 # read in monitoring points
 umbel_points <- read.csv("./Data/Monitoring_Points/UMBEL_LetterNamedPoints2022.csv") %>% clean_names() %>% select(gps_id,lat,long) %>% rename(point_id = gps_id) 
 
+
 # Fill in missing lat and long values in 'umbel_metadat' with the values from umbel_points
 umbel_metadat <- umbel_metadat %>%
   mutate(
     lat = ifelse(is.na(lat_2022), umbel_points$lat[match(point_id, umbel_points$point_id)], lat_2022),
     long = ifelse(is.na(long_2022), umbel_points$long[match(point_id, umbel_points$point_id)], long_2022)
   )
-# NEED TO FILL IN MISSING VALUES *******************************************
+# Write this metadata for use elsewhere
+write.csv(umbel_metadat, "./Data/Metadata/Outputs/2022_ARUDeployment_Metadata_UMBEL_Cleaned10-9.csv", row.names = FALSE)
+# Filled in missing values from UMBEL_LongTermSites datasheet, sent email to Anna N to double chck
 
 # need to left join this with monitoring points 
 # rename columns and select only the necessary
@@ -296,8 +308,8 @@ umbel_22 <- make_unentered_columns(umbel_22,"call")
 #choose the final columns to include in playback data
 umbel_22_final <- reorder_final_cols(umbel_22)
 
-# WRITE REGION 6 DATA
-write.csv(umbel_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_UMBEL_Cleaned10-6.csv", row.names = FALSE)
+# WRITE UMBEL DATA
+write.csv(umbel_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_UMBEL_Cleaned10-9.csv", row.names = FALSE)
 
 
 
