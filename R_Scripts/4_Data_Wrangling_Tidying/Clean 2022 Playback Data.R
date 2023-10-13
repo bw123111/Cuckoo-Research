@@ -161,13 +161,17 @@ reorder_final_cols <- function(dataframe){
 #### Code ############
 
 # Region 7 #################
-
 # Need to create a new script for removing the U and space from the Region 7 playback data and joining it to the right name from the metadata, then writing it to outputs 
-
-## NEED TO FIGURE OUT A WAY TO REFORMAT TIME ?????????????????????????????
 
 # Read in playback data
 r7PB_22 <- read.csv("./Data/Playback_Results/2022/Raw_Data/2022_R7_PlaybackSurveyData.csv") %>% clean_names() %>% rename(aru_id = point)
+# CHECKPOINT: REGION 7 #####
+# sum the number of BBCU and YBCU for each site
+check1 <- r7PB_22 %>% group_by(aru_id, species) %>% summarize(count = n())
+sum(check1$species == "BBCU") # 3 sites with bbcu
+sum(check1$species == "YBCU") # 1 sites with bbcu
+
+### R7 CONT #####
 # Change the first row with "NOBI " to remove the space afterwards
 r7PB_22[1,8] <- "NOBI"
 # changing data entry error based off of the ARU inventory from 2023 - SMM04965 exists, SMM04956 doesn't
@@ -202,12 +206,21 @@ r7_22 <- make_unentered_columns(r7_22,"call")
 #choose the final columns to include in playback data
 r7_22_final <- reorder_final_cols(r7_22)
 
-# WRITE REGION 7 DATA
+# CHECKPOINT: REGION 7 #####
+# sum the number of BBCU and YBCU for each site
+check72 <- r7_22_final %>% group_by(point_id) %>% summarize(count_bbcu = ifelse(sum(bbcu, na.rm = TRUE)>=1,1,0)) 
+sum(check72$count_bbcu, na.rm = TRUE) # 3 sites with bbcu
+check73 <- r7_22_final %>% group_by(point_id) %>% summarize(count_ybcu = ifelse(sum(ybcu, na.rm = TRUE)>=1,1,0)) 
+sum(check73$count_ybcu, na.rm = TRUE) # 1 sites with bbcu
+### GOOD TO GO
+
+
+# WRITE REGION 7 DATA ######
 write.csv(r7_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_FWPR7_Cleaned10-6.csv", row.names = FALSE)
 
 
 
-
+#### REGION 5 ########
 # Region 5 is fine, will need to get this data and clean it later but for now it's good
 r5_22 <- read.csv("./Data/Metadata/Raw_Data/2022_ARUDeployment_Metadata_FWPR5.csv") %>% 
   clean_names()
@@ -218,7 +231,7 @@ test <- clean_arus(r5_22)
 
 
 
-# clean R6 2022
+#### REGION 6 #####
 r6PB_22 <- read.csv("./Data/Playback_Results/2022/Raw_Data/2022_BBCUPlaybackSessionResults_FWPR6.csv") %>% clean_names() 
 
 # create a column for the cuckoo detections
@@ -230,6 +243,14 @@ r6PB_22 <- clean_aru_r622(r6PB_22)
 # Make the date column a date
 r6PB_22 <- make_date_format(r6PB_22)
 
+# CHECKPOINT: REGION 6 #####
+# sum the number of BBCU and YBCU for each site
+check61 <- r6PB_22 %>% group_by(aru_id, species) %>% summarize(count = n())
+sum(check61$species == "BBCU") # 1 point with bbcu
+sum(check61$species == "YBCU") # 0 point with bbcu
+
+
+## Region 6 CONT #######
 # Read in metadata
 r6_metadat <- read_csv("./Data/Metadata/Raw_Data/2022_ARUDeployment_Metadata_FWPR6.csv") %>% clean_names()
 # rename columns and select only the necessary
@@ -253,7 +274,17 @@ test <- clean_time(r6_22)
 #choose the final columns to include in playback data
 r6_22_final <- reorder_final_cols(r6_22)
 
-# WRITE REGION 6 DATA
+# CHECKPOINT: REGION 6 #####
+# sum the number of BBCU and YBCU for each site
+check62 <- r6_22_final %>% group_by(point_id) %>% summarize(count_bbcu = ifelse(sum(bbcu, na.rm = TRUE)>=1,1,0)) 
+sum(check62$count_bbcu, na.rm = TRUE) # 1 sites with bbcu
+check63 <- r6_22_final %>% group_by(point_id) %>% summarize(count_ybcu = ifelse(sum(ybcu, na.rm = TRUE)>=1,1,0)) 
+sum(check63$count_ybcu, na.rm = TRUE) # 0 sites with bbcu
+## GOOD TO GO
+
+
+
+# WRITE REGION 6 DATA #####
 write.csv(r6_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_FWPR6_Cleaned10-9.csv", row.names = FALSE)
 
 
@@ -265,6 +296,13 @@ umbel_22 <- read.csv("./Data/Playback_Results/2022/Raw_Data/2022MMR_CuckooPlayba
 # fix the point_id
 umbel_22$point_id <- str_replace(umbel_22$point_id,"_", "-")
 
+#### UMBEL CHECK POINT #####
+# sum the number of BBCU and YBCU for each site
+checku1 <- umbel_22 %>% group_by(point_id, species) %>% summarize(count = n())
+sum(checku1$species == "BBCU") # 2 point with bbcu
+sum(checku1$species == "YBCU") # 0 point with bbcu
+
+### UMBEL CONT ######
 # create a column for the cuckoo detections
 umbelPB_22 <- create_binary_cuckoo(umbel_22)
 # Clean the interval column
@@ -308,7 +346,15 @@ umbel_22 <- make_unentered_columns(umbel_22,"call")
 #choose the final columns to include in playback data
 umbel_22_final <- reorder_final_cols(umbel_22)
 
-# WRITE UMBEL DATA
+# CHECKPOINT: UMBEL #####
+# sum the number of BBCU and YBCU for each site
+checku2 <- umbel_22_final %>% group_by(point_id) %>% summarize(count_bbcu = ifelse(sum(bbcu, na.rm = TRUE)>=1,1,0)) 
+sum(check62$count_bbcu, na.rm = TRUE) # 1 sites with bbcu
+checku3 <- umbel_22_final %>% group_by(point_id) %>% summarize(count_ybcu = ifelse(sum(ybcu, na.rm = TRUE)>=1,1,0)) 
+sum(checku3$count_ybcu, na.rm = TRUE) # 0 sites with bbcu
+## GOOD TO GO
+
+# WRITE UMBEL DATA #######
 write.csv(umbel_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_UMBEL_Cleaned10-9.csv", row.names = FALSE)
 
 
