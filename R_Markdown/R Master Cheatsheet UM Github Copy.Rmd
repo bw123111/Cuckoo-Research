@@ -1577,7 +1577,18 @@ semi_join(college_size,college_location)
 anti_join(college_location,college_size)
 anti_join(college_size, college_location)
 
+# Examples: picking out values in two dataframes that are common between the two or are unique to one
+# Identify sites that appear in both data frames
+common_site_ids <- pb %>%
+  semi_join(aru, by = "site")
 
+# Identify sites unique to playback
+unique_to_pb <- pb %>%
+  anti_join(aru, by = "site")
+
+# Identify sites unique to aru
+unique_to_aru <- aru %>%
+  anti_join(pb, by = "site")
 ```
 
 **Helpful Websites**
