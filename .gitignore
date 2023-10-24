@@ -14,7 +14,7 @@
 *.wav
 *.mp3
 *.jpg
-*.model
+*.pdf
 
 # Folders
 Data/
