@@ -4,17 +4,14 @@
 
 # Created 9/5/2023
 
-# Last updated 10/23/2023
+# Last updated 10/24/2023
 
 #### Install and load pacakges #####
 packages <- c("tidyverse","janitor", "lubridate", "chron")
-source("./R_Scripts/6_Function_Scripts/Install_Load_Packages.R")
+source("./R_Scripts/Function_Scripts/Install_Load_Packages.R")
 load_packages(packages)
 
-#### Code #####
 
-
-# Cleaning Data
 
 # Clean Deployment data #############################
 # read in the data from the Raw Data folder
@@ -23,16 +20,21 @@ deploy <- read.csv("./Data/Metadata/Raw_Data/2023_ARUDeployment_Metadata_9-5.csv
 # Remove the first six columns that have metadata from Survey123 that we don't need
 deploy <- deploy %>% select(-(1:6))
 
-
 # Clean Initials 
 ## Change DJ or DEJ to DAJ
 
 # point_id
 ## Make sure they are all capital case
 deploy$point_id <- toupper(deploy$point_id)
+deploy$aru_id <- toupper(deploy$aru_id)
+deploy$sd_id <- toupper(deploy$sd_card_id)
 
 # change any "_" in the data to "-"
 deploy <- deploy %>% mutate(point_id = str_replace(point_id, "_", "-"))
+deploy <- deploy %>% mutate(aru_id = str_replace(aru_id, "_", ""))
+# remove spaces
+deploy <- deploy %>% mutate(aru_id = str_replace(aru_id, " ", ""))
+deploy <- deploy %>% mutate(sd_id = str_replace(sd_id, " ", ""))
 
 # fix the spelling of the point_id
 ## first separate point ID
@@ -96,20 +98,36 @@ deploy <- deploy_sep %>%
 # Create a new column for secondary ARU deployments (or just split out the data?) - add a new column for ARU_replaced and fill it with Y if the value for Point ID is not unique in the dataset
 #list_dups <- deploy[duplicated(deploy$point_id) == TRUE,]
 deploy <- deploy %>% mutate(aru_replaced = ifelse(duplicated(point_id) == FALSE, "N", "Y")) #need to workshop this code a bit
-duplicated(deploy$point_id)
+#duplicated(deploy$point_id)
 # This isn't flagging the original ones as ones that were replaced 
 
+# rename some of the original columns to make them more concise 
+deploy <- deploy %>% rename(moved_over30m = was_the_point_moved_30_m_from_the_original_coordinates, why_moved = why_was_the_point_moved,audiomoth_version = which_audio_moth_version)
 
 # Reorder columns
-retrieve <- retrieve %>% select(point_id,
+deploy_final <- deploy %>% select(point_id,
                                 x, 
                                 y,
                                 river,
-                                observer_retrieve,
-                                date_retrieved)
+                                observer_deployment,
+                                date_deployed,
+                                date_julian,
+                                site_use,
+                                landcover_strata,
+                                moved_over30m,
+                                why_moved,
+                                point_landcover_description,
+                                aru_id,
+                                aru_model,
+                                audiomoth_version,
+                                sd_id,
+                                aru_replaced,
+                                notes
+                                )
+
 
 # Write the new, cleaned data to ouputs
-write.csv(deploy,"./Data/Metadata/Outputs/2023_ARUDeployment_MetadataFull_Cleaned10-5.csv", row.names = FALSE)
+write.csv(deploy_final,"./Data/Metadata/Outputs/2023_ARUDeployment_MetadataFull_Cleaned10-24.csv", row.names = FALSE)
 
 
 # Grab just the necessary columns for passing onto FWP
@@ -138,11 +156,13 @@ retrieve$point_id <- toupper(retrieve$point_id)
 # change a couple of the points to the correct format
 retrieve[146,4] <- "YELL-150"
 retrieve[147,4] <- "YELL-211"
+# replace misspelling
+retrieve <- retrieve %>% mutate(point_id = str_replace(point_id, "YEL-", "YELL-"))
 # separate point ID into site and point for cleaning
 retrieve_sep <- retrieve %>% separate(point_id, into = c("site","point"), sep = "-")
 # Replace any misspellings
 retrieve_sep <- retrieve_sep %>% mutate(site = str_replace(site, "MISI", "MISO"))
-retrieve_sep <- retrieve_sep %>% mutate(site = str_replace(site, "YEL-", "YELL-"))
+
 # Remove the space in the SD card IDs
 retrieve_sep <- retrieve_sep %>% mutate(sd_card_id = str_replace(sd_card_id, " ", ""))
 # Remove the space in the ARU ID
@@ -187,7 +207,7 @@ retrieve <- retrieve_sep %>%
   unite(col = container_notes, c("container_description","container_notes"), sep = "")
 
 # Reorder columns
-retrieve <- retrieve %>% select(point_id,
+retrieve_final <- retrieve %>% select(point_id,
                                         x, 
                                         y,
                                         river,
@@ -206,7 +226,7 @@ retrieve <- retrieve %>% select(point_id,
                                         led_notes)
 
 # Write the new, cleaned data to ouputs
-write.csv(retrieve,"./Data/Metadata/Outputs/2023_ARURetrieval_MetadataFull_Cleaned10-23.csv", row.names = FALSE)
+write.csv(retrieve_final,"./Data/Metadata/Outputs/2023_ARURetrieval_MetadataFull_Cleaned10-24.csv", row.names = FALSE)
 
 
 # Grab just the necessary columns for passing onto FWP
@@ -227,30 +247,7 @@ retrieve_reduced <- retrieve %>% select(point_id,
 write.csv(retrieve_reduced,"./Data/Metadata/Outputs/2023_ARURetrieval_MetadataTrimmed_Cleaned10-5.csv", row.names = FALSE)
 
 
-#### Combine Deployment and Retrieval Metadata ############
-# join by point_id
-# keep the date retrieved and date deployed 
-retrieve_tojoin <- retrieve %>% select(point_id,
-                                       x,
-                                       y,
-                                       aru_id,
-                                       sd_card_id,
-                                       date_retrieved,
-                                       aru_condition,
-                                       led_status
-)
 
-deploy_tojoin <- deploy %>% select(point_id,
-                                   aru_id,
-                                   aru_model,
-                                   observer_deployment,
-                                   sd_card_id,
-                                   date_deployed,
-                                   site_use)
-
-allmeta <- left_join(deploy_tojoin,retrieve_tojoin, by = "point_id")
-# check why one of the YELL points doesn't look like it has retrieval data and why some of the deployment points that shouldn't have a match still do 
-# try this with anti-join and semi-join??
 
 #### CODE GRAVEYARD #####
 # # pull out time
@@ -276,3 +273,29 @@ allmeta <- left_join(deploy_tojoin,retrieve_tojoin, by = "point_id")
 
 # # Convert "date" to Date
 # deploy_sep$date <- as.Date(deploy_sep$date, format = "%m/%d/%Y")
+
+#### Combine Deployment and Retrieval Metadata ############
+# not using this, using "Compare 2023 ARUs deployed and retrieved" script already created
+# join by point_id
+# keep the date retrieved and date deployed 
+# retrieve_tojoin <- retrieve %>% select(point_id,
+#                                        x,
+#                                        y,
+#                                        aru_id,
+#                                        sd_card_id,
+#                                        date_retrieved,
+#                                        aru_condition,
+#                                        led_status
+# )
+# 
+# deploy_tojoin <- deploy %>% select(point_id,
+#                                    aru_id,
+#                                    aru_model,
+#                                    observer_deployment,
+#                                    sd_card_id,
+#                                    date_deployed,
+#                                    site_use)
+# 
+# allmeta <- left_join(deploy_tojoin,retrieve_tojoin, by = "point_id")
+# check why one of the YELL points doesn't look like it has retrieval data and why some of the deployment points that shouldn't have a match still do 
+# try this with anti-join and semi-join??
