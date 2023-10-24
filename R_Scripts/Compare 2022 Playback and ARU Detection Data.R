@@ -8,7 +8,7 @@
 # Last updated 10/18/2023
 
 #### Setup ###############
-packages <- c("stringr","tidyverse","janitor")
+packages <- c("stringr","tidyverse","janitor","esquisse", "ggplot2")
 source("./R_Scripts/6_Function_Scripts/Install_Load_Packages.R")
 load_packages(packages)
 
@@ -59,31 +59,75 @@ count_data <- combined_data %>%
 
 # make a confusion matrix esque table
 
-ggplot(count_data, aes(x = bbcu, y = count, fill = factor(bbcu))) +
-  geom_bar(stat = "identity") +
-  labs(x = "BBCU Value", y = "Site Count") +
-  scale_fill_manual(values = c("0" = "red", "1" = "green")) +
-  theme_minimal()
-
 table <- data.frame(
-  aru_pos = c(2, 5),
-  aru_neg = c(2, 31)
+  ARU_Detections = c(2, 5),
+  ARU_Nondetections = c(2, 31)
 )
-rownames(table) <- c("pb_pos","pb_neg")
-
-# Print the table
-print(table)
+rownames(table) <- c("Playback_Detections","Playback_Nondetection")
 
 # Create a bar graph
 # Reshape the data to long format
 table_df_long <- table %>%
-  rownames_to_column(var = "Category") %>%
-  pivot_longer(cols = -Category, names_to = "Variable", values_to = "Value")
+  rownames_to_column(var = "Playback_Data") %>%
+  pivot_longer(cols = -Playback_Data, names_to = "ARU_Data", values_to = "Value")
 
-# Create a stacked bar graph
-ggplot(table_df_long, aes(x = Category, y = Value, fill = Variable)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Stacked Bar Graph", x = "Category", y = "Value") +
-  scale_fill_manual(values = c("aru_pos" = "blue", "aru_neg" = "red", "pb_pos" = "green", "pb_neg" = "purple")) +
+
+
+posterplot <- ggplot(table_df_long) +
+  aes(x = Playback_Data, y = Value, fill = ARU_Data) +
+  geom_bar(position="stack",stat="identity") + 
+  scale_fill_manual(name = "ARU Data",
+                    values = c(ARU_Detections = "#B75F4A", 
+                               ARU_Nondetections = "#6A5424")) +
+  labs(x = "Playback Data", y = "Detections") +
   theme_minimal() +
-  scale_y_continuous(breaks = seq(0, max(table_df_long$Value), by = 5))
+  theme(plot.background = element_rect(fill = "#F8F2E4"),
+        panel.grid.major = element_line(color = "darkgray"),  # Major grid lines color
+        panel.grid.minor = element_line(color = "darkgray")) # Minor grid lines color)
+
+
+ggsave("./Deliverables/posterplot.jpg", width=6, height=4)
+
+
+y
+# just playing around
+ggplot(table_df_long) +
+  aes(x = Playback_Data, y = Value, fill = ARU_Data) +
+  geom_bar(position="dodge",stat="identity") + 
+  scale_fill_manual(name = "ARU Data",
+                    values = c(ARU_Detections = "#B75F4A", 
+                               ARU_Nondetections = "#6A5424")) +
+  labs(x = "Playback Data", y = "Detections") +
+  theme_minimal() +
+  theme(plot.background = element_rect(fill = "#F8F2E4"),
+        panel.grid.major = element_line(color = "darkgray"),  # Major grid lines color
+        panel.grid.minor = element_line(color = "darkgray"))
+
+# Code graveyard #####
+# install.packages("extrafont")
+# library(extrafont)
+# font_import(pattern = "Amasis MT Pro")
+# 
+# ggplot(count_data, aes(x = bbcu, y = count, fill = factor(bbcu))) +
+#   geom_bar(stat = "identity") +
+#   labs(x = "BBCU Value", y = "Site Count") +
+#   scale_fill_manual(values = c("0" = "red", "1" = "green")) +
+#   theme_minimal()
+# 
+# # Create a stacked bar graph
+# ggplot(table_df_long, aes(x = Category, y = Value, fill = Variable)) +
+#   geom_bar(stat = "identity") +
+#   labs(title = "Detection by Methodology", x = "Category", y = "Value") +
+#   scale_fill_manual(values = c("aru_pos" = "blue", "aru_neg" = "red")) +
+#   theme_minimal() +
+#   scale_y_continuous(breaks = seq(0, max(table_df_long$Value), by = 5))
+
+# esquisser()
+# 
+# ggplot(table_df_long) +
+#   aes(x = Category, y = Value, fill = Variable) +
+#   geom_col() +
+#   scale_fill_manual(values = c(ARU_Detections = "#B75F4A", 
+#                                ARU_Nondetections = "#6A5424")) +
+#   labs(x = "Playback Data", y = "Detections") +
+#   theme_minimal()

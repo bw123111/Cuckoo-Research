@@ -126,6 +126,11 @@ aru_umbel <- left_join(aru_umbel,aru_meta, by = "point_id") %>%
 # combine all the data
 allaru <- rbind(aru_umbel,aru_r5,aru_r6,aru_r7)
 
+# remove the two sites that weren't covered by playbacks 
+aru_masked <- allaru %>% filter(!str_detect(point_id, "BUR")) %>% filter(!str_detect(point_id, "KIN"))
+# check for data loss
+aru_masked %>% filter(is.na(aru_masked$bbcu)==TRUE) # still 7 points data loss
+
 # See how many points were missing data
 allaru %>% filter(is.na(allaru$bbcu)==TRUE) # 7 points had data loss
 nrow(allaru) #126 points

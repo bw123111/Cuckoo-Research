@@ -188,6 +188,14 @@ library(ggmap)
 ```{r GitHub Interface}
 install.packages("usethis")
 library(usethis)
+
+# github resources for when you try to commit something that's too big and need to uncommit it
+# https://stackoverflow.com/questions/40115723/undo-git-commit-in-rstudio-that-is-too-big-to-push
+# in command line, navigate to directory of project
+# once inside tye git reset HEAD~
+# repeat as many times as the commits you need to undo
+
+# for storing large files through github, use lfs: https://git-lfs.com/
 ```
 
 
@@ -3006,6 +3014,12 @@ ggplot(aes(fill=sex_present,y=n_date,x=rs))+
 #https://www.datanovia.com/en/blog/ggplot-axis-ticks-set-and-rotate-text-labels/
 # LEGENDS
 ##turn off the legend with ( theme(legend.position= "none"))
+
+# to change the background and line color of your plot:
+theme_minimal() +
+  theme(plot.background = element_rect(fill = "#F8F2E4"),
+        panel.grid.major = element_line(color = "darkgray"),  # Major grid lines color
+        panel.grid.minor = element_line(color = "darkgray"))
 
 # adding in vertical lines with abline http://www.sthda.com/english/wiki/abline-r-function-an-easy-way-to-add-straight-lines-to-a-plot-using-r-software
 
