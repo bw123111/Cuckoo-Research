@@ -1,7 +1,7 @@
 ####### Combining Previous Playback and ARU Detection Data ########
 
 
-# A script to read in playback data from 2020, 2021, and 2022 as well as the ARU data and output a datasheet for use in ArcGIS
+# A script to read in playback data from 2022 as well as the ARU data and output a datasheet for use in ArcGIS
 # Older version archived
 
 # STATUS: need to fill in the missing data from the umbel data and then run this script and combine them
