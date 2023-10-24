@@ -27,7 +27,7 @@ trim_name <- function(file_name){
 #### Read in Current Datasheets #####
 
 
-umbel_path <- "F:/Cuckoo_Acoustic_Data/2023/UMBEL_Test/Test_UMBEL_Unnamed/"
+umbel_path <- "F:/Cuckoo_Acoustic_Data/2023/UMBEL_Test/Test_UMBEL_Unnamed2/"
 
 # Read in metadata 
 metadata <- read.csv("C:/Users/ak201255/Documents/Cuckoo-Research/Data/Metadata/Outputs/2023_ARURetrieval_Metadata_Cleaned9-28.csv")

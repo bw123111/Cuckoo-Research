@@ -43,7 +43,7 @@ trim_name <- function(file_name){
 #### Read in Current Datasheets #####
 
 r6_path <- "F:/Cuckoo_Acoustic_Data/2023/R6_Test/Test_R6_Unnamed/"
-umbel_path <- "F:/Cuckoo_Acoustic_Data/2023/UMBEL_Test/Test_UMBEL_Unnamed/"
+umbel_path <- "F:/Cuckoo_Acoustic_Data/2023/UMBEL_Test/Test_UMBEL_Unnamed2/"
 
 # Establish the base directory
 base_dir <- r6_path

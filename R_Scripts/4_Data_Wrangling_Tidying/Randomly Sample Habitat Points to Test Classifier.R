@@ -55,15 +55,15 @@ d_for <- miso_hab %>% filter(landcover_strata == "Deciduous Forest") %>% sample_
 ## Select six from shrub scrub, grassland/herbaceous evergreen forest to have backups
 # Evergreen forest
 e_for <- miso_hab %>% filter(landcover_strata == "Evergreen Forest") %>% sample_n(1)
-# Sampled 6 out of 9 total
 
 # Shrub/Scrub
 shrub <- miso_hab %>% filter(landcover_strata == "Shrub/Scrub") %>% sample_n(1)
-# sampled 6 out of 12 total
+# had to grab another one bc point didn't have any data
+# write this to a .csv
+write.csv(shrub, "./Data/Wrangling_CNN_Train_Test_Data/Outputs/Shrub_Point_For_Classifier_Testing.csv")
 
 # Grassland/Herbaceous
 grass <- miso_hab %>% filter(landcover_strata == "Grassland/Herbaceous") %>% sample_n(1)
-# sampled 6 out of 8 total 
 
 # Bind these together to get the dataframe to pull your training data from
 sampled_dat <- rbind(wood_wet, herb_wet, d_for, e_for, shrub, grass)

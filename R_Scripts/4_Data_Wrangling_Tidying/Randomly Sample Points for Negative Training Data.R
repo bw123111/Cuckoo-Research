@@ -10,7 +10,7 @@
 
 #### Setup #################################
 packages <- c("data.table","tidyverse","janitor")
-source(".\\R_Scripts\\Install_Load_Packages.R")
+source("./R_Scripts/6_Function_Scripts/Install_Load_Packages.R")
 load_packages(packages)
 
 
@@ -28,7 +28,7 @@ load_packages(packages)
 # sample one extra shrub scrub and one extra evergreen forest (54 habitat files)
 
 # Metadata
-metadat <- read.csv("./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-12.csv")
+metadat <- read.csv("./Data/Metadata/Outputs/2023_ARUDeployment_Metadata_Cleaned9-28.csv")
 metadat <- metadat %>% separate(point_id, into = c("site","point"), sep = "-")
 miso_hab <- metadat %>% filter(site == "MISO")
 

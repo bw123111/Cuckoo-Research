@@ -4,3 +4,5 @@ and/ filter=lfs diff=lfs merge=lfs -text
 YBCU/ filter=lfs diff=lfs merge=lfs -text
 Vocalization/ filter=lfs diff=lfs merge=lfs -text
 Training-checkpoint.ipynb filter=lfs diff=lfs merge=lfs -text
+*.model filter=lfs diff=lfs merge=lfs -text
+Python_Scripts/CNN_Files_Model_2/epoch-10.model filter=lfs diff=lfs merge=lfs -text

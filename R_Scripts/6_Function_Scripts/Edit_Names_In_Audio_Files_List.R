@@ -12,7 +12,7 @@ edit_names <- function(list_of_files){
     # remove the summary data
     data_new <- data_new[!grepl("Summary|CONFIG", data_new$name), ]
     # split the file name into SD ID, date and time 
-    data_new <- data_new %>% separate(name, into = c("sd_id","date","time"), sep = "_")
+    data_new <- data_new %>% separate(name, into = c("id","date","time"), sep = "_")
     print("Removed file extension")
     
     # Next, test if there is a .wav or .WAV added onto the end of the files

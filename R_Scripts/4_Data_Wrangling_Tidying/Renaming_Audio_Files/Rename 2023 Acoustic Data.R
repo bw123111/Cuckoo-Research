@@ -1,7 +1,7 @@
 ####### FWPR6 Renaming 2023 ########
 
 
-# A script to rename the FWP Region 6 data, which has the folder names labeled with the point ID
+# A script to rename the 2023 data formatted with folder names labeled with the point ID
 
 # Created 9/28/2023
 
@@ -26,7 +26,7 @@ trim_name <- function(file_name){
 
 
 #### Establish path to folders of files you want to rename #####
-input_path <- "F:/Cuckoo_Acoustic_Data/2023/2023_UMBEL_Data/2023_UMBEL_Audio_Unnamed/"
+input_path <- "F:/Cuckoo_Acoustic_Data/2022/2022_UMBEL_Data/2022_UMBEL_Audio-torename/"
 #r6_output_path <- "F:/Cuckoo_Acoustic_Data/2023/R6_Test/Test_R6_Renamed/"
 
 

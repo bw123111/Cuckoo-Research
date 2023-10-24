@@ -20,11 +20,21 @@ source("./R_Scripts/6_Function_Scripts/Edit_Names_In_Audio_Files_List.R")
 ##### Input Which Site and Working Directory ####################
 
 # Create a vector for your current point
+# Points 
+## MISO-152 - Upper Missouri #woody wet #not in training # done
+## MISO-189 - Upper Missouri #emergent wet #not in training #done
+## MISO-077 - Lower Missouri #decid for #pre seen # done
+## MISO-057 - Upper Missouri #evergreen # not in training #done
+## MISO-097 - Upper Missouri #Shrub #not in training # done
+## MISO-017 - Upper Missouri #Grassland #not in training # done
+# Should be about 36 files from the habitat data
+
+
 # Format for habitat points: MISO-###
-current_point <- "84-2"
+current_point <- "MISO-077"
 
 # Read in the directory of the folder you're looking into
-directory <- "F:/Cuckoo_Acoustic_Data/2022/2022_UMBEL_Data/2022_UMBEL_Audio/84-2"
+directory <- "F:/Cuckoo_Acoustic_Data/2023/2023_FWPR6_Data/2023_FWPR6_Audio/MISO-077"
 
 # Region 6: F:/Cuckoo_Acoustic_Data/2023/2023_FWPR6_Data/2023_FWPR6_Audio_Unnamed/
 # UMBEL: F:/Cuckoo_Acoustic_Data/2023/2023_UMBEL_Data/2023_UMBEL_Audio_Unnamed/
@@ -40,20 +50,20 @@ audio_files <- as.data.frame(files_list) %>% rename(file_names = files_list)
 # run the function on the audio files you're working with 
 output <- edit_names(audio_files)
 
-# group the files by month, day and diurnal period
+# group the files by month, day and diel period
 test_files <- output %>% 
   group_by(month, period) %>% 
-  sample_n(1) %>% 
-  filter(!(month == "05")) # excluding May on the premise that the soundscape won't be very (if at all) different from early June so training data from June is likely to capture the same soundscape, also May has low representation in our test dataset so even if there aren't many training files from early June they proportionally represent May
+  sample_n(1) 
 
 # combine date and time back into a file name column, create column for point ID, and select wanted columns
 test_files <- test_files %>% 
   unite(file_name, c(date,time), sep = "_") %>% 
   mutate(point_id = current_point) %>% 
-  select(point_id, file_name, month, period)
+  select(point_id, file_name, month, period) %>% 
+  unite(file_name, c(point_id, file_name), sep = "_", remove = FALSE )
 
 # Create a name to write your output to
-output_name <- paste("./Data/Training_Data/Outputs/Negative_Files_To_Vet/", current_point, "_Negative_Files.csv", sep = "")
+output_name <- paste("./Data/Testing_Data/Outputs/", current_point, "_Test_Files.csv", sep = "")
 
 # Append this to the existing .csv for Negative Training Files
-write.csv(training_files, file = output_name, row.names = FALSE)
+write.csv(test_files, file = output_name, row.names = FALSE)
