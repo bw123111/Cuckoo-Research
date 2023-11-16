@@ -40,6 +40,7 @@ model_path = "C:\\Users\\ak201255\\Documents\\CNN_Model2.0\\epoch-10.model"
 
 # Read and run the model ######################
 # This wildcard pattern will work as long as you run it on the 2023_COLLAB_Audio folder
+# change this to only run on files that aren't in a specified csv
 audio_files_list = list(glob(audio_file_location + "\\*\\*.[wW][aA][vV]"))
 # make this into a dataframe
 audio_files = pd.DataFrame(audio_files_list, columns=["file"]).set_index("file")
