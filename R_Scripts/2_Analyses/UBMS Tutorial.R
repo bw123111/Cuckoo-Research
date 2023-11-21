@@ -3,6 +3,9 @@
 # Source: https://cran.r-project.org/web/packages/ubms/vignettes/ubms.html
 # GitHub for ubms: https://github.com/kenkellner/ubms
 
+# Only kind of related: ubms models with Stan: https://github.com/kenkellner/ubms
+# Overview of ubms https://cran.r-project.org/web/packages/ubms/vignettes/ubms.html
+
 #### Setting Up ####
 
 #install.packages("ubms")

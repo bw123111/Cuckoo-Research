@@ -165,3 +165,5 @@ write.csv(aru_site,"./Data/Cuckoo_Presence_Absence_ARU/Model_1.0//2022_ARUSurvey
 # how many sites had some kind of missing data?
 missing_dat <- aru_site1 %>% group_by(site) %>% summarize(bbcu = ifelse(sum(bbcu_presence)>=1,1,0), lat_avg = mean(lat),long_avg = mean(long)) 
 missing_dat %>% filter(is.na(missing_dat$bbcu)==TRUE) # 4 sites missing data
+
+

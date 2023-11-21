@@ -5,7 +5,7 @@
 
 # Created 9/6/2023
 
-# Last edited 9/20/2023
+# Last edited 11/20/2023
 
 #### Setup ####
 library(tidyverse)
@@ -15,8 +15,8 @@ library(janitor)
 #### Read in Current Datasheets #####
 
 # Read in sheet for UMBEL data and FWP data
-umbel <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_UMBEL_9-27.csv") %>% clean_names()
-fwp <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_FWPR6_7_9-27.csv") %>% clean_names()
+umbel <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_UMBEL_10-1.csv") %>% clean_names()
+fwp <- read.csv("./Data/Training_Data/Raw_Data/Raw_Audio_Processed_FWPR6_7_10-1.csv") %>% clean_names()
 
 
 ###### Process Data ####
@@ -53,8 +53,22 @@ alldat <- rbind(umbel_tojoin,fwp_tojoin)
 # alldat$num_clips_poor_quality_audio <- as.numeric(alldat$num_clips_poor_quality_audio) this is making them all NAs
 ## Why does this data go blank after the first couple hundred rows?
 
+# How many files were reviewed?
 # Pull out rows labeled as completed
 dat_complete <- alldat %>% filter(raven_annotation == "complete")
+
+# How many files reviewed from birdnet?
+bbcu_birdnet <- dat_complete %>% filter(bbcu_bird_net == "Y")
+# How many of the birdnet files had bbcu vocalizations?
+bbcu_birdnet_pos <- bbcu_birdnet %>% filter(bbcu_verified == 1)
+# How many clips does this give us?
+sum(bbcu_birdnet_pos$num_bbcu_5_sec_clips)
+
+# How many files pulled were not from BirdNet?
+dat_othermthd <- dat_complete %>% filter(!bbcu_bird_net == "Y" & !ybcu_bird_net == "Y")
+# manually pulled out recordings from playbacks
+# dat_pb <- dat_othermthd %>% filter(1,)
+sum(dat_othermthd$num_bbcu_5_sec_clips, na.rm = TRUE) -140
 
 # Make a separate datasheet with just the files with YBCU and BBCU
 dat_cuckoo <- dat_complete %>% filter(bbcu_verified == 1 | ybcu_verified== 1)
