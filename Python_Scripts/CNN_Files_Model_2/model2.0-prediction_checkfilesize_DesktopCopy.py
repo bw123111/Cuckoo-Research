@@ -4,7 +4,7 @@ Run Model 2.0 On Test Data
 This was created to read in a folder of acoustic data and run Model_2.0 on it. Created from the Mac Copy of this script.
 
 Created: 11/15/2023
-Last modified: 11/15/2023
+Last modified: 11/27/2023
 '''
 
 # Import packages ##########################
@@ -28,7 +28,7 @@ audio_file_location = "F:\AudioMothDistance_JennaProject_22-23\AudioMothDistance
 #"/Volumes/Bioacoustics_Storage/AudioMothDistance_JennaProject_22-23/AudioMothDistance_Acoustic_Data"
 # Starting with just the files from Jenna's project
 
-## FIND A WAY TO MASK THE FILES THAT ARE WITHIN INCOM
+## FIND A WAY TO MASK THE FILES THAT ARE WITHIN INCOMPLETE DAYS - SEE HOW MANY THIS IS
 
 # Change this to the path to your model file
 model_path = "F:\CNN_Classifier_Files\Model_2.0\Model_Files_and_Scripts\models_opso-0.10.1\epoch-10_opso-0-10-1.model"
