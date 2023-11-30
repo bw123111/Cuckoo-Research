@@ -1489,7 +1489,7 @@ In SQL: `SELECT * FROM x INNER JOIN y USING (z)`
 
 ## full_join
 
-`full_joing(df1,df2, by="ID")` full_join(x, y) keeps all of the rows from both datasets and just inserts NAs where there is missing information
+`full_join(df1,df2, by="ID")` full_join(x, y) keeps all of the rows from both datasets and just inserts NAs where there is missing information
 
 Order doesn't matter unless you care about the order of the columns
 

@@ -1,7 +1,7 @@
 ####### Clean 2022 Playback Data ########
 
 
-# A script to read in playback data from 2020, 2021, and 2022 and export a clean file for use in analysis and visualization
+# A script to read in playback data from 2022 and export a clean file for use in analysis and visualization
 # First formatting them for use in ARCGIS - summarizing cuckoo detection for each site 
 # Next formatting them for us in modeling (later)
 
@@ -9,7 +9,7 @@
 
 # Created 10/6/2023
 
-# Last updated 10/6/2023
+# Last updated 11/29/2023
 
 #### Setup ###############
 packages <- c("stringr","tidyverse","janitor","lubridate")
@@ -211,12 +211,12 @@ r7_22_final <- reorder_final_cols(r7_22)
 check72 <- r7_22_final %>% group_by(point_id) %>% summarize(count_bbcu = ifelse(sum(bbcu, na.rm = TRUE)>=1,1,0)) 
 sum(check72$count_bbcu, na.rm = TRUE) # 3 sites with bbcu
 check73 <- r7_22_final %>% group_by(point_id) %>% summarize(count_ybcu = ifelse(sum(ybcu, na.rm = TRUE)>=1,1,0)) 
-sum(check73$count_ybcu, na.rm = TRUE) # 1 sites with bbcu
+sum(check73$count_ybcu, na.rm = TRUE) # 1 sites with ybcu
 ### GOOD TO GO
 
 
 # WRITE REGION 7 DATA ######
-write.csv(r7_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_FWPR7_Cleaned10-6.csv", row.names = FALSE)
+#write.csv(r7_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_FWPR7_Cleaned10-6.csv", row.names = FALSE)
 
 
 
@@ -224,7 +224,13 @@ write.csv(r7_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys
 # Region 5 is fine, will need to get this data and clean it later but for now it's good
 r5_22 <- read.csv("./Data/Metadata/Raw_Data/2022_ARUDeployment_Metadata_FWPR5.csv") %>% 
   clean_names()
-test <- clean_arus(r5_22)
+#r5_22 <- r5_22 %>% rename(species = playback_cuckoo_detection)
+# create a new column for YBCU and BBCU detected
+r5_PB_22 <- r5_22 %>% rename(obs = observer, date = date_deployed, lat = latitude, long = longitude) %>% mutate(time = "UNK", bbcu = 0, ybcu = 0, interval = "PBUNK", distance = "UNK", bearing = "UNK", how = "UNK", visual = "UNK", call = "UNK", sex = "UNK", cluster = "UNK", notes = "waiting on full data from Megan" )
+r5_PB_22 <- separate_site_make_survey_id(r5_PB_22)
+r5_PB_22 <- make_date_format(r5_PB_22)
+r5_22_final <- reorder_final_cols(r5_PB_22)
+#test <- clean_arus(r5_22)
 # works well
 
 
@@ -247,7 +253,7 @@ r6PB_22 <- make_date_format(r6PB_22)
 # sum the number of BBCU and YBCU for each site
 check61 <- r6PB_22 %>% group_by(aru_id, species) %>% summarize(count = n())
 sum(check61$species == "BBCU") # 1 point with bbcu
-sum(check61$species == "YBCU") # 0 point with bbcu
+sum(check61$species == "YBCU") # 0 point with ybcu
 
 
 ## Region 6 CONT #######
@@ -285,7 +291,7 @@ sum(check63$count_ybcu, na.rm = TRUE) # 0 sites with bbcu
 
 
 # WRITE REGION 6 DATA #####
-write.csv(r6_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_FWPR6_Cleaned10-9.csv", row.names = FALSE)
+#write.csv(r6_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_FWPR6_Cleaned10-9.csv", row.names = FALSE)
 
 
 
@@ -323,7 +329,7 @@ umbel_metadat <- umbel_metadat %>%
     long = ifelse(is.na(long_2022), umbel_points$long[match(point_id, umbel_points$point_id)], long_2022)
   )
 # Write this metadata for use elsewhere
-write.csv(umbel_metadat, "./Data/Metadata/Outputs/2022_ARUDeployment_Metadata_UMBEL_Cleaned10-9.csv", row.names = FALSE)
+#write.csv(umbel_metadat, "./Data/Metadata/Outputs/2022_ARUDeployment_Metadata_UMBEL_Cleaned10-9.csv", row.names = FALSE)
 # Filled in missing values from UMBEL_LongTermSites datasheet, sent email to Anna N to double chck
 
 # need to left join this with monitoring points 
@@ -355,7 +361,23 @@ sum(checku3$count_ybcu, na.rm = TRUE) # 0 sites with bbcu
 ## GOOD TO GO
 
 # WRITE UMBEL DATA #######
-write.csv(umbel_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_UMBEL_Cleaned10-9.csv", row.names = FALSE)
+#write.csv(umbel_22_final,"./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_UMBEL_Cleaned10-9.csv", row.names = FALSE)
+
+
+
+##### Create a detection history for all orgs ####
+all_cuckoo_22 <- rbind(umbel_22_final,r7_22_final,r6_22_final, r5_22_final)
+cuckoo_summed <- all_cuckoo_22 %>% group_by(survey_id) %>% summarize(detection_hist_bbcu = max(bbcu),detection_hist_ybcu = max(ybcu)) %>% arrange()
+# Summarize by site 
+pb_22_summed <- all_cuckoo_22 %>% group_by(site_id) %>% summarize(lat_avg = mean(lat), long_avg = mean(long),detection_hist_bbcu = max(bbcu, na.rm = TRUE),detection_hist_ybcu = max(ybcu, na.rm = TRUE)) 
+# Make a new column for visualization in ARCGIS
+pb_22_summed <- pb_22_summed %>%
+  mutate(
+    species_detection = ifelse(detection_hist_bbcu == 1, "BBCU",
+                        ifelse(detection_hist_ybcu == 1, "YBCU", "NOBI"))
+  )
+# Write this to a new dataframe
+write.csv(pb_22_summed, "./Data/Playback_Results/2022/Outputs/2022_PlaybackSurveys_SiteLevelCuckoo_11-29.csv", row.names = FALSE)
 
 
 
