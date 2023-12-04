@@ -21,15 +21,28 @@ load_packages(packages)
 ### Code ######
 
 # Read in data
-lidar_metric <- read.csv("./Data/Spatial_Data/Comparison_LiDAR_Veg/R623_PolygonCHMSampled113VegBuffer.csv") %>% clean_names() %>% select(point_id, max_height_m)
-veg_dat <- read.csv("./Data/Vegetation_Data/Raw_Data/2023_Vegetation_Survey_Data.csv") %>% clean_names()
+lidar_height <- read.csv("./Data/Spatial_Data/Comparison_LiDAR_Veg/MISO_FergBlaine_AvgHeight2.csv") %>% clean_names() #%>% select(point_id, max_height_m)
+# make a new column to convert the height column
+lidar_height <- lidar_height %>% mutate(lidar_mean_height_m = round(mean/1000000, digits = 2)) %>% select(point_id,lidar_mean_height_m)
+# Read in canopy cover
+lidar_cancov <-  read.csv("./Data/Spatial_Data/Comparison_LiDAR_Veg/MISO_FergBlaine_CanopyCover2.csv") %>% clean_names()
+# Create a new column for the percent canopy
+# remove 105-2 and 105-1 since the CHM is weird here
+lidar_cancov <- lidar_cancov %>% mutate(lidar_percent_canopy = round((sum/392)*100, digits = 2)) %>% filter(!point_id %in% c("105-2","105-1")) %>% select(point_id, lidar_percent_canopy)
+# Combine them into one LiDAR metric column
+lidar_metric <- left_join(lidar_cancov, lidar_height, by = "point_id")
+# see which ones are common to both
+common_lidar <- lidar_cancov %>% semi_join(lidar_height, by = "point_id")
+# see which ones are unique to the height metric
+unique_to_height <- lidar_height %>% anti_join(lidar_cancov, by = "point_id")
+# Why didnt' zonal statistics work for these????
 
-# OLD merge x and y into a coord_id variable
-#veg_dat <- veg_dat %>% unite(coord_id, x, y, sep="_", remove =FALSE)
-#lidar_metric <- lidar_metric %>% unite(coord_id, x, y, sep="_", remove =FALSE)
+veg_dat <- read.csv("./Data/Vegetation_Data/Outputs/2023_VegSurveyData_Cleaned12-3.csv") %>% clean_names()
+
+
 
 # choose only the columns you want from the veg data
-veg <- veg_dat %>% select(point_id, canopy_height, canopy_cover, total_shrub_cover_all_species_combined)
+veg <- veg_dat %>% select(point_id, canopy_height, canopy_cover)
 
 # join into one dataframe
 compare_dat <- left_join(lidar_metric, veg, by = "point_id")
@@ -42,6 +55,7 @@ unique_to_veg <- veg %>% anti_join(lidar_metric, by = "point_id")
 unique_to_lidar <- lidar_metric %>% anti_join(veg, by = "point_id")
 
 
+#### Comparison of agreement #####
 # plot these
 ggplot(compare_dat) +
  aes(x = max_height_m, y = canopy_height, colour = point_id) +
@@ -49,8 +63,6 @@ ggplot(compare_dat) +
  size = 1.5) +
  scale_color_hue(direction = 1) +
  theme_minimal()
-# make a plot that plots 
-ggplot(aes(x = max_height_m))
 
 # For analysis: 
 ## Bland-altman analysis
@@ -70,3 +82,34 @@ mean_diff <- mean(compare_dat$bland_alt_diff, na.rm = TRUE)
 sd_diff <- sd(compare_dat$bland_alt_diff, na.rm = TRUE)
 loa <- c(mean_diff - 1.96 * sd_diff, mean_diff + 1.96 * sd_diff)  # Limits of agreement
 # FIND OUT HOW TO INTERPRET THESE ######
+
+#### Comparison of cluster groups #####
+# plot these
+ggplot(compare_dat) +
+  aes(x = lidar_mean_height_m, y = lidar_percent_canopy, colour = point_id) +
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  scale_color_hue(direction = 1) +
+  theme_minimal()
+
+
+# plot these
+ggplot(compare_dat) +
+  aes(x = canopy_height, y = canopy_cover, colour = point_id) +
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  scale_color_hue(direction = 1) +
+  theme_minimal()
+
+# How to compare these?
+# Take the ratio of height and cover for each point and make it into a "density" point
+# Do this for lidar and veg survey and take the different (want difference to be close to zero)
+compare_dat <- compare_dat %>% mutate(lidar_density = lidar_percent_canopy/lidar_mean_height_m,
+                                      veg_density = canopy_cover/canopy_height)
+# Figure out what to do with divide by zeros 
+
+
+# codegraveyard
+# OLD merge x and y into a coord_id variable
+#veg_dat <- veg_dat %>% unite(coord_id, x, y, sep="_", remove =FALSE)
+#lidar_metric <- lidar_metric %>% unite(coord_id, x, y, sep="_", remove =FALSE)
