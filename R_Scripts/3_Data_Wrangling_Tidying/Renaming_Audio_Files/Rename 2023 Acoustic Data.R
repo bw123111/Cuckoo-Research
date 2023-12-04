@@ -4,7 +4,7 @@
 # A script to rename the 2023 data formatted with folder names labeled with the point ID
 
 # Created 9/28/2023
-# last modified 11/17/2023
+# last modified 12/1/2023
 
 #### Setup ####
 packages <- c("stringr","tidyverse","janitor")
@@ -14,7 +14,7 @@ load_packages(packages)
 
 #### Establish path to folders of files you want to rename #####
 # you only need to change this, then run the rest of the code
-input_path <- "F:/Cuckoo_Acoustic_Data/2023/2023_FWPR5_Data/2023_FWPR5_Audio_Unnamed/"
+input_path <- "F:/Cuckoo_Acoustic_Data/2023/2023_UMBEL_Data/2023_UMBEL_Audio_Unnamed/"
 #r6_output_path <- "F:/Cuckoo_Acoustic_Data/2023/R6_Test/Test_R6_Renamed/"
 
 
