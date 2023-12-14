@@ -40,3 +40,8 @@ count_20neg <- cnn20[annotation == 0, .N] # 120 annotations that were negative
 # total of 1001 annotations looked at (I'm assuming these were the highest scoring files)
 count_20noann <- cnn20[is.na(annotation) == TRUE, .N]
 nrow(cnn20)- count_20noann # total of 1001 files annotated
+
+
+# Look at CNN Model 2.0
+cnn2_R623 <- fread("F:/CNN_Classifier_Files/Model_2.0/Model_Scores/predictions_epoch-10_opso-0-10-1-2023_FWPR6_Audio.csv")
+tail(cnn2_R623) # This looks good

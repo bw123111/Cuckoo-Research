@@ -22,8 +22,8 @@ import time
 import os
 
 #### Establish year and collabroator ####
-year = "2022"
-collaborator = "UMBEL"
+year = "2023"
+collaborator = "FWPR6"
 
 #### Establish paths ###########################
 # Change this to the path to your files
@@ -83,7 +83,7 @@ audio_files.drop('file_name', axis=1, inplace=True)
 print("Filtered Audio Files:")
 print(audio_files)
 
-'''
+
 #### Run the Model #####################################
 model = load_model(model_path)
 
@@ -108,7 +108,6 @@ elapsed_time = (end_time - start_time)/60
 print(f"Script execution time: {elapsed_time:.2f} minutes")
 
 
-'''
 
 # OLD: files_to_exclude ='C:/Users/ak201255/Documents/Cuckoo-Research/Data/Acoustic_Data_Quality/2023_FWPR6_IncorrectSizeAcousticFiles.csv'
 # OLD: outputs_path ='C:/Users/ak201255/Documents/Cuckoo-Research/Data/CNN_Outputs'
