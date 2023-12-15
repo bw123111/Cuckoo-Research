@@ -8,7 +8,7 @@
 
 #### Install and load pacakges #####
 packages <- c("tidyverse","janitor", "lubridate", "chron")
-source("./R_Scripts/Function_Scripts/Install_Load_Packages.R")
+source("./R_Scripts/6_Function_Scripts/Install_Load_Packages.R")
 load_packages(packages)
 
 
@@ -156,6 +156,8 @@ retrieve$point_id <- toupper(retrieve$point_id)
 # change a couple of the points to the correct format
 retrieve[146,4] <- "YELL-150"
 retrieve[147,4] <- "YELL-211"
+# Fix a mis type of the ARU ID for YELL-223
+retrieve[51,5] <- "R6009"
 # replace misspelling
 retrieve <- retrieve %>% mutate(point_id = str_replace(point_id, "YEL-", "YELL-"))
 # separate point ID into site and point for cleaning

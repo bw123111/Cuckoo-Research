@@ -19,12 +19,12 @@ load_packages(packages)
 ##### Input Which Site and Working Directory ####################
 
 # load in the 2020 classifier scores
-cnn20 <- fread("./Data/Classifier_Results/2020_BBCU_Classifier_Results_annotations_standardmodel.csv")
+cnn_20 <- fread("./Data/Classifier_Results/2020_BBCU_Classifier_Results_annotations_standardmodel.csv")
 # get the min and the max of the scores 
-min(cnn20$score) # -4
-max(cnn20$score) # 14.6
-hist(cnn20$score)
-mean(cnn20$score) # average score is -3.5
+min(cnn_20$score) # -4
+max(cnn_20$score) # 14.6
+hist(cnn_20$score)
+mean(cnn_20$score) # average score is -3.5
 
 # pull out the files that are annotated that have a positive annotation
 checked20 <- cnn20[annotation == 1 | annotation == 0]
@@ -41,7 +41,9 @@ count_20neg <- cnn20[annotation == 0, .N] # 120 annotations that were negative
 count_20noann <- cnn20[is.na(annotation) == TRUE, .N]
 nrow(cnn20)- count_20noann # total of 1001 files annotated
 
+# Look at the 2021 classifier files
+cnnv1_R6 <- fread("./Data/Classifier_Results/2022_FWPR6_top10scoring_clips_persite_annotations.csv")
 
 # Look at CNN Model 2.0
-cnn2_R623 <- fread("F:/CNN_Classifier_Files/Model_2.0/Model_Scores/predictions_epoch-10_opso-0-10-1-2023_FWPR6_Audio.csv")
-tail(cnn2_R623) # This looks good
+cnnv2_R623 <- fread("F:/CNN_Classifier_Files/Model_2.0/Model_Scores/predictions_epoch-10_opso-0-10-1-2023_FWPR6_Audio.csv")
+tail(cnnv2_R623) # This looks good
