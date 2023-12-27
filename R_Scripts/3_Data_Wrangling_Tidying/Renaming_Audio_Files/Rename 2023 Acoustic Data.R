@@ -14,7 +14,7 @@ load_packages(packages)
 
 #### Establish path to folders of files you want to rename #####
 # you only need to change this, then run the rest of the code
-input_path <- "F:/Cuckoo_Acoustic_Data/2023/2023_UMBEL_Data/2023_UMBEL_Audio_Unnamed/"
+input_path <- "F:/Cuckoo_Acoustic_Data/2023/2023_FWPR7_Data/2023_FWPR7_Audio_Unnamed/"
 #r6_output_path <- "F:/Cuckoo_Acoustic_Data/2023/R6_Test/Test_R6_Renamed/"
 
 
