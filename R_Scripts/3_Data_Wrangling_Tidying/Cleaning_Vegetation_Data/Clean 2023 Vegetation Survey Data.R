@@ -44,8 +44,10 @@ veg <- veg %>% mutate(point_id = str_replace(point_id, "YMA", "YWM"))
 # Remove the old SIP sites and replace with new ones
 veg <- veg %>% filter(!point_id %in% c("SIP-1", "SIP-2"))
 veg <- veg %>% mutate(point_id = str_replace(point_id, " NEW", ""))
-veg[75,2] <- "MAN-2"
 # Fix MAN-3 duplication
+veg[75,2] <- "MAN-2"
+# Fix the JDD-1 duplication
+veg[37,2] <- "JDD-2"
 
 # write the cleaned data
 write.csv(veg,"./Data/Vegetation_Data/Outputs/2023_VegSurveyData_Cleaned12-3.csv", row.names = FALSE)

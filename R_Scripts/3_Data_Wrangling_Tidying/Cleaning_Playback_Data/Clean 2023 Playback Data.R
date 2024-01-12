@@ -98,7 +98,7 @@ an_umbel <- an_umbel %>% rename(obs=observer,
                                 point_id = point, 
                                 site_id = site, 
                                 start_time = time_format)
-# Need to work out the last couple columns, change to visual and calll from how1
+# Need to work out the last couple columns, change to visual and call from how1
 ak_umbel <- read.csv("./Data/Playback_Results/2023/Raw_Data/2023_PlaybackPtCtSurveyData_UMBEL.csv") %>% clean_names()
 ak_r6 <- read.csv("./Data/Playback_Results/2023/Raw_Data/2023_PlaybackPtCtSurveyData_FWPR6.csv") %>% clean_names()
 daniel <- read.csv("./Data/Playback_Results/2023/Raw_Data/2023_PlaybackSurveyData_FWP_DANIEL.csv")
