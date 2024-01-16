@@ -4,11 +4,11 @@
 
 # Created 10/24/2023
 
-# Last modified: 10/25/2023
+# Last modified: 1/15/2024
 
 
 #### Setup #################################
-packages <- c("data.table","tidyverse","janitor")
+packages <- c("tidyverse","janitor")
 source("./R_Scripts/6_Function_Scripts/Install_Load_Packages.R")
 load_packages(packages)
 
@@ -50,5 +50,5 @@ veg[75,2] <- "MAN-2"
 veg[37,2] <- "JDD-2"
 
 # write the cleaned data
-write.csv(veg,"./Data/Vegetation_Data/Outputs/2023_VegSurveyData_Cleaned12-3.csv", row.names = FALSE)
+write.csv(veg,"./Data/Vegetation_Data/Outputs/2023_VegSurveyData_Cleaned1-15.csv", row.names = FALSE)
 
