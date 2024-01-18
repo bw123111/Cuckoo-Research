@@ -7,10 +7,6 @@
 # Last modified: 1/15/2024
 
 
-# What I need to go through and look at
-## Did each of the playback surveys have 3 surveys at the site?
-## Were each surveys within the 3 week period?
-
 
 #### Setup #################################
 packages <- c("tidyverse","janitor","ggplot2")
@@ -87,15 +83,61 @@ YellRICH_box = list(x_min = 104.0427493,
                     y_min = 47.3547923, 
                     y_max = 47.8204085, 
                     year = 2020, 
-                    season = "not_summer")
-MisoRICH_box = c(x_min = 104.0435244, 
+                    season = "not_summer",
+                    river = "YELL",
+                    county = "Richland")
+MisoRICH_box = list(x_min = 104.0435244, 
                  x_max = 105.1930221, 
                  y_min = 47.9808051, 
                  y_max = 48.1781884, 
                  year = 2025, 
-                 season = "summer")
+                 season = "summer",
+                 river = "MISO",
+                 county = "Richland")
 # Add more bounding boxes as needed
 bounding_boxes <- list(YellRICH_box,MisoRICH_box)
+
+# LEFT OFF 1/18 ###################################################
+# Created a for loop to test the coordiantes provided
+# Isn't classifying ROB-3 correctly. Is this becuase of the syntax of the if statement or an error in my bounding_boxes list?
+
+data <- compare_dat[70,]
+
+# Testing the for loop
+for (i in 1:length(bounding_boxes)){
+  num = 0
+  # pull out the position 
+  print(i)
+  current_list <- bounding_boxes[[i]]
+  print(current_list[["river"]])
+  # Test if the coordinates fall within the bounding box for that river
+  if(data$x >= current_list[["x_min"]] & 
+     data$x <= current_list[["x_max"]] &
+     data$y >= current_list[["y_min"]] &
+     data$y <= current_list[["y_max"]]){
+    # assign the values to the data
+    data$year <- current_list[["year"]]
+    data$season <- current_list[["season"]]
+    data$river <- current_list[["river"]]
+    data$county <- current_list[["county"]]
+    num <- 50
+  }
+  if (num == 50){
+    print(paste(data$point_id, "sucessfully edited"))
+  }
+  else{
+    print(paste(data$point_id, "not in any of the specified regions"))
+  }
+}
+
+print(data)
+
+assign_region <- function(data){
+  
+}
+
+
+# Old code
 
 test <- compare_dat
 test[,"region"] <- NA
@@ -110,7 +152,6 @@ test <- compare_dat %>% mutate(
       y >= bounding_boxes[["MisoRICH_box"]]["y_min"] & 
       y <= bounding_boxes[["MisoRICH_box"]]["y_max"] ~ "MisoRICH_box",
     .default = "UNK"))
-###### START HERE ##############################################
 # Error in `mutate()`:
 #   ℹ In argument: `region = case_when(...)`.
 # Caused by error:

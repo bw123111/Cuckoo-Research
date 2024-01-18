@@ -51,6 +51,7 @@ metad_file = '2023_ARUDeployment_MetadataFull_Cleaned10-24.csv'
 dataset = f'{year}_{collab}'
 print(dataset)
 
+# Later should only have to change E: to F: to run on Ery
 # Establish the file path for the scores
 score_path = f'E:\\CNN_Classifier_Files\\Model_2.0\\Model_Scores\\predictions_epoch-10_opso-0-10-1-{year}_{collab}_Audio.csv'
 # Establish the file path for where the clips will go
@@ -146,13 +147,13 @@ for cl in classes:
             # original: sub_df1 = sub_df1.sort_values(by=['cadence_coo'],ascending=False)
             # Pull out the top scoring file from each day and each time period
             ## Do this in a for loop?
-            sub_df1 = sub_df1.groupby(['date', 'time_period']).apply(lambda x: x.sort_values(by='cadence_coo'))
+            sub_df1 = sub_df1.groupby(['date', 'time_period']).apply(lambda x: x.sort_values(by=cl))
             
             # resets the index at the start of the for loop but drops the current value from consideration (double check this)
             sub_df1 = sub_df1.reset_index(drop=True)
             # take the top scoring file
             sub_df1 = sub_df1.iloc[:1]
-            #print("Printing sub_df - this one should be sorted")
+            print("Printing sub_df - this one should be sorted")
             print(sub_df1)
 '''            
             num += len(sub_df)
