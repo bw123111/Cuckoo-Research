@@ -4,7 +4,7 @@
 
 # Created 1/15/2024 from copying over the preliminary script
 
-# Last modified: 1/15/2024
+# Last modified: 1/19/2024
 
 
 
@@ -18,15 +18,15 @@ load_packages(packages)
 
 # Read in LiDAR data
 # Sum of pixels in each plot
-lidar_countpixels <- read.csv("./Data/Spatial_Data/Comparison_LiDAR_Veg/Raw_Data_fromArcPro/LiDARComp_All_SumPixelsTable.csv") %>% clean_names() %>% select(point_id,sum)
+lidar_countpixels <- read.csv("./Data/Spatial_Data/Comparison_LiDAR_Veg/Raw_Data_fromArcPro/LiDARComp_All_NumPixelsPerPlot_NewProjection.csv") %>% clean_names() %>% select(point_id,sum)
 # 147 observations
 # Average height per plot
-lidar_height <- read.csv("./Data/Spatial_Data/Comparison_LiDAR_Veg/Raw_Data_fromArcPro/LiDARComp_All_MeanCanopyHeight.csv") %>% clean_names() #%>% select(point_id, max_height_m)
+lidar_height <- read.csv("./Data/Spatial_Data/Comparison_LiDAR_Veg/Raw_Data_fromArcPro/LiDARComp_All_MeanHeight_NewProjection.csv") %>% clean_names() #%>% select(point_id, max_height_m)
 # make a new column to convert the height column
 lidar_height <- lidar_height %>% mutate(lidar_mean_height_m = round(mean/1000000, digits = 2)) %>% select(point_id,lidar_mean_height_m)
 
 # Read in canopy cover
-lidar_cancov <-  read.csv("./Data/Spatial_Data/Comparison_LiDAR_Veg/Raw_Data_fromArcPro/LiDARComp_All_CanopyCoverSum.csv") %>% clean_names() %>% select(point_id, count)
+lidar_cancov <-  read.csv("./Data/Spatial_Data/Comparison_LiDAR_Veg/Raw_Data_fromArcPro/LiDARComp_ALL_SumCanopy_NewProjection.csv") %>% clean_names() %>% select(point_id, count)
 # This only has 129 observations?
 # Figure out which ones aren't included 
 unique_to_height <- lidar_height %>% anti_join(lidar_cancov, by = "point_id")
@@ -58,126 +58,112 @@ compare_dat <- left_join(lidar_metric, veg, by = "point_id")
 # remove MISO-181 which doesn't have a veg survey
 compare_dat <- compare_dat %>% filter(!point_id == "MISO-181")
 # AME-2 NA for canopy height ???????????????????????????????????????????????
-
-###### Add on Data #####
-# Find a way to add in the data source and where the LiDAR data comes from
-# Add in a 3DEP column to note whether it was collected with 3DEP
-# Add in a year collected column
-# Add in an in-season collected column (June - September)
-# make a bounding box for each area
-# Create a conditional mutate to add in the values for each column
-xmax_YELLRich <- 104.4353266
-xmin_YELLRich <- 104.0427493
-ymax_YELLRich <- 47.8204085
-ymin_YELLRich <- 47.3547923
-
-xmax_MISORich <- 105.1930221
-xmin_MISORich <- 104.0435244
-ymax_MISORich <- 48.1781884
-ymin_MISORich <- 47.9808051
-
-
-# Make a list of bounding boxes
-YellRICH_box = list(x_min = 104.0427493, 
-                    x_max = 104.4353266, 
-                    y_min = 47.3547923, 
-                    y_max = 47.8204085, 
-                    year = 2020, 
-                    season = "not_summer",
-                    river = "YELL",
-                    county = "Richland")
-MisoRICH_box = list(x_min = 104.0435244, 
-                 x_max = 105.1930221, 
-                 y_min = 47.9808051, 
-                 y_max = 48.1781884, 
-                 year = 2025, 
-                 season = "summer",
-                 river = "MISO",
-                 county = "Richland")
-# Add more bounding boxes as needed
-bounding_boxes <- list(YellRICH_box,MisoRICH_box)
-
-# LEFT OFF 1/18 ###################################################
-# Created a for loop to test the coordiantes provided
-# Isn't classifying ROB-3 correctly. Is this becuase of the syntax of the if statement or an error in my bounding_boxes list?
-
-data <- compare_dat[70,]
-
-# Testing the for loop
-for (i in 1:length(bounding_boxes)){
-  num = 0
-  # pull out the position 
-  print(i)
-  current_list <- bounding_boxes[[i]]
-  print(current_list[["river"]])
-  # Test if the coordinates fall within the bounding box for that river
-  if(data$x >= current_list[["x_min"]] & 
-     data$x <= current_list[["x_max"]] &
-     data$y >= current_list[["y_min"]] &
-     data$y <= current_list[["y_max"]]){
-    # assign the values to the data
-    data$year <- current_list[["year"]]
-    data$season <- current_list[["season"]]
-    data$river <- current_list[["river"]]
-    data$county <- current_list[["county"]]
-    num <- 50
-  }
-  if (num == 50){
-    print(paste(data$point_id, "sucessfully edited"))
-  }
-  else{
-    print(paste(data$point_id, "not in any of the specified regions"))
-  }
-}
-
-print(data)
-
-assign_region <- function(data){
-  
-}
-
-
-# Old code
-
-test <- compare_dat
-test[,"region"] <- NA
-test <- compare_dat %>% mutate(
-   region = case_when(
-   x >= bounding_boxes[["YellRICH_box"]]["x_min"] & 
-     x <= bounding_boxes[["YellRICH_box"]]["x_max"] & 
-      y >= bounding_boxes[["YellRICH_box"]]["y_min"] & 
-      y <= bounding_boxes[["YellRICH_box"]]["y_max"] ~ "YellRICH_box",
-    x = bounding_boxes[["MisoRICH_box"]]["x_min"] & 
-      x <= bounding_boxes[["MisoRICH_box"]]["x_max"] &
-      y >= bounding_boxes[["MisoRICH_box"]]["y_min"] & 
-      y <= bounding_boxes[["MisoRICH_box"]]["y_max"] ~ "MisoRICH_box",
-    .default = "UNK"))
-# Error in `mutate()`:
-#   ℹ In argument: `region = case_when(...)`.
-# Caused by error:
-#   ! `region` must be size 149 or 1, not 0.
-
-
-# Split these case_whens up
-    year_collected = case_when(
-      region == "YellRICH_box" ~ bounding_boxes[["YellRICH_box"]]["year"],
-      region == "MisoRICH_box" ~ bounding_boxes[["MisoRICH_box"]]["year"],
-      .default = "UNK"),
-    season_collected = case_when(
-      region == "YellRICH_box" ~ bounding_boxes[["YellRICH_box"]]["season"],
-      region == "MisoRICH_box" ~ bounding_boxes[["MisoRICH_box"]]["season"],
-      .default = "UNK")
-  )
-
-# Example usage:
-test <- assign_year_season2(compare_dat, x_col = "x", y_col = "y")
-
-
-apply(X = compare_dat,MARGIN = 1, FUN = assign_year_season)
-
-
+# See what Daniel says, for now remove it
+compare_dat <- compare_dat %>% filter(!point_id == "MISO-181")
 # Pull out only the columns you need 
 compare_dat %>% select(lidar_mean_height_m,lidar_percent_canopy,canopy_height,canopy_cover,x,y)
+
+###### Add on Data #####
+#### Make a list of bounding boxes ####
+# not_summer if collection dates mostly outside of June 15th - Sept 15th timeline
+YELLRich  <- list(x_max = -104.0427493, 
+                  x_min = -104.4353266,
+                  y_max = 47.8204085, 
+                  y_min = 47.3547923, 
+                  year = "2020", 
+                  season = "not_summer",
+                  protocol = "3DEP",
+                  river = "YELL",
+                  county = "Richland",
+                  region = "YELLRich")
+MISORich <- list(x_max = -104.0435244, 
+                 x_min = -105.1930221, 
+                 y_min = 47.9808051, 
+                 y_max = 48.1781884, 
+                 year = "2020", 
+                 season = "not_summer",
+                 protocol = "3DEP",
+                 river = "MISO",
+                 county = "Richland",
+                 region = "MISORich")
+MISOValley <- list(x_max = -106.1843971,
+                  x_min = -106.4741166,
+                  y_max = 48.0806277,
+                  y_min = 47.9971349,
+                  year = "2018",
+                  season = "not_summer",
+                  protocol = "not_3DEP",
+                  river = "MISO",
+                  county = "Valley",
+                  region = "MISOValley")
+MISOFergBlaine <- list(x_max = -108.2747290,
+                       x_min = -109.7891580,
+                       y_max = 47.8317349,
+                       y_min = 47.5657318,
+                       year =  "2020_2021",
+                       season = "summer",
+                       protocol = "3DEP",
+                       river = "MISO",
+                       county = "Fergus_Blaine",
+                       region = "MISOFergBlaine")
+YELLTreasRoseCustDaws <- list(x_max = -104.3824226,
+                               x_min = -107.4708394,
+                               y_max = 47.3548756,
+                               y_min = 46.1472362,
+                               year = "2019",
+                               season = "summer",
+                               protocol = "not_3DEP",
+                               river = "YELL",
+                               county = "Treasure_Rose_Custer_Dawson",
+                               region = "YELL_TreasRoseCustDawson")
+# Add more bounding boxes as needed
+bounding_boxes <- list(YELLRich,MISORich,MISOValley,MISOFergBlaine,YELLTreasRoseCustDaws)
+
+
+
+# Make this into a nested for loop to iterate through the data ####
+add_lidar_metadata <- function(data, bounding_boxes){
+  for (row in 1:nrow(data)){
+    print(paste('current point_id is:',data[row,"point_id"]))
+  # Testing the for loop
+    for (i in seq_along(bounding_boxes)){
+      # Initialize a counter
+      num <- 0
+      current_list <- bounding_boxes[[i]]
+      print(current_list[["region"]]) 
+      # Test if the coordinates fall within the bounding box for that river
+      if(data[row,'x'] >= current_list[["x_min"]] & 
+         data[row,'x'] <= current_list[["x_max"]] &
+         data[row,'y'] >= current_list[["y_min"]] &
+         data[row,'y'] <= current_list[["y_max"]]){
+        # assign the values to the data
+        data[row,'year'] <- current_list[["year"]]
+        data[row,'season'] <- current_list[["season"]]
+        data[row, 'protocol'] <- current_list[["protocol"]]
+        data[row,'river'] <- current_list[["river"]]
+        data[row,'county'] <- current_list[["county"]]
+        num <- 50
+      }
+      if (num == 50) {
+        print(paste(data[row,'point_id'], "successfully edited"))
+        break
+      } else {
+        #print(paste(data[row,'point_id'], "not in this river system"))
+        data[row,'year'] <- "UNK"
+        data[row,'season'] <- "UNK"
+        data[row,'river'] <- "UNK"
+        data[row,'county'] <- "UNK"
+      }
+    }
+  }
+  return(data)
+}
+
+# Run the function on the data
+# # Test
+# data <- compare_dat[70:74,] 
+# test <- assign_region(data,bounding_boxes)
+compare_dat <- add_lidar_metadata(compare_dat,bounding_boxes)
 
 
 # Create a new value for the difference between the two
@@ -232,7 +218,7 @@ ggplot(compare_dat) +
   scale_y_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
   theme_minimal()
 # Save this plot
-ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/CanopyHeight_SurveyLiDARComparison.jpeg", width=6, height=6)
+ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/CanopyHeight_SurveyLiDARComparison_FULL.jpeg", width=6, height=6)
 
 
 ggplot(compare_dat) +
@@ -241,7 +227,7 @@ ggplot(compare_dat) +
              size = 1.5, color ="green4") +
   labs(title = "Comparison of Canopy Cover Estimates", x = "LiDAR Percent Canopy Cover Estimate", y = "Survey Percent Canopy Cover Estimate") +
   theme_minimal()
-ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/CanopyCover_SurveyLiDARComparison.jpeg", width=6, height=6)
+ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/CanopyCover_SurveyLiDARComparison_FULL.jpeg", width=6, height=6)
 
 
 # Descriptive stats
@@ -306,7 +292,7 @@ ggplot(compare_dat) +
   labs(title = "LiDAR Vegetation Density", x = "Mean Canopy Height (m)", y = "Percent Canopy Cover") +
   theme_minimal() + 
   theme(legend.position = "none")
-ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/LiDAROnlyDensity.jpeg", width=10, height=6)
+ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/LiDAROnlyDensity_FULL.jpeg", width=10, height=6)
 
 #Plot survey height against survey canopy cover with the metric for survey density as the fil
 ggplot(compare_dat) +
@@ -317,7 +303,7 @@ ggplot(compare_dat) +
   scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
   labs(title = "Survey Vegetation Density", x = "Mean Canopy Height (m)", y = "Percent Canopy Cover")+
   theme_minimal()
-ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/SurveyOnlyDensity.jpeg", width=10, height=6)
+ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/SurveyOnlyDensity_FULL.jpeg", width=10, height=6)
 
 # This allows a visual comparison, but could we also try taking the differences between the two?
 ggplot(compare_dat) +
@@ -325,7 +311,7 @@ ggplot(compare_dat) +
   geom_point() +
   labs(title = "Comparison of Survey and LiDAR Density Metrics", x = "LiDAR Density Metric", y = "Survey Density Metric") +
   theme_minimal()
-ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/LiDARvsSurveyDensityMetric.jpeg", width=6, height=6)
+ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/LiDARvsSurveyDensityMetric_FULL.jpeg", width=6, height=6)
 
 # Now try mixing and matching these
 # Survey data plotted with LiDAR Density colors
@@ -338,7 +324,7 @@ ggplot(compare_dat) +
   scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
   theme_minimal() + 
   theme(legend.position = "none")
-ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/SurveyPlot_LiDARDensityColor.jpeg", width=10, height=6)
+ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/SurveyPlot_LiDARDensityColor_FULL.jpeg", width=10, height=6)
 
 # LiDAR data plotted with survey density colors
 ggplot(compare_dat) +
@@ -350,7 +336,7 @@ ggplot(compare_dat) +
   labs(title = "LiDAR Vegetation Density with Survey Density Colors", x = "Mean Canopy Height (m)", y = "Percent Canopy Cover")+
   theme_minimal()+
   theme(legend.position = "none")
-ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/LiDARPlot_SurveyDensityColor.jpeg", width=10, height=6)
+ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/LiDARPlot_SurveyDensityColor_FULL.jpeg", width=10, height=6)
 
 
 
@@ -362,7 +348,7 @@ ggplot(compare_dat) +
   scale_color_gradient(low = "red", high = "blue")+
   labs(title = "Spatial Distribution of Difference Between Canopy Cover Measurements", x = "Longitude", y = "Latitude") +
   theme_minimal()
-ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/MappingDifferencesinCanopyCoverEstimates.jpeg", width=10, height=6)
+ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/MappingDifferencesinCanopyCoverEstimates_FULL.jpeg", width=10, height=6)
 
 
 ggplot(compare_dat) +
@@ -372,7 +358,7 @@ ggplot(compare_dat) +
   #scale_color_gradient(low = "black", high = "red")+
   labs(title = "Spatial Distribution of Difference Between Canopy Height Measurements", x = "Longitude", y = "Latitude") +
   theme_minimal() 
-ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/MappingDifferencesinCanopyHeightEstimates.jpeg", width=10, height=6)
+ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/MappingDifferencesinCanopyHeightEstimates_FULL.jpeg", width=10, height=6)
 
 # Most change is in these points: (MISO-022, MISO-065, MISO-188, MISO-196, MISO-017, MISO-191, MISO-177, and MISO-171)
 
@@ -487,3 +473,105 @@ ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/MappingDifferencesinCan
 # }
 # # Example usage:
 # test <- assign_year_season2(compare_dat, x_col = "x", y_col = "y")
+
+# #test <- t(apply(X = data, MARGIN = 1, FUN = assign_region, bounding_boxes = bounding_boxes))
+#
+# # Testing the for loop
+# for (i in seq_along(bounding_boxes)){
+#   num <- 0
+#   # pull out the position 
+#   print(i)
+#   current_list <- bounding_boxes[[i]]
+#   print(current_list[["river"]])
+#   # Test if the coordinates fall within the bounding box for that river
+#   if(data[['x']] >= current_list[["x_min"]] & 
+#      data[['x']] <= current_list[["x_max"]] &
+#      data[['y']] >= current_list[["y_min"]] &
+#      data[['y']] <= current_list[["y_max"]]){
+#     # assign the values to the data
+#     data[['year']] <- current_list[["year"]]
+#     data[['season']] <- current_list[["season"]]
+#     data[['river']] <- current_list[["river"]]
+#     data[['county']] <- current_list[["county"]]
+#     print(paste(data[['point_id']], "sucessfully edited"))
+#     num <- 50
+#   }
+#   if (num == 50) {
+#     print(paste(data[['point_id']], "successfully edited"))
+#   } else {
+#     print(paste(data[['point_id']], "not in any of the specified regions"))
+#     data[['year']] <- "UNK"
+#     data[['season']] <- "UNK"
+#     data[['river']] <- "UNK"
+#     data[['county']] <- "UNK"
+#   }
+# }
+# return(data)
+# assign_region <- function(data){
+#   # Testing the for loop
+#   for (i in 1:length(bounding_boxes)){
+#     num <- 0
+#     # pull out the position 
+#     print(i)
+#     current_list <- bounding_boxes[[i]]
+#     print(current_list[["river"]])
+#     # Test if the coordinates fall within the bounding box for that river
+#     if(data$x >= current_list[["x_min"]] & 
+#        data$x <= current_list[["x_max"]] &
+#        data$y >= current_list[["y_min"]] &
+#        data$y <= current_list[["y_max"]]){
+#       # assign the values to the data
+#       data$year <- current_list[["year"]]
+#       data$season <- current_list[["season"]]
+#       data$river <- current_list[["river"]]
+#       data$county <- current_list[["county"]]
+#       num <- 50
+#     }
+#     if (num == 50){
+#       print(paste(data$point_id, "sucessfully edited"))
+#     }
+#     else{
+#       print(paste(data$point_id, "not in any of the specified regions"))
+#     }
+#   }
+#   
+# }
+# 
+# 
+# 
+# # Old code
+# 
+# test <- compare_dat
+# test[,"region"] <- NA
+# test <- compare_dat %>% mutate(
+#   region = case_when(
+#     x >= bounding_boxes[["YellRICH_box"]]["x_min"] & 
+#       x <= bounding_boxes[["YellRICH_box"]]["x_max"] & 
+#       y >= bounding_boxes[["YellRICH_box"]]["y_min"] & 
+#       y <= bounding_boxes[["YellRICH_box"]]["y_max"] ~ "YellRICH_box",
+#     x = bounding_boxes[["MisoRICH_box"]]["x_min"] & 
+#       x <= bounding_boxes[["MisoRICH_box"]]["x_max"] &
+#       y >= bounding_boxes[["MisoRICH_box"]]["y_min"] & 
+#       y <= bounding_boxes[["MisoRICH_box"]]["y_max"] ~ "MisoRICH_box",
+#     .default = "UNK"))
+# # Error in `mutate()`:
+# #   ℹ In argument: `region = case_when(...)`.
+# # Caused by error:
+# #   ! `region` must be size 149 or 1, not 0.
+# 
+# 
+# # Split these case_whens up
+# year_collected = case_when(
+#   region == "YellRICH_box" ~ bounding_boxes[["YellRICH_box"]]["year"],
+#   region == "MisoRICH_box" ~ bounding_boxes[["MisoRICH_box"]]["year"],
+#   .default = "UNK"),
+# season_collected = case_when(
+#   region == "YellRICH_box" ~ bounding_boxes[["YellRICH_box"]]["season"],
+#   region == "MisoRICH_box" ~ bounding_boxes[["MisoRICH_box"]]["season"],
+#   .default = "UNK")
+# )
+# 
+# # Example usage:
+# test <- assign_year_season2(compare_dat, x_col = "x", y_col = "y")
+# test <- t(apply(X = data, MARGIN = 1, FUN = function(row) assign_region(row, bounding_boxes)))
+# apply(X = compare_dat,MARGIN = 1, FUN = assign_year_season)
