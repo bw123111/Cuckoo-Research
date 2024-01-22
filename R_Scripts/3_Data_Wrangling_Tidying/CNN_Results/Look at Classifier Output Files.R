@@ -4,8 +4,7 @@
 
 # Created 10/19/2023
 
-# Last modified: 10/19/2023
-
+# Last modified: 1/16/2024
 
 #### Setup #################################
 packages <- c("data.table","tidyverse","janitor")
@@ -47,3 +46,4 @@ cnnv1_R6 <- fread("./Data/Classifier_Results/2022_FWPR6_top10scoring_clips_persi
 # Look at CNN Model 2.0
 cnnv2_R623 <- fread("F:/CNN_Classifier_Files/Model_2.0/Model_Scores/predictions_epoch-10_opso-0-10-1-2023_FWPR6_Audio.csv")
 tail(cnnv2_R623) # This looks good
+cnnv2_R722 <- fread("F:/CNN_Classifier_Files/Model_2.0/Model_Scores/predictions_epoch-10_opso-0-10-1-2022_FWPR7_Audio.csv")
