@@ -89,6 +89,13 @@ deploy_sep$datetime <- deploy_sep$datetime - as.difftime(6, units = "hours")
 deploy_sep$date <- as.Date(deploy_sep$datetime)
 deploy_sep$date_julian <- yday(deploy_sep$date)
 
+# Change the format for the aru version column
+deploy_sep <- deploy_sep %>% mutate(audiomoth_version = case_when(
+  which_audio_moth_version == 'AudioMoth 1.0.0' ~ 'AM1.0.0',
+  which_audio_moth_version == 'AudioMoth 1.1.0' ~ 'AM1.1.0',
+  which_audio_moth_version == 'AudioMoth 1.2.0' ~ 'AM1.2.0',
+))
+
 
 
 # Unite the columns for site and point
@@ -102,7 +109,7 @@ deploy <- deploy %>% mutate(aru_replaced = ifelse(duplicated(point_id) == FALSE,
 # This isn't flagging the original ones as ones that were replaced 
 
 # rename some of the original columns to make them more concise 
-deploy <- deploy %>% rename(moved_over30m = was_the_point_moved_30_m_from_the_original_coordinates, why_moved = why_was_the_point_moved,audiomoth_version = which_audio_moth_version)
+deploy <- deploy %>% rename(moved_over30m = was_the_point_moved_30_m_from_the_original_coordinates, why_moved = why_was_the_point_moved,lat = y, long = x)
 
 # Reorder columns
 deploy_final <- deploy %>% select(point_id,
@@ -204,7 +211,9 @@ retrieve <- retrieve_sep %>%
                                                                container_description = breifly_describe_aru_container_condition,
                                                                aru_condition = what_is_the_condition_of_the_aru_itself,
                                                                aru_notes = other_what_is_the_condition_of_the_aru_itself,
-                                                               led_status = what_is_the_status_of_the_aru) %>% 
+                                                               led_status = what_is_the_status_of_the_aru,
+                                                               lat = y, 
+                                                               long = x) %>% 
   unite(col = led_notes, c("other_what_is_the_status_of_the_aru","le_ds_status_if_abnormal"), sep = "") %>%
   unite(col = container_notes, c("container_description","container_notes"), sep = "")
 
