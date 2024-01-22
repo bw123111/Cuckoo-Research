@@ -4,7 +4,7 @@ Run Model 2.0 On Data
 This was created to read in a folder of acoustic data and run Model_2.0 on it. Created from the Mac Copy of this script.
 
 Created: 11/15/2023
-Last modified: 1/16/2024
+Last modified: 1/18/2024
 '''
 
 # Import packages ##########################
