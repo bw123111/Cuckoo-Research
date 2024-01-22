@@ -4,7 +4,7 @@ Run Model 2.0 On Data
 This was created to read in a folder of acoustic data and run Model_2.0 on it. Created from the Mac Copy of this script.
 
 Created: 11/15/2023
-Last modified: 12/5/2023
+Last modified: 1/16/2024
 '''
 
 # Import packages ##########################
@@ -22,8 +22,11 @@ import time
 import os
 
 #### Establish year and collabroator ####
-year = "2023"
-collaborator = "FWPR6"
+year = "2021"
+collaborator = "UMBEL"
+
+
+### Shouldn't need to edit anything below ############################
 
 #### Establish paths ###########################
 # Change this to the path to your files
@@ -35,11 +38,7 @@ audio_file_location = f'F:/Cuckoo_Acoustic_Data/{year}/{year}_{collaborator}_Dat
 ## NOTE: This should be the output from Examine_Acoustic_Data.ipynb that should be stored on Bioacoustics_Storage (F:)
 files_to_exclude = f'F:/CNN_Classifier_Files/Model_2.0/Model_Inputs_Data_Quality/{year}_{collaborator}_IncorrectSizeAcousticFiles.csv'
 
-# CHECKPOINT: are audio_file_location and files_to_exclude set to read data for the same collaborator for the same year???????
 
-
-
-### Shouldn't need to edit anything below ############################
 # Mark starting time
 start_time = time.time()
 print("Starting time:", start_time)
@@ -106,9 +105,3 @@ end_time = time.time()
 elapsed_time = (end_time - start_time)/60
 # Print the time it took to run the script
 print(f"Script execution time: {elapsed_time:.2f} minutes")
-
-
-
-# OLD: files_to_exclude ='C:/Users/ak201255/Documents/Cuckoo-Research/Data/Acoustic_Data_Quality/2023_FWPR6_IncorrectSizeAcousticFiles.csv'
-# OLD: outputs_path ='C:/Users/ak201255/Documents/Cuckoo-Research/Data/CNN_Outputs'
-
