@@ -6,6 +6,8 @@
 # Next formatting them for us in modeling (later)
 
 # STATUS need to run the UMBEL part of the code again with the completed monitoring_points data
+# NEED TO ADD ON A COLUMN FOR NUM OBSERVERS FOR DETECTION
+# NEED TO GO AND FIX THE TIME COLUMN
 
 # Created 10/6/2023
 
@@ -224,6 +226,8 @@ sum(check73$count_ybcu, na.rm = TRUE) # 1 sites with ybcu
 # Region 5 is fine, will need to get this data and clean it later but for now it's good
 r5_22 <- read.csv("./Data/Metadata/Raw_Data/2022_ARUDeployment_Metadata_FWPR5.csv") %>% 
   clean_names()
+### NEW RAW DATA
+r5_22 <- read.csv('./Data/Playback_Results/2022/Raw_Data/2022_BBCUPlaybackSessionResults_FWPR5.csv')
 #r5_22 <- r5_22 %>% rename(species = playback_cuckoo_detection)
 # create a new column for YBCU and BBCU detected
 r5_PB_22 <- r5_22 %>% rename(obs = observer, date = date_deployed, lat = latitude, long = longitude) %>% mutate(time = "UNK", bbcu = 0, ybcu = 0, interval = "PBUNK", distance = "UNK", bearing = "UNK", how = "UNK", visual = "UNK", call = "UNK", sex = "UNK", cluster = "UNK", notes = "waiting on full data from Megan" )
