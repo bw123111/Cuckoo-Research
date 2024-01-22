@@ -344,6 +344,10 @@ print(paste("Number is", 5))
 string1 <- "hi"
 string2 <- "Fred"
 combo_string <- paste(string1,string2)
+# To print things without spaces as the separator
+paste0(string1,"end")
+# you can also specify the separator
+paste(string1,"end",sep = "_")
 print(combo_string)
 # You can remove the space between them by specifying the separator
 combo2 <- paste(string1,string2,sep="")
