@@ -4,7 +4,7 @@
 
 # Created 1/22/2024
 
-# Last updated 1/22/2024
+# Last updated 1/23/2024
 
 #### Install and load pacakges #####
 packages <- c("tidyverse","janitor")
@@ -17,6 +17,7 @@ deployed <- read.csv("./Data/Metadata/Outputs/2023_ARUDeployment_MetadataFull_Cl
 umbel_22 <- read.csv("./Data/Metadata/Outputs/2022_ARUDeployment_Retrieval_Metadata_UMBEL_Cleaned1-22.csv") %>% clean_names()
 fwp_22 <- read.csv("./Data/Metadata/Outputs/2022_ARUDeployment_Retrieval_Metadata_FWPALL_Cleaned1-22.csv") %>% clean_names()
 metadat_21 <- read.csv("./Data/Metadata/Outputs/2021_ARUDeployment_Retrieval_Metadata_UMBEL_Cleaned1-22.csv") %>% clean_names()
+metadat_21 %>% filter(data_recorded == 'N') %>% select(point_id)
 
 # Formatting 2023 data
 # Check for duplicates
@@ -62,15 +63,22 @@ for (year in years){
 
 # Compare all_audio with the ARUs deployed
 deployed_no_audio_23 <- deployed_nodup %>% filter(!(point_id %in% all_audio))
+# MISO-197 retrieved late, need to run through the model
+# MISO-091 was the one the landowner picked up 
 # 2023: These are good, all accounted for
 
 deployed_no_audio_22 <- points_22[!points_22 %in% all_audio]
-# 102-3, 103-1,MAN-1,MAN-3,ISA-2
+# 102-3 no data recorded on SD card
+# 103-1 no data recorded on SD card
+# MAN-1,MAN-2,MAN-3 removed by humans
+# ISA-2 SD card corrupted 
+# 2022: All accounted for
 
 deployed_no_audio_21 <- points_21[!points_21 %in% all_audio]
-# "101-1" "103-2" "104-2" "104-3" "222-1" "222-3" "223-2" "223-3" "224-3" "97-3"  "MAN-1" "SIP-1"
-
-
+# 101-1, 103-2, 104-2, 104-3, 222-1, 222-3, 223-2, 224-3, 97-3, SIP-1 no data recorded 
+#223-3 originally assigned to another point? No audio files  
+# MAN-1 ARU went missing
+# 2021: All accounted for
 
 #### Code Graveyard ####
 # Read in the path to acoustic data

@@ -4,6 +4,9 @@ This is a script to extract top scoring clips from each site. The output will gi
 
 Copied from script of same name from model 1.0 files 1/11/2024
 Last edited 1/16/2024
+
+Changes to make: screen out dates outside of the sampling period (June 1st - Aug 15th)
+Find a way to remove duplicates - if the cadence_coo and the rattle pull the same file????
 '''
 
 from opensoundscape.audio import Audio
@@ -18,10 +21,10 @@ import numpy as np
 
 
 # Establish which dataset you're working on and where the metadata is
-year = 'Test' # Format YYYY
-collab = 'R6' # Format UMBEL or FWPR#
+year = '2023' # Format YYYY
+collab = 'FWPR5' # Format UMBEL or FWPR#
 # Establish the file path for the metadata folder
-metad_path = 'C:/Users/annak/OneDrive/Documents/UM/Research/Coding_Workspace/Cuckoo-Research/Data/Metadata/Outputs/'
+metad_path = 'C:/Users/ak201255/Documents/Cuckoo-Research/Data/Metadata/Outputs/'
 metad_file = '2023_ARUDeployment_MetadataFull_Cleaned10-24.csv'
 # SHOULDN'T HAVE TO EDIT BELOW THIS LINE
 
@@ -32,11 +35,11 @@ print(dataset)
 
 # Later should only have to change E: to F: to run on Ery
 # Establish the file path for the scores
-score_path = f'E:/CNN_Classifier_Files/Model_2.0/Model_Scores/predictions_epoch-10_opso-0-10-1-{year}_{collab}_Audio.csv'
+score_path = f'F:/CNN_Classifier_Files/Model_2.0/Model_Scores/predictions_epoch-10_opso-0-10-1-{year}_{collab}_Audio.csv'
 # Establish the file path for where the clips will go
-clips_path = f'E:/Cuckoo_Acoustic_Data/{year}/{year}_{collab}_Data/{year}_{collab}_Clips_cnn2/'
+clips_path = f'F:/Cuckoo_Acoustic_Data/{year}/{year}_{collab}_Data/{year}_{collab}_Clips/'
 # Establish the file path for the folder with all the audio files
-audio_path = f'E:/Cuckoo_Acoustic_Data/{year}/{year}_{collab}_Data/{year}_{collab}_Audio/'
+audio_path = f'F:/Cuckoo_Acoustic_Data/{year}/{year}_{collab}_Data/{year}_{collab}_Audio/'
 # Establish which classes you are annotating
 classes = ['cadence_coo','rattle']
 
@@ -62,6 +65,11 @@ print("List of points:",point_list)
 # Format the scores file 
 # Make a column for date
 sf['date'] = [(d.split('_')[-2]) for d in sf['file'].tolist()]
+print(sf.dtypes)
+print(sf['date'])
+#### Filter out only the dates that fall within the time period
+# transform to numeric, pick out only the files that are greater than 20230601 and less than 20230815
+'''
 # Convert date to a string for later
 sf['date'] = sf['date'].astype(str)
 # Make a column for the hour of the recording
@@ -164,7 +172,9 @@ for point in point_list:
             if len(df) < 1:
                 print(point + ' failed.')
                 continue
-                
+        # ChatGPTs code to sort by point
+        # Sort the DataFrame by 'point_id'
+        # reshaped_df = reshaped_df.sort_values(by='point_id').reset_index(drop=True)
         # Renumber the indices
         keep_df = keep_df.reset_index(drop=True)
         # Reshape this data to create one column for call_type and one column for scores
@@ -176,12 +186,12 @@ for point in point_list:
     
         # Test ####
         #keep_df.to_csv(folder + '/' + point + '_testkeep_df.csv', index = False)
-    
+
         # save the audio files from the top scoring rows you pulled
         for i in range(len(keep_df)):
             # specify the specific audiofile to load, specify which clip you want to isolate
             filename = keep_df['file'].iat[i]
-            filename = os.path.join("E:/", *filename.split("/")[1:])
+            filename = os.path.join("F:/", *filename.split("/")[1:])
             # Check
             print('check filename')
             print(filename)
@@ -197,7 +207,7 @@ dataset_df.to_csv(big_folder + '/' + dataset + '_topclips_perSiteperPeriod.csv')
 
 
 
-
+'''
 '''
 CODE GRAVEYARD
     # other chatgpt code
