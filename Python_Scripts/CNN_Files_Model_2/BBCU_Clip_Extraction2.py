@@ -19,6 +19,8 @@ from os.path import exists
 from datetime import date
 import numpy as np
 
+# Suppress userwarnings about metadata
+Warning.filterwarnings("ignore", category=UserWarning)
 
 # Establish which dataset you're working on and where the metadata is
 year = '2023' # Format YYYY
@@ -53,8 +55,8 @@ print("The current scores file is",score_path)
 sf = pd.read_csv(score_path)
 # Change all values of \ in the file column of sf to / 
 sf['file'] = sf['file'].str.replace("\\","/")
-print("Scores file:")
-print(sf['file'])
+#print("Scores file:")
+#print(sf['file'])
 
 # make a new column called point_id from the string after the second / in the file column 
 sf['point_id'] = sf['file'].apply(lambda x: x.split('/')[-2] if isinstance(x, str) else None)
@@ -65,11 +67,15 @@ print("List of points:",point_list)
 # Format the scores file 
 # Make a column for date
 sf['date'] = [(d.split('_')[-2]) for d in sf['file'].tolist()]
-print(sf.dtypes)
-print(sf['date'])
-#### Filter out only the dates that fall within the time period
+#print(sf.dtypes)
+sf['date'] = pd.to_numeric(sf['date'])
+print(sf.dtypes['date']) # This is now a number
+# Filter out only the dates that fall within the time period
 # transform to numeric, pick out only the files that are greater than 20230601 and less than 20230815
-'''
+sf = sf.loc[(sf['date'] >= 20230601) & (sf['date'] <= 20230815)]
+#print(max(sf['date']))
+#print(min(sf['date'])) # This looks like it's working fine
+
 # Convert date to a string for later
 sf['date'] = sf['date'].astype(str)
 # Make a column for the hour of the recording
@@ -174,7 +180,7 @@ for point in point_list:
                 continue
         # ChatGPTs code to sort by point
         # Sort the DataFrame by 'point_id'
-        # reshaped_df = reshaped_df.sort_values(by='point_id').reset_index(drop=True)
+        #keep_df = keep_df.sort_values(by=['point_id','date','time_period']).reset_index(drop=True)
         # Renumber the indices
         keep_df = keep_df.reset_index(drop=True)
         # Reshape this data to create one column for call_type and one column for scores
@@ -186,7 +192,7 @@ for point in point_list:
     
         # Test ####
         #keep_df.to_csv(folder + '/' + point + '_testkeep_df.csv', index = False)
-
+        '''
         # save the audio files from the top scoring rows you pulled
         for i in range(len(keep_df)):
             # specify the specific audiofile to load, specify which clip you want to isolate
@@ -198,16 +204,17 @@ for point in point_list:
             audio = Audio.from_file(filename, offset=int(keep_df['start_time'].iat[i]), duration=5)
             # save the new clip to the clip name you specified previously
             audio.save(keep_df['clip'].iat[i])
-    
+        '''  
         # Append the top clips to keep_df
         dataset_df = dataset_df._append(keep_df, ignore_index = True) 
         
+dataset_df = dataset_df.sort_values(by=['point_id','date','time_period']).reset_index(drop=True)
 # save the csv for this dataset after iterating through all points
-dataset_df.to_csv(big_folder + '/' + dataset + '_topclips_perSiteperPeriod.csv')
+dataset_df.to_csv(big_folder + '/' + dataset + '_topclips_perSiteperPeriod.csv', index = False)
 
 
 
-'''
+
 '''
 CODE GRAVEYARD
     # other chatgpt code
