@@ -21,7 +21,7 @@ import numpy as np
 
 # Establish which dataset you're working on and where the metadata is
 year = '2023' # Format YYYY
-collab = 'FWPR5' # Format UMBEL or FWPR#
+collab = 'FWPR7' # Format UMBEL or FWPR#
 # Establish the file path for the metadata folder
 metad_path = 'C:/Users/ak201255/Documents/Cuckoo-Research/Data/Metadata/Outputs/'
 metad_file = '2023_ARUDeployment_MetadataFull_Cleaned10-24.csv'
