@@ -3,10 +3,7 @@ Clip Extraction Code
 This is a script to extract top scoring clips from each site. The output will give you the scripts to run the listening_notebook code on to annotate the clips for cuckoo presence. 
 
 Copied from script of same name from model 1.0 files 1/11/2024
-Last edited 1/16/2024
-
-Changes to make: screen out dates outside of the sampling period (June 1st - Aug 15th)
-Find a way to remove duplicates - if the cadence_coo and the rattle pull the same file????
+Last edited 1/26/2024
 '''
 
 from opensoundscape.audio import Audio
@@ -20,7 +17,7 @@ from datetime import date
 import numpy as np
 
 # Suppress userwarnings about metadata
-Warning.filterwarnings("ignore", category=UserWarning)
+#Warning.filterwarnings("ignore", category=UserWarning)
 
 # Establish which dataset you're working on and where the metadata is
 year = '2023' # Format YYYY
@@ -192,7 +189,7 @@ for point in point_list:
     
         # Test ####
         #keep_df.to_csv(folder + '/' + point + '_testkeep_df.csv', index = False)
-        '''
+        
         # save the audio files from the top scoring rows you pulled
         for i in range(len(keep_df)):
             # specify the specific audiofile to load, specify which clip you want to isolate
@@ -204,7 +201,7 @@ for point in point_list:
             audio = Audio.from_file(filename, offset=int(keep_df['start_time'].iat[i]), duration=5)
             # save the new clip to the clip name you specified previously
             audio.save(keep_df['clip'].iat[i])
-        '''  
+          
         # Append the top clips to keep_df
         dataset_df = dataset_df._append(keep_df, ignore_index = True) 
         
