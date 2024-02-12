@@ -1,0 +1,392 @@
+---
+title: "Comparing MT State LiDAR and 2023 Veg Surveys"
+author: "Anna Kurtin"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+```{r read libraries, include=FALSE}
+library("tidyverse")
+library("ggplot2")
+library("here")
+```
+
+```{r read in data, include=FALSE}
+# Constructing a path
+data_path <- here("Data", "Spatial_Data", "Comparison_LiDAR_Veg", "Outputs", "LiDARComparison_Full.csv")
+
+# Read data
+compare_dat <- read.csv(data_path)
+```
+
+# Looking at Initial Agreement Between Methods
+
+First, I plotted the measurements from each method against each other to evaluate how close they were to 1:1. Then, I generated graphs that colored the points according to:
+
+
+- the year the data was collected
+- the season it was collected (summer being between June and September, not_summer being outside of that period)
+- the protocol used to collect the data (USGS 3DEP is the new standard, non 3DEP was collected earlier and initial measurements were in ft not meters)
+
+
+
+### Agreement Between Methods: Canopy Height
+
+
+```{r initial canopy height, echo=FALSE}
+ggplot(compare_dat) +
+  aes(x = lidar_mean_height_m, y = canopy_height) +
+  geom_point(shape = "circle", 
+             size = 1.5, color = "green4") +
+  labs(title = "Comparison of Canopy Height Estimates", x = "LiDAR Average Canopy Height Estimate (m)", y = "Survey Average Canopy Height Estimate (m)")  +
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  scale_y_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  theme_minimal()
+
+# Split accross season, year, and 3DEP
+ggplot(compare_dat) +
+  aes(x = lidar_mean_height_m, y = canopy_height, color = factor(year))+
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Comparison of Canopy Height Estimates", x = "LiDAR Average Canopy Height Estimate (m)", y = "Survey Average Canopy Height Estimate (m)")  +
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  scale_y_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  theme_minimal()
+
+# Split accross season, year, and 3DEP
+ggplot(compare_dat) +
+  aes(x = lidar_mean_height_m, y = canopy_height, color = factor(season)) +
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Comparison of Canopy Height Estimates", x = "LiDAR Average Canopy Height Estimate (m)", y = "Survey Average Canopy Height Estimate (m)")  +
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  scale_y_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  theme_minimal()
+
+ggplot(compare_dat) +
+  aes(x = lidar_mean_height_m, y = canopy_height, color = factor(protocol)) +
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Comparison of Canopy Height Estimates", x = "LiDAR Average Canopy Height Estimate (m)", y = "Survey Average Canopy Height Estimate (m)")  +
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  scale_y_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  theme_minimal()
+
+# Save this plot
+#ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/CanopyHeight_SurveyLiDARComparison_FULL.jpeg", width=6, height=6)
+```
+
+
+### Agreement Between Methods: Canopy Cover
+
+```{r initial canopy cover, echo = FALSE}
+ggplot(compare_dat) +
+  aes(x = lidar_percent_canopy, y = canopy_cover) +
+  geom_point(shape = "circle", 
+             size = 1.5, color ="green4") +
+  labs(title = "Comparison of Canopy Cover Estimates", x = "LiDAR Percent Canopy Cover Estimate", y = "Survey Percent Canopy Cover Estimate") +
+  theme_minimal()
+
+ggplot(compare_dat) +
+  aes(x = lidar_percent_canopy, y = canopy_cover, color = factor(year)) +
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Comparison of Canopy Cover Estimates", x = "LiDAR Percent Canopy Cover Estimate", y = "Survey Percent Canopy Cover Estimate") +
+  theme_minimal()
+
+ggplot(compare_dat) +
+  aes(x = lidar_percent_canopy, y = canopy_cover, color = factor(season)) +
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Comparison of Canopy Cover Estimates", x = "LiDAR Percent Canopy Cover Estimate", y = "Survey Percent Canopy Cover Estimate") +
+  theme_minimal()
+
+ggplot(compare_dat) +
+  aes(x = lidar_percent_canopy, y = canopy_cover, color = factor(protocol)) +
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Comparison of Canopy Cover Estimates", x = "LiDAR Percent Canopy Cover Estimate", y = "Survey Percent Canopy Cover Estimate") +
+  theme_minimal()
+
+# Save this plot
+#ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/CanopyCover_SurveyLiDARComparison_FULL.jpeg", width=6, height=6)
+```
+
+The cleanest data looks to be data from summer collected via 3DEP from 2020-2021.
+
+```{r, echo = FALSE}
+best_dat <- compare_dat %>% filter(year == "2020_2021" & season == "summer" & protocol == "3DEP")
+
+ggplot(best_dat) +
+  aes(x = lidar_mean_height_m, y = canopy_height) +
+  geom_point(shape = "circle", 
+             size = 1.5, color = "green4") +
+  geom_smooth(method = "lm", se = FALSE, color = "green4") +
+  labs(title = "Comparison of Canopy Height Estimates with Best LiDAR Data", x = "LiDAR Average Canopy Height Estimate (m)", y = "Survey Average Canopy Height Estimate (m)")  +
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  scale_y_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  theme_minimal()
+
+ggplot(best_dat) +
+  aes(x = lidar_percent_canopy, y = canopy_cover) +
+  geom_point(shape = "circle", 
+             size = 1.5, color ="green4") +
+  geom_smooth(method = "lm", se = FALSE, color = "green4") +
+  labs(title = "Comparison of Canopy Cover Estimates with Best LiDAR Data", x = "LiDAR Percent Canopy Cover Estimate", y = "Survey Percent Canopy Cover Estimate") +
+  theme_minimal()
+```
+
+So just looking at the cleanest LiDAR data, we see pretty expected patterns. The height is generally estimated higher from surveys, whether from veg growing in or human bias is hard to say. Canopy cover is more variable in general, and at percentages estimated less than 30% from the LiDAR data, the survey estimates were much lower, likely due to the use of the densiometer. 
+
+
+The messiest data looks to be data from not summer collected not via 3DEP from 2020. There is no data for this, however, because 2020 was exclusively collected via 3DEP, but wasn't collected during the summer. To me it looks like the reason why the 2020 data looks bad is because it was collected only outside of summer, even if it was the 3DEP protocol.
+
+```{r Look at Messy Data, echo = FALSE}
+test1 <- compare_dat %>% filter(year == "2020")
+test2 <- compare_dat %>% filter(season == "not_summer")
+
+# Only looking at effects of year holding 3DEP constant
+data_3DEP <- compare_dat %>% filter(protocol == "3DEP")
+#data_3DEP %>% filter(season == "not_summer") # 18
+ggplot(data_3DEP) +
+  aes(x = lidar_mean_height_m, y = canopy_height, color = factor(season))+
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Comparison of Canopy Height Estimates for 3DEP Data", x = "LiDAR Average Canopy Height Estimate (m)", y = "Survey Average Canopy Height Estimate (m)")  +
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  scale_y_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  theme_minimal()
+
+test3 <- compare_dat %>% filter(year %in% c("2018","2019"))
+#test3 %>% filter(season == "not_summer") # 15
+ggplot(test3) +
+  aes(x = lidar_mean_height_m, y = canopy_height, color = factor(season))+
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Comparison of Canopy Height Estimates for 2018 and 2019 Data", x = "LiDAR Average Canopy Height Estimate (m)", y = "Survey Average Canopy Height Estimate (m)")  +
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  scale_y_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  theme_minimal()
+```
+
+Just the in summer vs out of summer didn't change the results as much as we expected. It looks like this messiness is mainly driven by the 2020 data. 
+
+```{r initial comparison, include = FALSE}
+## Looking how things cluster 
+ggplot(compare_dat) +
+  aes(x = lidar_mean_height_m, y = lidar_percent_canopy, colour = point_id) +
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  theme_minimal() + 
+  labs(title = "LiDAR Vegetation Density", x = "Mean Canopy Height (m)", y = "Percent Canopy Cover")
+
+
+# plot these
+ggplot(compare_dat) +
+  aes(x = canopy_height, y = canopy_cover, colour = point_id) +
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  theme_minimal() + 
+  labs(title = "Survey Vegetation Density", x = "Mean Canopy Height (m)", y = "Percent Canopy Cover")
+# Not super helpful with a lot of data
+
+```
+
+## Compare density metrics
+
+I normalized the measurements for canopy height and canopy cover and added them for each method to get a metric for "density". Points with a higher density score have tall canopies and high canopy cover, while points with a lower density score have a short canopy and low canopy cover. In the following graphs, I've plotted the measurements for each method with the density score for each plot corresponding to color. Notice how the color follows a smooth gradient across the graph.
+
+```{r, echo = FALSE}
+# plot lidar derived height against lidar derived canopy cover with the metric for lidar density as the fill
+ggplot(compare_dat) +
+  aes(x = lidar_mean_height_m, y = lidar_percent_canopy, colour = lidar_density) +
+  geom_point(shape = "circle", 
+             size = 2) +
+  scale_color_gradient(low = "orange", high = "blue" ) + 
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  labs(title = "LiDAR Vegetation Density", x = "Mean Canopy Height (m)", y = "Percent Canopy Cover") +
+  theme_minimal() + 
+  theme(legend.position = "none")
+
+# plot survey derived height against survey derived canopy cover with the metric for survey density as the fill
+ggplot(compare_dat) +
+  aes(x = canopy_height, y = canopy_cover, colour = survey_density) +
+  geom_point(shape = "circle", 
+             size = 2) +
+  scale_color_gradient(low = "orange", high = "blue") +
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  labs(title = "Survey Vegetation Density", x = "Mean Canopy Height (m)", y = "Percent Canopy Cover")+
+  theme_minimal()
+
+```
+
+Now, we're going to switch the coloration. The axes are still the same, but now the color shows the density metric for the other method. If these methods were clustering the density of plots the same, these should still follow a smooth gradient along the graph. 
+
+
+```{r, include = FALSE}
+ggplot(compare_dat) +
+  aes(x = lidar_density, y = survey_density) +
+  geom_point() +
+  labs(title = "Comparison of Survey and LiDAR Density Metrics", x = "LiDAR Density Metric", y = "Survey Density Metric") +
+  theme_minimal()
+```
+
+```{r, echo = FALSE}
+ggplot(compare_dat) +
+  aes(x = lidar_mean_height_m, y = lidar_percent_canopy, colour = survey_density) +
+  geom_point(shape = "circle", 
+             size = 2) +
+  scale_color_gradient(low = "orange", high = "blue") + 
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  labs(title = "LiDAR Vegetation Density with Survey Density Colors", x = "Mean Canopy Height (m)", y = "Percent Canopy Cover")+
+  theme_minimal()+
+  theme(legend.position = "none")
+
+ggplot(compare_dat) +
+  aes(x = canopy_height, y = canopy_cover, colour = lidar_density) +
+  geom_point(shape = "circle", 
+             size = 2) +
+  scale_color_gradient(low = "orange", high = "blue") +
+  labs(title = "Survey Vegetation Density with LiDAR Density Colors", x = "Mean Canopy Height (m)", y = "Percent Canopy Cover")+
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  theme_minimal() + 
+  theme(legend.position = "none")
+
+```
+
+
+
+## Plot difference between measures from each method spatially
+
+Let's take a look at how the differences between the measurements look when plotting to the coordinates of each point. 
+
+```{r Standardize Axis, echo = FALSE}
+#scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+ymin <- min(compare_dat$y)
+ymax <- max(compare_dat$y)
+xmin <- min(compare_dat$x)
+xmax <- max(compare_dat$x)
+```
+
+
+```{r testing out plotting, include = FALSE}
+#lower_miso <- compare_dat %>% filter(river == "MISO" & county %in% c("Valley","Richland"))
+
+# ggplot(lower_miso) +
+#   aes(x = x, y = y, color = cover_diff)+
+#   geom_point() +
+#   scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+#   labs(title = "Spatial Distribution of Difference Between Canopy Cover Measurements", x = "Longitude", y = "Latitude") +
+#   theme_minimal()
+
+data_3DEP <- compare_dat %>% filter(protocol == "3DEP")
+ggplot(data_3DEP) +
+  aes(x = x, y = y, color = cover_diff)+
+  geom_point() +
+  scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+  scale_x_continuous(limits=c(xmin,xmax))+
+  scale_y_continuous(limits=c(ymin,ymax))+
+  labs(title = "3DEP Data: Spatial Distribution of Difference Between Canopy Cover Measurements", x = "Longitude", y = "Latitude") +
+  theme_minimal()
+
+data_no3DEP <- compare_dat %>% filter(protocol == "not_3DEP")
+ggplot(data_no3DEP) +
+  aes(x = x, y = y, color = cover_diff)+
+  geom_point() +
+  scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+  scale_x_continuous(limits=c(xmin,xmax))+
+  scale_y_continuous(limits=c(ymin,ymax))+
+  labs(title = "Non 3DEP Data: Spatial Distribution of Difference Between Canopy Cover Measurements", x = "Longitude", y = "Latitude") +
+  theme_minimal()
+```
+
+
+```{r plotting canopy cover based on protocol and year, echo = FALSE}
+ggplot(compare_dat) +
+  aes(x = x, y = y, color = cover_diff)+
+  geom_point() +
+  scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+  scale_x_continuous(limits=c(xmin,xmax))+
+  scale_y_continuous(limits=c(ymin,ymax))+
+  labs(title = "Spatial Distribution of Difference Between Canopy Cover Measurements", x = "Longitude", y = "Latitude") +
+  theme_minimal()
+
+
+ggplot(compare_dat) +
+  aes(x = x, y = y, color = cover_diff, shape = year)+
+  geom_point() +
+  scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+  scale_x_continuous(limits=c(xmin,xmax))+
+  scale_y_continuous(limits=c(ymin,ymax))+
+  labs(title = "Canopy Cover Difference by Year", x = "Longitude", y = "Latitude") +
+  theme_minimal()
+
+ggplot(compare_dat) +
+  aes(x = x, y = y, color = cover_diff, shape = season)+
+  geom_point() +
+  scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+  scale_x_continuous(limits=c(xmin,xmax))+
+  scale_y_continuous(limits=c(ymin,ymax))+
+  labs(title = "Canopy Cover Difference by Season", x = "Longitude", y = "Latitude") +
+  theme_minimal()
+
+ggplot(compare_dat) +
+  aes(x = x, y = y, color = cover_diff, shape = protocol)+
+  geom_point() +
+  scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+  scale_x_continuous(limits=c(xmin,xmax))+
+  scale_y_continuous(limits=c(ymin,ymax))+
+  labs(title = "Canopy Cover Difference by Protocol", x = "Longitude", y = "Latitude") +
+  theme_minimal()
+```
+
+
+```{r plotting canopy cover based on protocol and year 2, echo = FALSE}
+ggplot(compare_dat) +
+  aes(x = x, y = y, color = height_diff)+
+  geom_point() +
+  scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+  scale_x_continuous(limits=c(xmin,xmax))+
+  scale_y_continuous(limits=c(ymin,ymax))+
+  labs(title = "Spatial Distribution of Difference Between Canopy Height Measurements", x = "Longitude", y = "Latitude") +
+  theme_minimal()
+
+ggplot(compare_dat) +
+  aes(x = x, y = y, color = height_diff, shape = year)+
+  geom_point() +
+  scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+  scale_x_continuous(limits=c(xmin,xmax))+
+  scale_y_continuous(limits=c(ymin,ymax))+
+  labs(title = "Canopy Height Difference by Year", x = "Longitude", y = "Latitude") +
+  theme_minimal()
+
+ggplot(compare_dat) +
+  aes(x = x, y = y, color = height_diff, shape = season)+
+  geom_point() +
+  scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+  scale_x_continuous(limits=c(xmin,xmax))+
+  scale_y_continuous(limits=c(ymin,ymax))+
+  labs(title = "Canopy Height Difference by Season", x = "Longitude", y = "Latitude") +
+  theme_minimal()
+
+ggplot(compare_dat) +
+  aes(x = x, y = y, color = height_diff, shape = protocol)+
+  geom_point() +
+  scale_color_gradient2(low = "red", mid = "gray", high = "blue", midpoint = 0) +
+  scale_x_continuous(limits=c(xmin,xmax))+
+  scale_y_continuous(limits=c(ymin,ymax))+
+  labs(title = "Canopy Height Difference by Protocol", x = "Longitude", y = "Latitude") +
+  theme_minimal()
+```

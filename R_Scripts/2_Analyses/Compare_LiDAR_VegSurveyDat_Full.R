@@ -4,7 +4,7 @@
 
 # Created 1/15/2024 from copying over the preliminary script
 
-# Last modified: 1/19/2024
+# Last modified: 1/24/2024
 
 
 
@@ -31,17 +31,18 @@ lidar_cancov <-  read.csv("./Data/Spatial_Data/Comparison_LiDAR_Veg/Raw_Data_fro
 # Figure out which ones aren't included 
 unique_to_height <- lidar_height %>% anti_join(lidar_cancov, by = "point_id")
 # These are all plots with a canopy cover/height of 0
+
+# Remove 105-2 and 105-1 since the LiDAR data doesn't look right
+lidar_cancov <- lidar_cancov %>% filter(!point_id %in% c("105-2","105-1"))
+lidar_height <- lidar_height %>% filter(!point_id %in% c("105-2","105-1"))
+lidar_countpixels <- lidar_countpixels %>% filter(!point_id %in% c("105-2","105-1"))
+
 # Join the cancov to height
 lidar_metric <- left_join(lidar_countpixels,lidar_height, by = "point_id")
 lidar_metric <- left_join(lidar_metric, lidar_cancov, by = "point_id")
 # change the values of count that are NA to 0
 lidar_metric <- lidar_metric %>%
   mutate(count = ifelse(is.na(count) == TRUE, 0, count))
-
-# Remove 105-2 and 105-1 since the LiDAR data doesn't look right
-lidar_cancov <- lidar_cancov %>% filter(!point_id %in% c("105-2","105-1"))
-lidar_height <- lidar_height %>% filter(!point_id %in% c("105-2","105-1"))
-lidar_countpixels <- lidar_countpixels %>% filter(!point_id %in% c("105-2","105-1"))
 
 # Create a new column for the percent canopy
 lidar_metric <- lidar_metric %>% mutate(lidar_percent_canopy = round((count/sum) * 100,digits = 2))
@@ -59,7 +60,7 @@ compare_dat <- left_join(lidar_metric, veg, by = "point_id")
 compare_dat <- compare_dat %>% filter(!point_id == "MISO-181")
 # AME-2 NA for canopy height ???????????????????????????????????????????????
 # See what Daniel says, for now remove it
-compare_dat <- compare_dat %>% filter(!point_id == "MISO-181")
+compare_dat <- compare_dat %>% filter(!point_id == "AME-2")
 # Pull out only the columns you need 
 compare_dat %>% select(lidar_mean_height_m,lidar_percent_canopy,canopy_height,canopy_cover,x,y)
 
@@ -201,6 +202,7 @@ compare_dat <- normalize(compare_dat,"canopy_cover")
 # Create a new column that estimates composite index for density
 compare_dat <- compare_dat %>% mutate(survey_density = canopy_height_normalized+canopy_cover_normalized)
 
+write.csv(compare_dat,"./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/LiDARComparison_Full.csv")
 
 
 
@@ -219,6 +221,15 @@ ggplot(compare_dat) +
   theme_minimal()
 # Save this plot
 ggsave("./Data/Spatial_Data/Comparison_LiDAR_Veg/Outputs/CanopyHeight_SurveyLiDARComparison_FULL.jpeg", width=6, height=6)
+# Split accross season, year, and 3DEP
+ggplot(compare_dat) +
+  aes(x = lidar_mean_height_m, y = canopy_height, color = year) +
+  geom_point(shape = "circle", 
+             size = 1.5) +
+  labs(title = "Comparison of Canopy Height Estimates", x = "LiDAR Average Canopy Height Estimate (m)", y = "Survey Average Canopy Height Estimate (m)")  +
+  scale_x_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  scale_y_continuous(limits=c(0,22),breaks = seq(0,20, by = 5))+
+  theme_minimal()
 
 
 ggplot(compare_dat) +
@@ -278,7 +289,7 @@ ggplot(compare_dat) +
              size = 1.5) +
   theme_minimal() + 
   labs(title = "Survey Vegetation Density", x = "Mean Canopy Height (m)", y = "Percent Canopy Cover")
-
+# Not super helpful with a lot of data
 
 
 #### Output Plots #####
