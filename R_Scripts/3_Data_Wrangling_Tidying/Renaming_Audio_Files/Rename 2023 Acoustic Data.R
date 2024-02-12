@@ -1,4 +1,4 @@
-####### FWPR6 Renaming 2023 ########
+####### Renaming 2023 ########
 
 
 # A script to rename the 2023 data formatted with folder names labeled with the point ID

@@ -22,8 +22,8 @@ import time
 import os
 
 #### Establish year and collabroator ####
-year = "2021"
-collaborator = "UMBEL"
+year = "2023"
+collaborator = "FWPR6"
 
 
 ### Shouldn't need to edit anything below ############################
@@ -49,7 +49,9 @@ model_path = "F:/CNN_Classifier_Files/Model_2.0/Model_Files_and_Scripts/models_o
 
 # Specify where the scores will be stored
 ## NOTE: This should be the folder for Model_Scores on Bioacoustics_Storage (F:) and shouldn't need changing
-outputs_path = 'F:/CNN_Classifier_Files/Model_2.0/Model_Scores'
+#outputs_path = 'F:/CNN_Classifier_Files/Model_2.0/Model_Scores'
+# for patching up 2023 data
+outputs_path = 'F:/CNN_Classifier_Files/Model_2.0/Model_Scores_New'
 
 #### Read in audio files #######################
 ## This wildcard will work as long as audio_file_location is YYYY_COLLAB_Audio folder

@@ -3,10 +3,7 @@ Clip Extraction Code
 This is a script to extract top scoring clips from each site. The output will give you the scripts to run the listening_notebook code on to annotate the clips for cuckoo presence. 
 
 Copied from script of same name from model 1.0 files 1/11/2024
-Last edited 1/16/2024
-
-Changes to make: screen out dates outside of the sampling period (June 1st - Aug 15th)
-Find a way to remove duplicates - if the cadence_coo and the rattle pull the same file????
+Last edited 1/26/2024
 '''
 
 from opensoundscape.audio import Audio
@@ -20,11 +17,11 @@ from datetime import date
 import numpy as np
 
 # Suppress userwarnings about metadata
-Warning.filterwarnings("ignore", category=UserWarning)
+#Warning.filterwarnings("ignore", category=UserWarning)
 
 # Establish which dataset you're working on and where the metadata is
 year = '2023' # Format YYYY
-collab = 'FWPR5' # Format UMBEL or FWPR#
+collab = 'FWPR6' # Format UMBEL or FWPR#
 # Establish the file path for the metadata folder
 metad_path = 'C:/Users/ak201255/Documents/Cuckoo-Research/Data/Metadata/Outputs/'
 metad_file = '2023_ARUDeployment_MetadataFull_Cleaned10-24.csv'
@@ -36,7 +33,7 @@ dataset = f'{year}_{collab}'
 print(dataset)
 
 # Later should only have to change E: to F: to run on Ery
-# Establish the file path for the scores
+# Establish the file path for the scores ###### CHANGE THIS BACK #####
 score_path = f'F:/CNN_Classifier_Files/Model_2.0/Model_Scores/predictions_epoch-10_opso-0-10-1-{year}_{collab}_Audio.csv'
 # Establish the file path for where the clips will go
 clips_path = f'F:/Cuckoo_Acoustic_Data/{year}/{year}_{collab}_Data/{year}_{collab}_Clips/'
@@ -69,7 +66,7 @@ print("List of points:",point_list)
 sf['date'] = [(d.split('_')[-2]) for d in sf['file'].tolist()]
 #print(sf.dtypes)
 sf['date'] = pd.to_numeric(sf['date'])
-print(sf.dtypes['date']) # This is now a number
+# print(sf.dtypes['date']) # This is now a number
 # Filter out only the dates that fall within the time period
 # transform to numeric, pick out only the files that are greater than 20230601 and less than 20230815
 sf = sf.loc[(sf['date'] >= 20230601) & (sf['date'] <= 20230815)]
@@ -85,6 +82,8 @@ sf['hour'] = sf['hour'].astype(int)
 # Make a new column for diurnal or nocturnal time period
 sf['time_period'] = np.where((sf['hour'] == 70000) | (sf['hour'] == 90000), 'diurnal', 
                              np.where((sf['hour'] == 230000) | (sf['hour'] == 10000), 'nocturnal', 'unknown'))
+# Drop any files that are outside of the established time period
+sf.drop(sf[sf['time_period'] == 'unknown'].index, inplace=True)
 # Make a column specifying the species
 sf['species'] = "BBCU"
 # Order the columns
@@ -192,7 +191,7 @@ for point in point_list:
     
         # Test ####
         #keep_df.to_csv(folder + '/' + point + '_testkeep_df.csv', index = False)
-        '''
+        
         # save the audio files from the top scoring rows you pulled
         for i in range(len(keep_df)):
             # specify the specific audiofile to load, specify which clip you want to isolate
@@ -204,10 +203,10 @@ for point in point_list:
             audio = Audio.from_file(filename, offset=int(keep_df['start_time'].iat[i]), duration=5)
             # save the new clip to the clip name you specified previously
             audio.save(keep_df['clip'].iat[i])
-        '''  
+        
         # Append the top clips to keep_df
         dataset_df = dataset_df._append(keep_df, ignore_index = True) 
-        
+             
 dataset_df = dataset_df.sort_values(by=['point_id','date','time_period']).reset_index(drop=True)
 # save the csv for this dataset after iterating through all points
 dataset_df.to_csv(big_folder + '/' + dataset + '_topclips_perSiteperPeriod.csv', index = False)
